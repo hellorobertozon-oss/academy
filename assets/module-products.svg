@@ -1,0 +1,32 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 320" fill="none">
+  <defs>
+    <linearGradient id="bg" x1="48" y1="18" x2="680" y2="330" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#26336B"/>
+      <stop offset="1" stop-color="#141B4D"/>
+    </linearGradient>
+    <linearGradient id="bottle" x1="329" y1="105" x2="410" y2="282" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#3EDEB6"/>
+      <stop offset="1" stop-color="#178EB5"/>
+    </linearGradient>
+    <radialGradient id="glow" cx="0" cy="0" r="1" gradientTransform="matrix(0 146 -232 0 372 167)" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#3EDEB6" stop-opacity=".2"/>
+      <stop offset="1" stop-color="#3EDEB6" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+  <path fill="url(#bg)" d="M0 0h720v320H0z"/>
+  <path fill="url(#glow)" d="M0 0h720v320H0z"/>
+  <path d="M0 255c124-57 196-54 304-5 118 54 234 46 416-35v105H0v-65Z" fill="#101741" fill-opacity=".62"/>
+  <path d="M54 68h144M76 88h98M546 65h98M581 84h61" stroke="#F8F8F8" stroke-opacity=".12" stroke-width="2" stroke-linecap="round"/>
+  <circle cx="578" cy="215" r="54" stroke="#3EDEB6" stroke-opacity=".2"/>
+  <circle cx="578" cy="215" r="38" stroke="#3EDEB6" stroke-opacity=".15"/>
+  <circle cx="181" cy="226" r="3" fill="#3EDEB6"/><circle cx="202" cy="241" r="2" fill="#3EDEB6" fill-opacity=".6"/>
+  <ellipse cx="371" cy="284" rx="105" ry="14" fill="#080D2D" fill-opacity=".54"/>
+  <path d="M333 82h76v21l12 13v16H321v-16l12-13V82Z" fill="#10131D"/>
+  <path d="M347 70h47v18h-47z" fill="#252A32"/>
+  <path d="M342 111h57c9 0 17 7 18 16l13 117c2 20-13 37-33 37h-54c-20 0-35-17-33-37l13-117c1-9 9-16 19-16Z" fill="url(#bottle)"/>
+  <path d="M350 119h39" stroke="#F8F8F8" stroke-opacity=".42" stroke-width="3" stroke-linecap="round"/>
+  <path d="M344 171c0-5 4-9 9-9h35c5 0 9 4 9 9v54c0 5-4 9-9 9h-35c-5 0-9-4-9-9v-54Z" fill="#141B4D"/>
+  <path d="M355 186h31M355 196h21M355 216h28" stroke="#F8F8F8" stroke-opacity=".77" stroke-width="3" stroke-linecap="round"/>
+  <path d="m365 206 8-8 8 8-8 8-8-8Z" stroke="#3EDEB6" stroke-width="2"/>
+  <path d="M303 263h137" stroke="#3EDEB6" stroke-opacity=".27" stroke-width="2" stroke-linecap="round"/>
+</svg>

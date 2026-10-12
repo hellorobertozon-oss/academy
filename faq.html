@@ -1,0 +1,569 @@
+<!doctype html>
+<html lang="pl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#141B4D">
+  <meta name="description" content="Pytania sprzedawców i odpowiedzi zespołu Xzone Academy.">
+  <title>Xzone Academy — pytania i odpowiedzi</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=IBM+Plex+Sans:wght@400;500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="./design-system/atomic-snippet-2026-10-8%20(1)/snipped.css">
+  <link rel="stylesheet" href="./xzone-theme.css">
+  <style>
+    body { min-height: 100vh; background: var(--xzone-main) !important; }
+    .page-wrapper { min-height: 100vh; }
+    #nav.header.up { padding: 21px 48px; border-bottom-color: var(--border); background: rgba(20, 27, 77, .9); }
+    .xzone-logo { display: block; width: 180px; height: auto; object-fit: contain; }
+    #nav .nav-r { flex: 0; justify-content: flex-end; gap: 20px; }
+    .back-link { white-space: nowrap; }
+    .faq-hero { min-height: 72vh; padding-top: 145px; padding-bottom: 76px; }
+    .faq-hero .hero-glow { z-index: 0; background-image: radial-gradient(circle farthest-side at 50% 0, rgba(62, 222, 182, .13), transparent 65%); }
+    .faq-eyebrow, .faq-title, .faq-intro, .faq-hero .hero-btns { position: relative; z-index: 1; }
+    .faq-eyebrow { margin: 0 0 13px; color: var(--xzone-accent); font: 600 12px var(--font-secondary); letter-spacing: .13em; text-transform: uppercase; }
+    .faq-title { max-width: 1000px; font-family: var(--font-display); font-weight: 400; letter-spacing: .01em; text-transform: uppercase; }
+    .faq-intro { max-width: 690px; margin: 0 0 32px; color: var(--muted); font: 400 clamp(18px, 2.1vw, 23px)/1.5 var(--font-secondary); text-wrap: balance; }
+    .faq-feed .steps-inner { max-width: 1000px; padding-top: 78px; padding-bottom: 96px; }
+    .faq-feed .steps-top { max-width: 820px; margin: 0 auto 38px; }
+    .faq-feed .sec-h { font-family: var(--font-display); font-weight: 400; letter-spacing: .01em; text-transform: uppercase; }
+    .faq-feed-intro { max-width: 630px; margin: 14px auto 0; color: var(--muted); font: 400 16px/1.6 var(--font-secondary); }
+    .faq-overview { display: flex; align-items: center; justify-content: center; gap: 9px; margin-top: 17px; color: var(--muted); font: 500 13px var(--font-secondary); }
+    .overview-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--xzone-accent); box-shadow: 0 0 14px rgba(62, 222, 182, .5); }
+    .faq-toolbar { display: grid; grid-template-columns: minmax(0, 1fr) 190px auto; gap: 10px; max-width: 820px; margin: 0 auto 18px; }
+    .faq-search-wrap { position: relative; }
+    .faq-search-icon { position: absolute; top: 50%; left: 17px; width: 17px; height: 17px; color: var(--muted); transform: translateY(-50%); pointer-events: none; }
+    .faq-control { width: 100%; min-height: 50px; box-sizing: border-box; margin: 0; padding: 14px 17px; border: 1px solid var(--border); border-radius: 16px; background: rgba(248, 248, 248, .05); color: var(--xzone-white); font: 400 14px var(--font-primary); }
+    .faq-search { padding-left: 44px; }
+    .faq-control::placeholder { color: var(--muted); }
+    .faq-filter { appearance: auto; }
+    .faq-ask-button { white-space: nowrap; }
+    .question-form.download-card { width: min(820px, 100%); gap: 18px; margin: 0 auto 18px; padding: 30px; border: 1px solid var(--border); background: rgba(71, 69, 84, .16); }
+    .question-form[hidden], .reply-form[hidden], .faq-empty[hidden] { display: none !important; }
+    .form-heading { margin: 0; color: var(--xzone-white); font: 600 26px/1.2 var(--font-display); letter-spacing: .01em; text-transform: uppercase; }
+    .form-grid { display: grid; grid-template-columns: 1fr 210px; gap: 15px; }
+    .form-field { min-width: 0; }
+    .form-field.full { grid-column: 1 / -1; }
+    .form-field label { display: block; margin-bottom: 7px; color: var(--xzone-white); font: 500 13px var(--font-secondary); }
+    .form-control { width: 100%; min-height: 48px; box-sizing: border-box; padding: 12px 14px; border: 1px solid var(--border); border-radius: 12px; background: rgba(248, 248, 248, .05); color: var(--xzone-white); font: 400 14px/1.5 var(--font-primary); }
+    .form-control::placeholder { color: var(--muted); }
+    textarea.form-control { min-height: 105px; resize: vertical; }
+    .form-actions { display: flex; justify-content: flex-end; gap: 10px; }
+    .form-error { min-height: 18px; margin: 0; color: #ffb8b8; font: 400 13px var(--font-secondary); }
+    .faq-wall { grid-template-columns: 1fr; max-width: 820px; margin: 0 auto; }
+    .faq-wall .fcard { min-width: 0; padding: 34px 36px; }
+    .question-card { cursor: default; }
+    .question-card-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 14px; }
+    .author-row { display: flex; min-width: 0; align-items: center; gap: 11px; }
+    .author-avatar { display: grid; width: 38px; height: 38px; flex: 0 0 auto; place-items: center; border: 1px solid var(--borderm); border-radius: 13px; background: var(--bg3); color: var(--xzone-accent); font: 600 14px var(--font-primary); }
+    .author-info { display: grid; gap: 3px; }
+    .author-name { color: var(--xzone-white); font: 600 13px var(--font-secondary); }
+    .author-detail { color: var(--muted); font: 400 12px var(--font-secondary); }
+    .question-category { flex: 0 0 auto; padding: 6px 9px; border: 1px solid var(--borderm); border-radius: 999px; color: var(--xzone-accent); font: 500 11px var(--font-secondary); }
+    .question-title.fcard-h { margin: 20px 0 8px; font-size: 23px; line-height: 1.35; }
+    .question-body.fcard-p { margin: 0; font-size: 16px; line-height: 1.65; white-space: pre-wrap; overflow-wrap: anywhere; }
+    .answer-panel { margin-top: 22px; padding-top: 18px; border-top: 1px solid var(--border); }
+    .answer-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 8px; }
+    .answer-brand { display: flex; align-items: center; gap: 8px; color: var(--xzone-accent); font: 600 12px var(--font-secondary); }
+    .answer-mark { display: grid; width: 22px; height: 22px; place-items: center; border-radius: 7px; background: var(--xzone-accent); color: var(--xzone-main); font: 700 11px var(--font-primary); }
+    .answer-date { color: var(--muted); font: 400 11px var(--font-secondary); }
+    .answer-text { margin: 0; color: var(--muted); font: 400 15px/1.65 var(--font-secondary); white-space: pre-wrap; overflow-wrap: anywhere; }
+    .awaiting-answer { display: flex; align-items: center; gap: 8px; margin-top: 18px; color: var(--muted); font: 400 12px var(--font-secondary); }
+    .awaiting-dot { width: 7px; height: 7px; border-radius: 50%; background: #f2bd66; }
+    .company-reply-toggle { margin-top: 12px; }
+    .reply-form { display: grid; gap: 10px; margin-top: 13px; }
+    .reply-form textarea { min-height: 94px; resize: vertical; }
+    .reply-form .form-submit { justify-self: end; }
+    .comments { margin-top: 22px; padding-top: 17px; border-top: 1px solid var(--border); }
+    .comments-heading { margin: 0 0 13px; color: var(--xzone-white); font: 600 13px var(--font-secondary); }
+    .comment-list { display: grid; gap: 12px; }
+    .comment { display: grid; grid-template-columns: 29px minmax(0, 1fr); gap: 9px; align-items: start; }
+    .comment-avatar { display: grid; width: 29px; height: 29px; place-items: center; border-radius: 10px; background: var(--bg3); color: var(--xzone-white); font: 600 10px var(--font-primary); }
+    .comment-content { min-width: 0; }
+    .comment-meta { display: flex; flex-wrap: wrap; align-items: baseline; gap: 7px; margin: 1px 0 3px; }
+    .comment-author { color: var(--xzone-white); font: 600 11px var(--font-secondary); }
+    .comment-date { color: var(--muted); font: 400 10px var(--font-secondary); }
+    .comment-text { margin: 0; color: var(--muted); font: 400 13px/1.55 var(--font-secondary); white-space: pre-wrap; overflow-wrap: anywhere; }
+    .comment-form { display: flex; gap: 8px; margin-top: 15px; }
+    .comment-input { min-height: 44px; flex: 1; }
+    .comment-submit { min-height: 44px !important; padding: 0 16px !important; }
+    .comment-submit svg { width: 17px; height: 17px; }
+    .faq-empty { max-width: 820px; margin: 0 auto; padding: 35px 20px; color: var(--muted); font: 400 15px var(--font-secondary); text-align: center; }
+    .faq-notice { max-width: 820px; margin: 17px auto 0; color: var(--muted); font: 400 12px var(--font-secondary); text-align: center; }
+    .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0; }
+    @media (max-width: 767px) {
+      #nav.header.up { padding: 16px 22px; }
+      .xzone-logo { width: 135px; }
+      #nav .nav-r { gap: 12px; }
+      .faq-hero { min-height: 64vh; padding: 128px 20px 62px; }
+      .faq-feed .steps-inner { padding: 58px 22px 72px; }
+      .faq-feed .steps-top { margin-bottom: 28px; }
+      .faq-toolbar { grid-template-columns: minmax(0, 1fr) auto; }
+      .faq-search-wrap { grid-column: 1 / -1; }
+      .faq-wall .fcard { padding: 28px 24px; }
+    }
+    @media (max-width: 520px) {
+      #nav.header.up { gap: 8px; padding: 14px 14px; }
+      .xzone-logo { width: 104px; }
+      #nav .nav-r { gap: 6px; }
+      .back-link { padding: 7px 9px !important; font-size: 12px !important; }
+      .faq-hero { min-height: auto; padding: 116px 18px 58px; }
+      .faq-title { font-size: clamp(49px, 13vw, 66px); }
+      .faq-intro { font-size: 17px; }
+      .faq-toolbar { grid-template-columns: 1fr; }
+      .faq-search-wrap { grid-column: auto; }
+      .faq-ask-button { justify-self: start; }
+      .question-form.download-card { padding: 22px 18px; }
+      .form-grid { grid-template-columns: 1fr; }
+      .form-field.full { grid-column: auto; }
+      .form-actions { flex-wrap: wrap; }
+      .faq-wall .fcard { padding: 23px 18px; }
+      .question-card-head { gap: 8px; }
+      .question-category { padding: 5px 7px; font-size: 10px; }
+      .answer-head { align-items: flex-start; }
+      .comment-form { align-items: stretch; }
+      .comment-submit { padding: 0 11px !important; }
+    }
+  </style>
+  <link rel="stylesheet" href="./xzone-boardui.css">
+</head>
+<body>
+  <div class="page-wrapper">
+    <nav id="nav" class="header up" aria-label="Menu główne" data-i18n-aria="mainMenu">
+      <a class="logo" href="./index.html#dashboard" aria-label="Xzone Academy — panel główny" data-i18n-aria="homeLabel">
+        <img class="xzone-logo" src="./assets/xzone-logo.png" alt="Xzone Academy">
+      </a>
+      <div class="nav-r">
+        <div class="language-control" data-language-control>
+          <button class="language-button" id="language-button" type="button" aria-haspopup="menu" aria-expanded="false" aria-controls="language-menu" aria-label="Zmień język" data-i18n-aria="languageButton" data-language-button>
+            <svg class="language-flag" id="selected-language-flag" data-selected-language-flag viewBox="0 0 24 16" aria-hidden="true"><rect width="24" height="16" rx="2" fill="#fff"/><path d="M0 8h24v6a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V8Z" fill="#DC143C"/></svg>
+            <span id="selected-language-name" data-selected-language-name>Polski</span>
+            <svg class="language-chevron" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="m4 6 4 4 4-4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </button>
+          <div class="language-menu" id="language-menu" role="menu" data-language-menu hidden>
+            <button class="language-option" type="button" role="menuitemradio" aria-checked="true" data-language-option="pl">
+              <svg class="language-flag" viewBox="0 0 24 16" aria-hidden="true"><rect width="24" height="16" rx="2" fill="#fff"/><path d="M0 8h24v6a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V8Z" fill="#DC143C"/></svg>
+              <span data-language-option-name>Polski</span><span class="language-code">PL</span>
+            </button>
+            <button class="language-option" type="button" role="menuitemradio" aria-checked="false" data-language-option="en">
+              <svg class="language-flag" viewBox="0 0 24 16" aria-hidden="true"><rect width="24" height="16" rx="2" fill="#21468B"/><path d="m0 0 24 16M24 0 0 16" stroke="#fff" stroke-width="4"/><path d="m0 0 24 16M24 0 0 16" stroke="#C8102E" stroke-width="1.5"/><path d="M12 0v16M0 8h24" stroke="#fff" stroke-width="6"/><path d="M12 0v16M0 8h24" stroke="#C8102E" stroke-width="3"/></svg>
+              <span data-language-option-name>English</span><span class="language-code">EN</span>
+            </button>
+          </div>
+        </div>
+        <a class="btn btn-solid is-header-btn back-link" href="./index.html#dashboard"><span data-i18n="backToAcademy">Wróć do Akademii</span> <span aria-hidden="true">←</span></a>
+      </div>
+    </nav>
+
+    <main class="main-wrapper">
+      <section class="hero faq-hero" aria-labelledby="faq-title">
+        <div class="hero-glow" aria-hidden="true"></div>
+        <p class="faq-eyebrow" data-i18n="eyebrow">Społeczność Xzone</p>
+        <h1 class="h1 pb-20 faq-title" id="faq-title" data-i18n="title">Pytania i odpowiedzi</h1>
+        <p class="hero-sub faq-intro" data-i18n="intro">Masz pytanie o produkt lub rozmowę z klientem? Zapytaj innych sprzedawców. Zespół Xzone dołączy do rozmowy z oficjalną odpowiedzią.</p>
+        <div class="hero-btns"><button class="btn btn-solid is-big" id="hero-ask-button" type="button" data-i18n="askQuestion">Zadaj pytanie</button></div>
+      </section>
+
+      <section class="steps-bg faq-feed" aria-labelledby="feed-title">
+        <div class="steps-inner">
+          <div class="steps-top">
+            <h2 class="sec-h" id="feed-title" data-i18n="feedTitle">Pytania sprzedawców</h2>
+            <p class="faq-feed-intro" data-i18n="feedIntro">Wymieniaj się doświadczeniem, poznawaj odpowiedzi zespołu Xzone i dopowiadaj własne wskazówki.</p>
+            <div class="faq-overview"><span class="overview-dot" aria-hidden="true"></span><span id="question-count">Pytania sprzedawców</span></div>
+          </div>
+
+          <section class="faq-toolbar" aria-label="Filtry pytań" data-i18n-aria="toolbarLabel">
+            <div class="faq-search-wrap">
+              <svg class="faq-search-icon" viewBox="0 0 20 20" fill="none" aria-hidden="true"><circle cx="8.75" cy="8.75" r="5.75" stroke="currentColor" stroke-width="1.6"/><path d="m13 13 4 4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
+              <label class="sr-only" for="question-search" data-i18n="searchLabel">Szukaj pytań</label>
+              <input class="dl-input-2 faq-control faq-search" id="question-search" type="search" placeholder="Szukaj pytań lub produktów" data-i18n-placeholder="searchPlaceholder">
+            </div>
+            <label class="sr-only" for="category-filter" data-i18n="filterLabel">Filtruj kategorię</label>
+            <select class="dl-input-2 faq-control faq-filter" id="category-filter">
+              <option value="all" data-i18n="categoryAll">Wszystkie tematy</option>
+              <option value="products" data-i18n="categoryProducts">Produkty</option>
+              <option value="use" data-i18n="categoryUse">Zastosowanie</option>
+              <option value="sales" data-i18n="categorySales">Sprzedaż</option>
+            </select>
+            <button class="btn btn-solid faq-ask-button" id="ask-button" type="button"><span aria-hidden="true">＋</span><span data-i18n="askQuestion">Zadaj pytanie</span></button>
+          </section>
+
+          <form class="download-card question-form" id="question-form" hidden>
+            <h2 class="form-heading" data-i18n="newQuestion">Nowe pytanie</h2>
+            <div class="form-grid">
+              <div class="form-field">
+                <label for="question-title" data-i18n="questionTitleLabel">Temat pytania</label>
+                <input class="dl-input-2 form-control" id="question-title" name="title" maxlength="110" placeholder="Np. jaki produkt polecić do...?" data-i18n-placeholder="questionTitlePlaceholder" required>
+              </div>
+              <div class="form-field">
+                <label for="question-category" data-i18n="questionCategoryLabel">Kategoria</label>
+                <select class="dl-input-2 form-control" id="question-category" name="category" required>
+                  <option value="products" data-i18n="categoryProducts">Produkty</option>
+                  <option value="use" data-i18n="categoryUse">Zastosowanie</option>
+                  <option value="sales" data-i18n="categorySales">Sprzedaż</option>
+                </select>
+              </div>
+              <div class="form-field full">
+                <label for="question-body" data-i18n="detailsLabel">Opisz, czego chcesz się dowiedzieć</label>
+                <textarea class="dl-input-2 form-control" id="question-body" name="body" maxlength="1200" placeholder="Dodaj kilka szczegółów, które pomogą innym odpowiedzieć." data-i18n-placeholder="detailsPlaceholder" required></textarea>
+              </div>
+            </div>
+            <p class="form-error" id="question-error" role="status" aria-live="polite"></p>
+            <div class="form-actions">
+              <button class="btn btn-solid btn-cloud form-cancel" id="cancel-question" type="button" data-i18n="cancel">Anuluj</button>
+              <button class="btn btn-solid form-submit" type="submit" data-i18n="publishQuestion">Opublikuj pytanie</button>
+            </div>
+          </form>
+
+          <div class="feat-grid faq-wall" id="question-list" aria-live="polite"></div>
+          <p class="faq-empty" id="empty-state" hidden data-i18n="emptyState">Nie ma jeszcze pytań w tym widoku. Zadaj pierwsze.</p>
+          <p class="faq-notice" data-i18n="localNotice">Wpisy w tym podglądzie zapisują się w tej przeglądarce.</p>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <script src="./assets/js/academy-i18n.js"></script>
+  <script>
+    const copy = {
+      pl: {
+        pageTitle: "Xzone Academy — pytania i odpowiedzi",
+        metaDescription: "Pytania sprzedawców i odpowiedzi zespołu Xzone Academy.",
+        mainMenu: "Menu główne",
+        languageButton: "Zmień język. Wybrany: Polski.",
+        homeLabel: "Xzone Academy — panel główny",
+        toolbarLabel: "Filtry pytań",
+        backToAcademy: "Wróć do Akademii",
+        eyebrow: "Społeczność Xzone",
+        title: "Pytania i odpowiedzi",
+        intro: "Masz pytanie o produkt lub rozmowę z klientem? Zapytaj innych sprzedawców. Zespół Xzone dołączy do rozmowy z oficjalną odpowiedzią.",
+        feedTitle: "Pytania sprzedawców",
+        feedIntro: "Wymieniaj się doświadczeniem, poznawaj odpowiedzi zespołu Xzone i dopowiadaj własne wskazówki.",
+        searchLabel: "Szukaj pytań",
+        searchPlaceholder: "Szukaj pytań lub produktów",
+        filterLabel: "Filtruj kategorię",
+        categoryAll: "Wszystkie tematy",
+        categoryProducts: "Produkty",
+        categoryUse: "Zastosowanie",
+        categorySales: "Sprzedaż",
+        askQuestion: "Zadaj pytanie",
+        newQuestion: "Nowe pytanie",
+        questionTitleLabel: "Temat pytania",
+        questionTitlePlaceholder: "Np. jaki produkt polecić do...?",
+        questionCategoryLabel: "Kategoria",
+        detailsLabel: "Opisz, czego chcesz się dowiedzieć",
+        detailsPlaceholder: "Dodaj kilka szczegółów, które pomogą innym odpowiedzieć.",
+        cancel: "Anuluj",
+        publishQuestion: "Opublikuj pytanie",
+        emptyState: "Nie ma jeszcze pytań w tym widoku. Zadaj pierwsze.",
+        localNotice: "Wpisy w tym podglądzie zapisują się w tej przeglądarce.",
+        askedBy: "zadaje pytanie",
+        companyTeam: "Xzone · Zespół produktu",
+        officialAnswer: "Odpowiedź Xzone",
+        waiting: "Oczekuje na odpowiedź Xzone",
+        replyAsCompany: "Odpowiedz jako Xzone",
+        replyPlaceholder: "Wpisz oficjalną odpowiedź…",
+        sendAnswer: "Opublikuj odpowiedź",
+        comments: "Komentarze",
+        commentPlaceholder: "Dodaj komentarz…",
+        addComment: "Dodaj komentarz",
+        commentBy: "Komentuje",
+        questionCount: "{count} pytań sprzedawców",
+        questionSingular: "{count} pytanie sprzedawców",
+        questionPlural: "{count} pytania sprzedawców",
+        demoAuthor: "Karol",
+        sellerRole: "Sprzedawca Xzone",
+        questionError: "Uzupełnij temat i opis pytania.",
+        answerError: "Wpisz treść odpowiedzi.",
+        commentError: "Wpisz treść komentarza.",
+        products: "Produkty",
+        use: "Zastosowanie",
+        sales: "Sprzedaż",
+        seedQuestion1: "Jak często stosować Motorcycle Ceramic Detailer?",
+        seedBody1: "Klient pyta, czy może używać go przy każdym myciu motocykla. Jak najlepiej wyjaśnić sposób doboru i aplikacji?",
+        seedAnswer1: "Częstotliwość i sposób użycia zależą od konkretnego preparatu. Najpewniejsza wskazówka to stosowanie zgodnie z instrukcją na etykiecie i przeznaczeniem produktu.",
+        seedQuestion2: "Jaki preparat polecić do czyszczenia kasku?",
+        seedBody2: "Klient chce wyczyścić skorupę i wizjer jednym środkiem. Na co zwrócić uwagę przy wyborze?",
+        seedAnswer2: "Dobór zależy od materiału i wykończenia. Sprawdź, czy preparat jest przeznaczony do danej powierzchni, a przy wizjerze kieruj się zaleceniami producenta kasku.",
+        seedQuestion3: "Jak szybko dopasować produkt do potrzeby klienta?",
+        seedBody3: "Czy macie prosty zestaw pytań, który pomaga rozpoznać, czy klient szuka środka do mycia, ochrony czy odświeżenia powierzchni?",
+        seedComment1: "Dzięki, warto zacząć od tego, z jaką powierzchnią mamy do czynienia.",
+        seedComment2: "Dopytuję też, jaki efekt klient chce uzyskać i jak często pielęgnuje motocykl."
+      },
+      en: {
+        pageTitle: "Xzone Academy — questions and answers",
+        metaDescription: "Sales staff questions and answers from the Xzone Academy team.",
+        mainMenu: "Main menu",
+        languageButton: "Change language. Selected: English.",
+        homeLabel: "Xzone Academy — dashboard",
+        toolbarLabel: "Question filters",
+        backToAcademy: "Back to Academy",
+        eyebrow: "Xzone community",
+        title: "Questions and answers",
+        intro: "Have a question about a product or a customer conversation? Ask other sales staff. The Xzone team can join with an official answer.",
+        feedTitle: "Seller questions",
+        feedIntro: "Share experience, get answers from the Xzone team and add your own tips.",
+        searchLabel: "Search questions",
+        searchPlaceholder: "Search questions or products",
+        filterLabel: "Filter by category",
+        categoryAll: "All topics",
+        categoryProducts: "Products",
+        categoryUse: "How to use",
+        categorySales: "Sales",
+        askQuestion: "Ask a question",
+        newQuestion: "New question",
+        questionTitleLabel: "Question topic",
+        questionTitlePlaceholder: "For example, which product should I recommend for...?",
+        questionCategoryLabel: "Category",
+        detailsLabel: "Tell us what you would like to know",
+        detailsPlaceholder: "Add a few details to help others answer.",
+        cancel: "Cancel",
+        publishQuestion: "Post question",
+        emptyState: "No questions match this view yet. Be the first to ask.",
+        localNotice: "Posts in this preview are saved in this browser.",
+        askedBy: "asked",
+        companyTeam: "Xzone · Product team",
+        officialAnswer: "Xzone answer",
+        waiting: "Waiting for an Xzone answer",
+        replyAsCompany: "Reply as Xzone",
+        replyPlaceholder: "Write an official answer…",
+        sendAnswer: "Post answer",
+        comments: "Comments",
+        commentPlaceholder: "Add a comment…",
+        addComment: "Add comment",
+        commentBy: "Comment by",
+        questionCount: "{count} seller questions",
+        questionSingular: "{count} seller question",
+        questionPlural: "{count} seller questions",
+        demoAuthor: "Karol",
+        sellerRole: "Xzone sales staff",
+        questionError: "Add a topic and question details.",
+        answerError: "Write an answer first.",
+        commentError: "Write a comment first.",
+        products: "Products",
+        use: "How to use",
+        sales: "Sales",
+        seedQuestion1: "How often should Motorcycle Ceramic Detailer be used?",
+        seedBody1: "A customer asks if they can use it after every motorcycle wash. How would you explain choosing and applying it?",
+        seedAnswer1: "Frequency and application depend on the specific product. The safest guidance is to follow the label instructions and intended use.",
+        seedQuestion2: "Which product should I recommend for cleaning a helmet?",
+        seedBody2: "A customer wants to clean the shell and visor with one product. What should they consider?",
+        seedAnswer2: "The right choice depends on the material and finish. Check that the product is intended for that surface, and follow the helmet maker's guidance for the visor.",
+        seedQuestion3: "How can I quickly match a product to a customer's needs?",
+        seedBody3: "Do you have a simple set of questions to find out whether a customer needs a cleaner, protection or a surface refresh?",
+        seedComment1: "Thanks, it helps to start by asking which surface they are dealing with.",
+        seedComment2: "I also ask what result they want and how often they care for the motorcycle."
+      }
+    };
+
+    const storageKey = "xzone-academy-community-v1";
+    const i18n = window.XzoneAcademyI18n.create(copy);
+    const t = i18n.translate;
+    const makeId = () => `q-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
+    const now = Date.now();
+    const seedQuestions = [
+      {
+        id: "sample-detailer", author: "Marta Lewandowska", role: "Kraków", category: "products",
+        titleKey: "seedQuestion1", bodyKey: "seedBody1", createdAt: new Date(now - 86400000).toISOString(),
+        answer: { authorKey: "companyTeam", bodyKey: "seedAnswer1", createdAt: new Date(now - 72000000).toISOString() },
+        comments: [{ id: "c-1", author: "Karol", bodyKey: "seedComment1", createdAt: new Date(now - 65000000).toISOString() }]
+      },
+      {
+        id: "sample-helmet", author: "Piotr Nowak", role: "Gdańsk", category: "use",
+        titleKey: "seedQuestion2", bodyKey: "seedBody2", createdAt: new Date(now - 172800000).toISOString(),
+        answer: { authorKey: "companyTeam", bodyKey: "seedAnswer2", createdAt: new Date(now - 150000000).toISOString() },
+        comments: [{ id: "c-2", author: "Ania", bodyKey: "seedComment2", createdAt: new Date(now - 145000000).toISOString() }]
+      },
+      {
+        id: "sample-advice", author: "Ania Kowalska", role: "Poznań", category: "sales",
+        titleKey: "seedQuestion3", bodyKey: "seedBody3", createdAt: new Date(now - 3600000).toISOString(),
+        answer: null, comments: []
+      }
+    ];
+
+    function loadQuestions() {
+      try {
+        const stored = JSON.parse(localStorage.getItem(storageKey) || "null");
+        if (Array.isArray(stored)) return stored;
+      } catch {}
+      return seedQuestions;
+    }
+
+    let questions = loadQuestions();
+    const questionList = document.getElementById("question-list");
+    const searchInput = document.getElementById("question-search");
+    const categoryFilter = document.getElementById("category-filter");
+    const questionForm = document.getElementById("question-form");
+    const questionCount = document.getElementById("question-count");
+
+    function saveQuestions() {
+      try { localStorage.setItem(storageKey, JSON.stringify(questions)); } catch {}
+    }
+
+    function formatDate(value) {
+      return new Intl.DateTimeFormat(i18n.language === "pl" ? "pl-PL" : "en-GB", { day: "numeric", month: "short", year: "numeric" }).format(new Date(value));
+    }
+
+    function node(tag, className, text) {
+      const element = document.createElement(tag);
+      if (className) element.className = className;
+      if (text !== undefined) element.textContent = text;
+      return element;
+    }
+
+    function questionText(question, property, keyProperty) {
+      return question[keyProperty] ? t(question[keyProperty]) : question[property];
+    }
+
+    function visibleQuestions() {
+      const search = searchInput.value.trim().toLocaleLowerCase(i18n.language === "pl" ? "pl-PL" : "en-GB");
+      const category = categoryFilter.value;
+      return questions.filter((question) => {
+        if (category !== "all" && question.category !== category) return false;
+        if (!search) return true;
+        const content = [question.title, question.body, question.answer?.body, ...(question.comments || []).map((comment) => comment.body)]
+          .filter(Boolean).join(" ").toLocaleLowerCase(i18n.language === "pl" ? "pl-PL" : "en-GB");
+        const localized = [questionText(question, "title", "titleKey"), questionText(question, "body", "bodyKey")].join(" ").toLocaleLowerCase(i18n.language === "pl" ? "pl-PL" : "en-GB");
+        return content.includes(search) || localized.includes(search);
+      });
+    }
+
+    function countLabel(count) {
+      if (i18n.language === "en") return `${count} ${count === 1 ? "seller question" : "seller questions"}`;
+      if (count === 1) return `${count} pytanie sprzedawców`;
+      if (count % 10 >= 2 && count % 10 <= 4 && !(count % 100 >= 12 && count % 100 <= 14)) return `${count} pytania sprzedawców`;
+      return `${count} pytań sprzedawców`;
+    }
+
+    function renderQuestion(question) {
+      const card = node("article", "fcard question-card");
+      const header = node("div", "question-card-head");
+      const authorRow = node("div", "author-row");
+      authorRow.append(node("span", "author-avatar", question.author.slice(0, 1).toLocaleUpperCase()));
+      const authorInfo = node("span", "author-info");
+      authorInfo.append(node("span", "author-name", question.author));
+      authorInfo.append(node("span", "author-detail", `${t("askedBy")} · ${formatDate(question.createdAt)}`));
+      authorRow.append(authorInfo);
+      header.append(authorRow, node("span", "question-category", t(question.category)));
+      card.append(header);
+      card.append(node("h2", "fcard-h question-title", questionText(question, "title", "titleKey")));
+      card.append(node("p", "fcard-p question-body", questionText(question, "body", "bodyKey")));
+
+      if (question.answer) {
+        const answer = node("div", "answer-panel");
+        const answerHead = node("div", "answer-head");
+        const brand = node("span", "answer-brand");
+        brand.append(node("span", "answer-mark", "X"), node("span", "", `${t("officialAnswer")} · ${question.answer.authorKey ? t(question.answer.authorKey) : question.answer.author}`));
+        answerHead.append(brand, node("span", "answer-date", formatDate(question.answer.createdAt)));
+        answer.append(answerHead, node("p", "answer-text", question.answer.bodyKey ? t(question.answer.bodyKey) : question.answer.body));
+        card.append(answer);
+      } else {
+        const waiting = node("div", "awaiting-answer");
+        waiting.append(node("span", "awaiting-dot"), node("span", "", t("waiting")));
+        card.append(waiting);
+        const replyToggle = node("button", "btn btn-solid btn-cloud company-reply-toggle", t("replyAsCompany"));
+        replyToggle.type = "button";
+        const replyForm = node("form", "reply-form");
+        replyForm.hidden = true;
+        const replyText = node("textarea", "dl-input-2 form-control");
+        replyText.placeholder = t("replyPlaceholder");
+        replyText.required = true;
+        const replyError = node("p", "form-error");
+        const replySubmit = node("button", "btn btn-solid form-submit", t("sendAnswer"));
+        replySubmit.type = "submit";
+        replyForm.append(replyText, replyError, replySubmit);
+        replyToggle.addEventListener("click", () => { replyForm.hidden = !replyForm.hidden; if (!replyForm.hidden) replyText.focus(); });
+        replyForm.addEventListener("submit", (event) => {
+          event.preventDefault();
+          const body = replyText.value.trim();
+          if (!body) { replyError.textContent = t("answerError"); return; }
+          question.answer = { author: t("companyTeam"), body, createdAt: new Date().toISOString() };
+          saveQuestions();
+          renderQuestions();
+        });
+        card.append(replyToggle, replyForm);
+      }
+
+      const comments = node("section", "comments");
+      const commentList = node("div", "comment-list");
+      const commentEntries = question.comments || [];
+      comments.append(node("h3", "comments-heading", `${t("comments")} (${commentEntries.length})`));
+      commentEntries.forEach((comment) => {
+        const row = node("div", "comment");
+        row.append(node("span", "comment-avatar", comment.author.slice(0, 1).toLocaleUpperCase()));
+        const content = node("div", "comment-content");
+        const meta = node("div", "comment-meta");
+        meta.append(node("span", "comment-author", comment.author), node("span", "comment-date", formatDate(comment.createdAt)));
+        content.append(meta, node("p", "comment-text", comment.bodyKey ? t(comment.bodyKey) : comment.body));
+        row.append(content);
+        commentList.append(row);
+      });
+      comments.append(commentList);
+      const commentForm = node("form", "comment-form");
+      const commentInput = node("input", "dl-input-2 form-control comment-input");
+      commentInput.type = "text";
+      commentInput.maxLength = 500;
+      commentInput.placeholder = t("commentPlaceholder");
+      commentInput.setAttribute("aria-label", t("addComment"));
+      commentInput.required = true;
+      const commentSubmit = node("button", "btn btn-solid comment-submit");
+      commentSubmit.type = "submit";
+      commentSubmit.setAttribute("aria-label", t("addComment"));
+      commentSubmit.innerHTML = '<svg viewBox="0 0 20 20" fill="none" aria-hidden="true"><path d="m3 10 13-6-4.8 13-2.1-5.1L3 10Z" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/><path d="m9.1 11.9 3.2-3.2" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>';
+      commentForm.append(commentInput, commentSubmit);
+      commentForm.addEventListener("submit", (event) => {
+        event.preventDefault();
+        const body = commentInput.value.trim();
+        if (!body) return;
+        question.comments = question.comments || [];
+        question.comments.push({ id: makeId(), author: t("demoAuthor"), body, createdAt: new Date().toISOString() });
+        saveQuestions();
+        renderQuestions();
+      });
+      comments.append(commentForm);
+      card.append(comments);
+      return card;
+    }
+
+    function renderQuestions() {
+      const visible = visibleQuestions();
+      questionCount.textContent = countLabel(visible.length);
+      questionList.replaceChildren(...visible.map(renderQuestion));
+      document.getElementById("empty-state").hidden = visible.length > 0;
+    }
+
+    function openQuestionForm() {
+      questionForm.hidden = false;
+      document.getElementById("question-title").focus();
+      questionForm.scrollIntoView({ behavior: "smooth", block: "center" });
+    }
+    document.getElementById("ask-button").addEventListener("click", openQuestionForm);
+    document.getElementById("hero-ask-button").addEventListener("click", openQuestionForm);
+    document.getElementById("cancel-question").addEventListener("click", () => {
+      questionForm.reset();
+      questionForm.hidden = true;
+      document.getElementById("question-error").textContent = "";
+    });
+    questionForm.addEventListener("submit", (event) => {
+      event.preventDefault();
+      const title = document.getElementById("question-title").value.trim();
+      const body = document.getElementById("question-body").value.trim();
+      const category = document.getElementById("question-category").value;
+      const error = document.getElementById("question-error");
+      if (!title || !body) { error.textContent = t("questionError"); return; }
+      questions.unshift({ id: makeId(), author: t("demoAuthor"), role: t("sellerRole"), category, title, body, createdAt: new Date().toISOString(), answer: null, comments: [] });
+      saveQuestions();
+      categoryFilter.value = "all";
+      searchInput.value = "";
+      questionForm.reset();
+      questionForm.hidden = true;
+      error.textContent = "";
+      renderQuestions();
+    });
+    searchInput.addEventListener("input", renderQuestions);
+    categoryFilter.addEventListener("change", renderQuestions);
+    document.addEventListener("xzone:languagechange", renderQuestions);
+    renderQuestions();
+  </script>
+</body>
+</html>

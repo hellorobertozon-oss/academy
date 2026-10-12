@@ -1,0 +1,377 @@
+<!doctype html>
+<html lang="pl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#141B4D">
+  <meta name="description" content="Test końcowy modułu Poznaj produkty w Xzone Academy.">
+  <title>Test końcowy — Xzone Academy</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=IBM+Plex+Sans:wght@400;500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="./design-system/atomic-snippet-2026-10-8%20(1)/snipped.css">
+  <link rel="stylesheet" href="./xzone-theme.css">
+  <style>
+    body { min-height: 100vh; background: var(--xzone-main) !important; }
+    .page-wrapper { min-height: 100vh; }
+    #nav.header.up { padding: 21px 48px; border-bottom-color: var(--border); background: rgba(20, 27, 77, .9); }
+    .xzone-logo { display: block; width: 180px; height: auto; object-fit: contain; }
+    #nav .nav-r { flex: 0; justify-content: flex-end; }
+    .back-link { white-space: nowrap; }
+
+    .test-main { min-height: 100vh; box-sizing: border-box; padding: 142px 24px 76px; }
+    .test-shell { width: min(100%, 900px); margin: 0 auto; }
+    .test-context { margin: 0 0 9px; color: var(--xzone-accent); font: 600 12px var(--font-secondary); letter-spacing: .13em; text-align: center; text-transform: uppercase; }
+    .test-title { margin: 0; color: var(--xzone-white); font: 400 clamp(48px, 7vw, 70px)/.98 var(--font-display); letter-spacing: .01em; text-align: center; text-transform: uppercase; }
+    .test-description { max-width: 590px; margin: 15px auto 0; color: var(--muted); font: 400 16px/1.55 var(--font-secondary); text-align: center; }
+    .test-panel { margin-top: 42px; padding: 34px 38px 30px; border: 1px solid var(--border); border-radius: 18px; background: rgba(71, 69, 84, .16); }
+    .progress-row { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; align-items: center; gap: 16px; }
+    .progress-count { display: flex; align-items: baseline; gap: 6px; color: var(--xzone-white); font: 600 13px var(--font-primary); white-space: nowrap; }
+    .progress-current { color: var(--xzone-accent); font-size: 19px; font-variant-numeric: tabular-nums; }
+    .progress-total { color: var(--muted); }
+    .progress-track { height: 5px; overflow: hidden; border-radius: 999px; background: rgba(248, 248, 248, .14); }
+    .progress-fill { width: 25%; height: 100%; border-radius: inherit; background: var(--xzone-accent); transition: width .25s ease; }
+    .progress-caption { color: var(--muted); font: 500 12px var(--font-secondary); white-space: nowrap; }
+
+    .question-content { margin-top: 48px; }
+    .question-kicker { margin: 0 0 13px; color: var(--muted); font: 500 12px var(--font-secondary); letter-spacing: .08em; text-align: center; text-transform: uppercase; }
+    .question-title { max-width: 740px; min-height: 2.6em; margin: 0 auto; color: var(--xzone-white); font: 500 clamp(23px, 3.2vw, 32px)/1.35 var(--font-secondary); text-align: center; text-wrap: balance; }
+    .answer-list { display: grid; grid-template-columns: 1fr; gap: 12px; max-width: 700px; margin: 34px auto 0; padding: 0; border: 0; }
+    .answer-option { position: relative; display: grid; grid-template-columns: 42px minmax(0, 1fr) 22px; min-height: 76px; align-items: center; gap: 16px; padding: 14px 19px; border: 1px solid var(--border); border-radius: 12px; background: rgba(248, 248, 248, .035); color: var(--xzone-white); cursor: pointer; transition: border-color .18s ease, background-color .18s ease, transform .18s ease, box-shadow .18s ease; }
+    .answer-option:hover { transform: translateY(-1px); border-color: rgba(62, 222, 182, .5); background: rgba(248, 248, 248, .06); }
+    .answer-option:has(input:checked) { border-color: var(--xzone-accent); background: rgba(62, 222, 182, .09); box-shadow: 0 0 0 1px rgba(62, 222, 182, .14); }
+    .answer-option:has(input:focus-visible) { outline: 2px solid var(--xzone-accent); outline-offset: 3px; }
+    .answer-radio { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; clip-path: inset(50%); }
+    .answer-letter { display: grid; width: 38px; height: 38px; place-items: center; border: 1px solid var(--borderm); border-radius: 10px; color: var(--muted); font: 600 13px var(--font-primary); transition: color .18s ease, border-color .18s ease, background-color .18s ease; }
+    .answer-option:has(input:checked) .answer-letter { border-color: var(--xzone-accent); background: var(--xzone-accent); color: var(--xzone-main); }
+    .answer-copy { color: var(--xzone-white); font: 400 15px/1.5 var(--font-secondary); }
+    .answer-check { width: 20px; height: 20px; color: var(--xzone-accent); opacity: 0; transform: scale(.8); transition: opacity .18s ease, transform .18s ease; }
+    .answer-option:has(input:checked) .answer-check { opacity: 1; transform: scale(1); }
+    .test-actions { display: flex; align-items: center; justify-content: space-between; gap: 14px; margin-top: 30px; }
+    .previous-button { color: var(--xzone-white) !important; }
+    .previous-button:disabled { opacity: .38; cursor: not-allowed; }
+    .next-button { min-width: 160px; justify-content: center; }
+    .next-button:disabled { opacity: .42; cursor: not-allowed; box-shadow: none !important; transform: none !important; }
+    .test-hint { min-height: 18px; margin: 16px 0 0; color: var(--muted); font: 400 12px var(--font-secondary); text-align: center; }
+    .result-panel { padding: 30px 0 5px; text-align: center; }
+    .result-icon { display: grid; width: 58px; height: 58px; place-items: center; margin: 0 auto 17px; border-radius: 50%; background: var(--xzone-accent); color: var(--xzone-main); font: 700 26px var(--font-primary); }
+    .result-title { margin: 0; color: var(--xzone-white); font: 400 42px/1.1 var(--font-display); text-transform: uppercase; }
+    .result-score { margin: 14px 0 5px; color: var(--xzone-accent); font: 600 20px var(--font-secondary); }
+    .result-description { max-width: 520px; margin: 0 auto; color: var(--muted); font: 400 15px/1.6 var(--font-secondary); }
+    .result-actions { display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 10px; margin-top: 26px; }
+    [hidden] { display: none !important; }
+
+    @media (max-width: 767px) {
+      #nav.header.up { padding: 16px 22px; }
+      .xzone-logo { width: 145px; }
+      .test-main { padding: 124px 20px 54px; }
+      .test-panel { margin-top: 32px; padding: 26px 22px 23px; }
+      .question-content { margin-top: 38px; }
+      .question-title { min-height: 0; }
+      .answer-list { margin-top: 26px; }
+    }
+    @media (max-width: 520px) {
+      #nav.header.up { gap: 8px; padding: 14px; }
+      .xzone-logo { width: 112px; }
+      #nav .nav-r { gap: 0; }
+      .back-link { padding: 8px 10px !important; font-size: 12px !important; }
+      .test-main { padding: 112px 14px 32px; }
+      .test-context { font-size: 10px; }
+      .test-title { font-size: 51px; }
+      .test-description { font-size: 14px; }
+      .test-panel { margin-top: 26px; padding: 22px 16px 18px; border-radius: 15px; }
+      .progress-row { grid-template-columns: auto minmax(0, 1fr); gap: 10px; }
+      .progress-caption { grid-column: 1 / -1; justify-self: end; }
+      .question-content { margin-top: 31px; }
+      .question-title { font-size: 23px; }
+      .answer-list { gap: 9px; margin-top: 23px; }
+      .answer-option { grid-template-columns: 35px minmax(0, 1fr) 18px; min-height: 72px; gap: 11px; padding: 12px; }
+      .answer-letter { width: 34px; height: 34px; }
+      .answer-copy { font-size: 13px; }
+      .answer-check { width: 18px; height: 18px; }
+      .test-actions { margin-top: 23px; }
+      .next-button { min-width: 132px; }
+      .result-title { font-size: 36px; }
+    }
+  </style>
+  <link rel="stylesheet" href="./xzone-boardui.css">
+</head>
+<body>
+  <div class="page-wrapper">
+    <nav id="nav" class="header up" aria-label="Menu główne" data-i18n-aria="mainMenu">
+      <a class="logo" href="./index.html#dashboard" aria-label="Xzone Academy — panel główny" data-i18n-aria="homeLabel">
+        <img class="xzone-logo" src="./assets/xzone-logo.png" alt="Xzone Academy">
+      </a>
+      <div class="nav-r">
+        <a class="btn btn-solid is-header-btn back-link" href="./index.html#dashboard"><span data-i18n="backToModules">Wróć do modułów</span> <span aria-hidden="true">←</span></a>
+      </div>
+    </nav>
+
+    <main class="test-main">
+      <div class="test-shell">
+        <p class="test-context" data-i18n="context">Moduł 01 · Poznaj produkty</p>
+        <h1 class="test-title" data-i18n="title">Test końcowy</h1>
+        <p class="test-description" data-i18n="description">Sprawdź, jak wykorzystasz poznane informacje w rozmowie z klientem.</p>
+
+        <section class="test-panel" aria-label="Test wiedzy">
+          <div id="question-view">
+            <div class="progress-row" aria-label="Postęp testu">
+              <div class="progress-count"><span class="progress-current" id="progress-current">01</span><span class="progress-total" id="progress-total">/ 04</span></div>
+              <div class="progress-track" id="progress-track" role="progressbar" aria-valuemin="1" aria-valuemax="4" aria-valuenow="1" aria-label="Postęp testu"><div class="progress-fill" id="progress-fill"></div></div>
+              <span class="progress-caption" id="progress-caption">Pytanie 1 z 4</span>
+            </div>
+            <div class="question-content">
+              <p class="question-kicker" data-i18n="chooseOne">Wybierz jedną odpowiedź</p>
+              <h2 class="question-title" id="question-title" tabindex="-1"></h2>
+              <fieldset class="answer-list" id="answer-list" aria-labelledby="question-title"></fieldset>
+            </div>
+            <div class="test-actions">
+              <button class="btn btn-solid btn-cloud previous-button" id="previous-button" type="button" disabled><span aria-hidden="true">←</span> <span data-i18n="previous">Wstecz</span></button>
+              <button class="btn btn-solid next-button" id="next-button" type="button" disabled><span id="next-label" data-i18n="next">Dalej</span> <span aria-hidden="true">→</span></button>
+            </div>
+            <p class="test-hint" id="test-hint" aria-live="polite" data-i18n="hint">Zaznacz odpowiedź, aby przejść dalej.</p>
+          </div>
+
+          <section class="result-panel" id="result-panel" aria-live="polite" hidden>
+            <span class="result-icon" id="result-icon" aria-hidden="true">✓</span>
+            <h2 class="result-title" id="result-title" tabindex="-1"></h2>
+            <p class="result-score" id="result-score"></p>
+            <p class="result-description" id="result-description"></p>
+            <div class="result-actions">
+              <button class="btn btn-solid btn-cloud" id="retry-button" type="button" data-i18n="retry">Powtórz test</button>
+              <a class="btn btn-solid" href="./index.html#dashboard"><span data-i18n="finish">Wróć do Akademii</span> <span aria-hidden="true">→</span></a>
+            </div>
+          </section>
+        </section>
+      </div>
+    </main>
+  </div>
+
+  <script src="./assets/js/academy-i18n.js"></script>
+  <script>
+    const questions = {
+      pl: [
+        {
+          prompt: "Klient chce użyć preparatu na wizjerze kasku. Jak najlepiej mu doradzić?",
+          options: [
+            "Polecić dowolny środek do mycia motocykla — preparaty mają uniwersalne zastosowanie.",
+            "Sprawdzić, czy produkt jest przeznaczony do wizjerów i zgodny z zaleceniami producenta kasku.",
+            "Zasugerować użycie większej ilości preparatu, żeby szybciej usunąć zabrudzenia."
+          ], correct: 1
+        },
+        {
+          prompt: "Od czego zacząć dobór środka do pielęgnacji motocykla?",
+          options: [
+            "Od ustalenia, jaką powierzchnię klient chce pielęgnować i jaki efekt chce uzyskać.",
+            "Od wyboru najpopularniejszego produktu w sklepie.",
+            "Od polecenia jednego preparatu do wszystkich elementów motocykla."
+          ], correct: 0
+        },
+        {
+          prompt: "Klient pyta, jak często stosować preparat ochronny. Co odpowiadasz?",
+          options: [
+            "Najlepiej stosować go przy każdym kontakcie z motocyklem.",
+            "Częstotliwość nie ma znaczenia, jeśli użyje się niewielkiej ilości.",
+            "Warto kierować się instrukcją na etykiecie i zaleceniami dla danej powierzchni."
+          ], correct: 2
+        },
+        {
+          prompt: "Jakie pytanie pomoże Ci dopasować produkt do potrzeb motocyklisty?",
+          options: [
+            "Jaki kolor motocykla jest najpopularniejszy?",
+            "Jaką powierzchnię chce zadbać i jaki rezultat chce osiągnąć?",
+            "Czy klient zna już nazwę konkretnego produktu?"
+          ], correct: 1
+        }
+      ],
+      en: [
+        {
+          prompt: "A customer wants to use a product on a helmet visor. What is the best advice?",
+          options: [
+            "Recommend any motorcycle wash product; they are all universal.",
+            "Check that the product is intended for visors and follows the helmet maker's guidance.",
+            "Suggest using extra product to remove dirt faster."
+          ], correct: 1
+        },
+        {
+          prompt: "Where should you start when choosing a motorcycle care product?",
+          options: [
+            "Find out which surface the customer wants to care for and what result they want.",
+            "Choose the most popular product in the store.",
+            "Recommend one product for every motorcycle surface."
+          ], correct: 0
+        },
+        {
+          prompt: "A customer asks how often to use a protective product. What do you say?",
+          options: [
+            "Use it whenever the motorcycle is touched.",
+            "Frequency does not matter if only a small amount is used.",
+            "Follow the label instructions and guidance for the specific surface."
+          ], correct: 2
+        },
+        {
+          prompt: "Which question will help you match a product to a rider's needs?",
+          options: [
+            "Which motorcycle color is most popular?",
+            "Which surface do they want to care for, and what result are they looking for?",
+            "Do they already know the name of a specific product?"
+          ], correct: 1
+        }
+      ]
+    };
+
+    const copy = {
+      pl: {
+        pageTitle: "Test końcowy — Xzone Academy",
+        metaDescription: "Test końcowy modułu Poznaj produkty w Xzone Academy.",
+        mainMenu: "Menu główne",
+        homeLabel: "Xzone Academy — panel główny",
+        backToModules: "Wróć do modułów",
+        context: "Moduł 01 · Poznaj produkty",
+        title: "Test końcowy",
+        description: "Sprawdź, jak wykorzystasz poznane informacje w rozmowie z klientem.",
+        chooseOne: "Wybierz jedną odpowiedź",
+        previous: "Wstecz",
+        next: "Dalej",
+        finishTest: "Zobacz wynik",
+        hint: "Zaznacz odpowiedź, aby przejść dalej.",
+        question: "Pytanie {current} z {total}",
+        retry: "Powtórz test",
+        finish: "Wróć do Akademii",
+        passedTitle: "Dobra robota!",
+        passedDescription: "Moduł zaliczony. Możesz wrócić do Akademii albo powtórzyć test.",
+        retryTitle: "Spróbuj jeszcze raz",
+        retryDescription: "Wróć do materiału modułu i podejdź do testu ponownie.",
+        score: "Twój wynik: {score} z {total}",
+        progress: "Postęp testu",
+        option: "Odpowiedź {letter}"
+      },
+      en: {
+        pageTitle: "Final quiz — Xzone Academy",
+        metaDescription: "Final quiz for the Explore the products module in Xzone Academy.",
+        mainMenu: "Main menu",
+        homeLabel: "Xzone Academy — dashboard",
+        backToModules: "Back to modules",
+        context: "Module 01 · Explore the products",
+        title: "Final quiz",
+        description: "See how you can use what you learned in a conversation with a customer.",
+        chooseOne: "Choose one answer",
+        previous: "Back",
+        next: "Next",
+        finishTest: "See your result",
+        hint: "Select an answer to continue.",
+        question: "Question {current} of {total}",
+        retry: "Try again",
+        finish: "Back to Academy",
+        passedTitle: "Well done!",
+        passedDescription: "Module completed. Return to the Academy or take the quiz again.",
+        retryTitle: "Give it another try",
+        retryDescription: "Review the module and take the quiz again.",
+        score: "Your score: {score} out of {total}",
+        progress: "Quiz progress",
+        option: "Answer {letter}"
+      }
+    };
+
+    const letters = ["A", "B", "C"];
+    const total = questions.pl.length;
+    const i18n = window.XzoneAcademyI18n.create(copy);
+    let current = 0;
+    let answers = Array(total).fill(null);
+    const t = i18n.translate;
+    const questionView = document.getElementById("question-view");
+    const resultPanel = document.getElementById("result-panel");
+    const title = document.getElementById("question-title");
+    const answerList = document.getElementById("answer-list");
+    const previousButton = document.getElementById("previous-button");
+    const nextButton = document.getElementById("next-button");
+
+    function renderQuestion() {
+      const item = questions[i18n.language][current];
+      const number = String(current + 1).padStart(2, "0");
+      document.getElementById("progress-current").textContent = number;
+      document.getElementById("progress-caption").textContent = t("question").replace("{current}", current + 1).replace("{total}", total);
+      document.getElementById("progress-fill").style.width = `${((current + 1) / total) * 100}%`;
+      const progressTrack = document.getElementById("progress-track");
+      progressTrack.setAttribute("aria-valuenow", String(current + 1));
+      progressTrack.setAttribute("aria-label", t("progress"));
+      title.textContent = item.prompt;
+      answerList.replaceChildren();
+
+      item.options.forEach((answer, index) => {
+        const label = document.createElement("label");
+        label.className = "answer-option";
+        const input = document.createElement("input");
+        input.className = "answer-radio";
+        input.type = "radio";
+        input.name = `question-${current}`;
+        input.value = String(index);
+        input.checked = answers[current] === index;
+        input.setAttribute("aria-label", t("option").replace("{letter}", letters[index]));
+        input.addEventListener("change", () => {
+          answers[current] = index;
+          nextButton.disabled = false;
+        });
+        const letter = document.createElement("span");
+        letter.className = "answer-letter";
+        letter.setAttribute("aria-hidden", "true");
+        letter.textContent = letters[index];
+        const copy = document.createElement("span");
+        copy.className = "answer-copy";
+        copy.textContent = answer;
+        const check = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+        check.setAttribute("class", "answer-check");
+        check.setAttribute("viewBox", "0 0 20 20");
+        check.setAttribute("fill", "none");
+        check.setAttribute("aria-hidden", "true");
+        const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
+        path.setAttribute("d", "m4 10 4 4 8-8");
+        path.setAttribute("stroke", "currentColor");
+        path.setAttribute("stroke-width", "1.8");
+        path.setAttribute("stroke-linecap", "round");
+        path.setAttribute("stroke-linejoin", "round");
+        check.append(path);
+        label.append(input, letter, copy, check);
+        answerList.append(label);
+      });
+
+      previousButton.disabled = current === 0;
+      nextButton.disabled = answers[current] === null;
+      document.getElementById("next-label").textContent = current === total - 1 ? t("finishTest") : t("next");
+    }
+
+    function showResult() {
+      const score = answers.reduce((sum, answer, index) => sum + (answer === questions.pl[index].correct ? 1 : 0), 0);
+      const passed = score >= 3;
+      document.getElementById("result-icon").textContent = passed ? "✓" : "↻";
+      document.getElementById("result-title").textContent = t(passed ? "passedTitle" : "retryTitle");
+      document.getElementById("result-score").textContent = t("score").replace("{score}", score).replace("{total}", total);
+      document.getElementById("result-description").textContent = t(passed ? "passedDescription" : "retryDescription");
+      questionView.hidden = true;
+      resultPanel.hidden = false;
+      document.getElementById("result-title").focus({ preventScroll: true });
+    }
+
+    previousButton.addEventListener("click", () => {
+      if (current > 0) { current -= 1; renderQuestion(); title.focus({ preventScroll: true }); }
+    });
+    nextButton.addEventListener("click", () => {
+      if (answers[current] === null) return;
+      if (current === total - 1) { showResult(); return; }
+      current += 1;
+      renderQuestion();
+      title.focus({ preventScroll: true });
+    });
+    document.getElementById("retry-button").addEventListener("click", () => {
+      current = 0;
+      answers = Array(total).fill(null);
+      resultPanel.hidden = true;
+      questionView.hidden = false;
+      renderQuestion();
+      document.getElementById("question-title").focus({ preventScroll: true });
+    });
+
+    renderQuestion();
+  </script>
+</body>
+</html>
