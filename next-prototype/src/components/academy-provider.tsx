@@ -1,7 +1,9 @@
 "use client";
 
 import { createContext, useCallback, useContext, useEffect, useMemo, useState, useSyncExternalStore, type ReactNode } from "react";
+import { useRouter } from "next/navigation";
 import { DirectionProvider } from "@/components/foundations/direction/direction";
+import { updatePreferredLanguageAction } from "@/app/language-actions";
 
 export type AcademyLanguage = "pl" | "en";
 
@@ -577,6 +579,7 @@ function getServerLanguage(): AcademyLanguage {
 }
 
 export function AcademyProvider({ children }: { children: ReactNode }) {
+  const router = useRouter();
   const language = useSyncExternalStore(subscribeToLanguage, getStoredLanguage, getServerLanguage);
   const [completedLessons, setCompletedLessons] = useState<CopyKey[]>([]);
 
@@ -593,9 +596,13 @@ export function AcademyProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const setLanguage = useCallback((nextLanguage: AcademyLanguage) => {
-    window.localStorage.setItem("xzone-academy-language", nextLanguage);
-    window.dispatchEvent(new Event(LANGUAGE_EVENT));
-  }, []);
+    void updatePreferredLanguageAction(nextLanguage).then((saved) => {
+      if (!saved) return;
+      window.localStorage.setItem("xzone-academy-language", nextLanguage);
+      window.dispatchEvent(new Event(LANGUAGE_EVENT));
+      router.refresh();
+    }).catch(() => {});
+  }, [router]);
   const completeLesson = useCallback((lesson: CopyKey) => {
     if (completedLessons.includes(lesson)) return;
 

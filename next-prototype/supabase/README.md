@@ -14,6 +14,7 @@ The SQL migrations in `migrations/` are versioned source code. They have **not**
 - Publishing checks that each module and lesson has a title in the course's default language. Creating the next draft copies the published translations and content.
 - `20261012110000_academy_content_ordering.sql` adds atomic module and lesson ordering functions. They accept only the complete ID list for a draft, so an employee or partial reorder cannot change published order.
 - `20261012120000_academy_course_assignments.sql` adds course assignments for stores and individual employees. Employees can read only assigned, published courses and content translated into their preferred language. Untranslated modules and lessons stay hidden, and assignment records are admin-only.
+- The employee learning pages read the course list, outline and lesson from these RLS-protected tables. Changing Polish/English in the app updates the profile language used by those read policies.
 
 The content, ordering and assignment migrations are exercised against isolated PGlite by `npm test`; the tests cover language filtering and row-level access without connecting to either remote Supabase project.
 
