@@ -50,7 +50,7 @@ describe("Academy course content migration", { concurrency: false }, () => {
     storeId = store.rows[0].id;
     const otherStore = await db.query(
       `insert into public.stores (name, street_address, city, postal_code)
-       values ('Xzone KrakĂłw', 'DĹ‚uga 2', 'KrakĂłw', '30-001') returning id`,
+       values ('Xzone Krakow', 'Dluga 2', 'Krakow', '30-001') returning id`,
     );
     otherStoreId = otherStore.rows[0].id;
     await db.query("insert into public.user_invites (email, role) values ('admin@academy.test', 'admin')");

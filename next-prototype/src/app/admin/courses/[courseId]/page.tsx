@@ -16,6 +16,12 @@ import {
 import { SortableCollection } from "@/app/admin/courses/sortable-collection";
 import { CreateCourseDraftForm, PublishCourseForm } from "@/app/admin/courses/course-forms";
 import type { LanguageOption } from "@/app/admin/courses/course-forms";
+import {
+  CourseAssignmentManager,
+  type AssignmentEmployee,
+  type AssignmentStore,
+  type CourseAssignment,
+} from "@/app/admin/courses/assignment-forms";
 import { requireAcademyProfile } from "@/lib/auth/profile";
 import { createAcademyServerClient } from "@/lib/supabase/server";
 
@@ -75,12 +81,35 @@ async function CourseEditor({ courseId }: { courseId: number }) {
   if (!courseResult.data) notFound();
   const course = courseResult.data as CourseRow;
   const languages = (languagesResult.data ?? []) as LanguageOption[];
-  const versionsResult = await supabase
-    .from("course_versions")
-    .select("id, course_id, version_number, status, published_at")
-    .eq("course_id", courseId)
-    .order("version_number", { ascending: false });
+  const [versionsResult, storesResult, employeesResult, assignmentsResult] = await Promise.all([
+    supabase
+      .from("course_versions")
+      .select("id, course_id, version_number, status, published_at")
+      .eq("course_id", courseId)
+      .order("version_number", { ascending: false }),
+    supabase
+      .from("stores")
+      .select("id, name, city, is_active")
+      .order("name"),
+    supabase
+      .from("profiles")
+      .select("id, first_name, last_name, email, store_id")
+      .eq("role", "employee")
+      .order("last_name")
+      .order("first_name"),
+    course.published_version_id
+      ? supabase
+          .from("course_assignments")
+          .select("id, store_id, profile_id")
+          .eq("course_id", courseId)
+          .order("created_at")
+      : Promise.resolve({ data: [], error: null }),
+  ]);
   const versions = (versionsResult.data ?? []) as VersionRow[];
+  const assignmentStores = (storesResult.data ?? []) as AssignmentStore[];
+  const assignmentEmployees = (employeesResult.data ?? []) as AssignmentEmployee[];
+  const courseAssignments = (assignmentsResult.data ?? []) as CourseAssignment[];
+  const assignmentLoadError = Boolean(storesResult.error || employeesResult.error || assignmentsResult.error);
   const draftVersion = versions.find((version) => version.status === "draft");
   const currentVersion = draftVersion
     ?? versions.find((version) => version.id === course.published_version_id)
@@ -229,6 +258,12 @@ async function CourseEditor({ courseId }: { courseId: number }) {
           </div>
         ) : null}
 
+        {assignmentLoadError ? (
+          <div role="alert" className="rounded-2xl border border-border-error-default bg-background-primary-default p-4 text-body-regular text-text-error-primary">
+            {"Nie uda\u0142o si\u0119 wczyta\u0107 przypisa\u0144. Sprawd\u017A, czy migracja przypisa\u0144 Academy zosta\u0142a zastosowana."}
+          </div>
+        ) : null}
+
         {!currentVersion ? (
           <div role="alert" className="rounded-2xl border border-border-error-default bg-background-primary-default p-4 text-body-regular text-text-error-primary">
             Szkolenie nie ma jeszcze wersji do edycji.
@@ -256,6 +291,22 @@ async function CourseEditor({ courseId }: { courseId: number }) {
                 ) : null}
               </div>
             </section>
+
+            {course.published_version_id ? (
+              <CourseAssignmentManager
+                courseId={course.id}
+                stores={assignmentStores}
+                employees={assignmentEmployees}
+                assignments={courseAssignments}
+              />
+            ) : (
+              <section className="flex flex-col gap-2 rounded-3xl border border-border-button-default bg-background-primary-default p-6">
+                <h2 className="text-title-3-semibold text-text-primary">Przypisania szkolenia</h2>
+                <p className="text-body-2-regular text-text-secondary">
+                  Opublikuj szkolenie, aby przypisa&#263; je do sklepu lub pracownik&#243;w.
+                </p>
+              </section>
+            )}
 
             <section className="flex flex-col gap-5 rounded-3xl border border-border-button-default bg-background-primary-default p-6">
               <SectionHeading
