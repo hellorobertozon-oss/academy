@@ -18,8 +18,9 @@ The SQL migrations in `migrations/` are versioned source code. They have **not**
 - `20261012130000_academy_lesson_progress.sql` records one completion per employee and lesson, awards 10 points once, and exposes completion rows only to that employee and admins. Employees must complete an assigned, published lesson available in their language; writes go through a security-definer function.
 - `20261012140000_academy_quizzes.sql` adds quizzes to lessons or modules, translated questions and answers, and an admin-only correct-answer key. Publishing requires complete quiz content in the course's default language. Employees see quizzes only when the course is assigned and the full quiz is translated into their preferred language. Attempts are unlimited, an 80% score passes, and the first pass awards 20 points.
 - Admins create and translate quizzes in the course draft. The employee quiz list and quiz runner use the same RLS-protected content; scores and answer submissions are written through a server-validated database function. Correct answers are never returned to employee sessions.
+- `20261012150000_academy_leaderboard.sql` exposes an all-time top-ten ranking plus the signed-in employee's own row through a restricted RPC. It returns only first name, surname initial, store city and points; employees do not get permission to read other profiles or email addresses.
 
-The content, ordering, assignment, lesson-progress and quiz migrations are exercised against isolated PGlite by `npm test`; the tests cover language filtering, row-level access, translation editing, quiz scoring, unlimited attempts and idempotent point awards without connecting to either remote Supabase project.
+The content, ordering, assignment, lesson-progress, quiz and leaderboard migrations are exercised against isolated PGlite by `npm test`; the tests cover language filtering, row-level access, translation editing, quiz scoring, unlimited attempts, leaderboard privacy and idempotent point awards without connecting to either remote Supabase project.
 
 ## Local environment
 
@@ -46,5 +47,5 @@ Add the local app URL and the production callback URL to Academy Auth's allowed 
 
 ## Local checks
 
-`npm test` runs the migrations against an isolated PGlite database and tests invitation enforcement, row-level access, lesson completion and quiz scoring. These tests do not connect to either Supabase project.
+`npm test` runs the migrations against an isolated PGlite database and tests invitation enforcement, row-level access, lesson completion, quiz scoring and leaderboard access. These tests do not connect to either Supabase project.
 

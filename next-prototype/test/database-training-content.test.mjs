@@ -9,6 +9,7 @@ const orderingMigration = new URL("../supabase/migrations/20261012110000_academy
 const assignmentsMigration = new URL("../supabase/migrations/20261012120000_academy_course_assignments.sql", import.meta.url);
 const progressMigration = new URL("../supabase/migrations/20261012130000_academy_lesson_progress.sql", import.meta.url);
 const quizMigration = new URL("../supabase/migrations/20261012140000_academy_quizzes.sql", import.meta.url);
+const leaderboardMigration = new URL("../supabase/migrations/20261012150000_academy_leaderboard.sql", import.meta.url);
 const adminId = "10000000-0000-4000-8000-000000000001";
 const employeeId = "10000000-0000-4000-8000-000000000002";
 const frenchEmployeeId = "10000000-0000-4000-8000-000000000003";
@@ -83,6 +84,7 @@ describe("Academy course content migration", { concurrency: false }, () => {
     await db.exec(await readFile(assignmentsMigration, "utf8"));
     await db.exec(await readFile(progressMigration, "utf8"));
     await db.exec(await readFile(quizMigration, "utf8"));
+    await db.exec(await readFile(leaderboardMigration, "utf8"));
   });
 
   after(async () => {
@@ -964,5 +966,91 @@ describe("Academy course content migration", { concurrency: false }, () => {
       ),
       /Administrator access is required/,
     ));
+  });
+
+  it("returns a privacy-limited global points leaderboard to employees only", async () => {
+    await db.query(
+      "update public.profiles set first_name = 'Emilia', last_name = 'Kowalska' where id = $1",
+      [employeeId],
+    );
+    await db.query(
+      "update public.profiles set first_name = 'Olek', last_name = 'Nowak' where id = $1",
+      [otherStoreEmployeeId],
+    );
+
+    const expectedPoints = await db.query(
+      `select
+         coalesce((select sum(points_awarded) from public.lesson_completions where profile_id = $1), 0)
+         + coalesce((select sum(points_awarded) from public.quiz_attempts where profile_id = $1), 0) as points`,
+      [employeeId],
+    );
+    const leaderboard = await asUser(employeeId, () => db.query("select * from public.read_academy_leaderboard()"));
+    const currentUser = leaderboard.rows.find((entry) => entry.is_current_user);
+    const otherEmployee = leaderboard.rows.find((entry) => entry.display_name === "Olek N.");
+
+    assert.ok(currentUser);
+    assert.equal(currentUser.leaderboard_position, 1);
+    assert.equal(currentUser.display_name, "Emilia K.");
+    assert.equal(currentUser.city, "Warszawa");
+    assert.equal(Number(currentUser.total_points), Number(expectedPoints.rows[0].points));
+    assert.equal(currentUser.is_current_user, true);
+    assert.ok(otherEmployee);
+    assert.equal(otherEmployee.city, "Krakow");
+    assert.equal(Object.hasOwn(currentUser, "email"), false);
+    assert.equal(Object.hasOwn(currentUser, "profile_id"), false);
+    assert.deepEqual(Object.keys(currentUser).sort(), [
+      "city",
+      "display_name",
+      "is_current_user",
+      "leaderboard_position",
+      "total_points",
+    ]);
+
+    const publishedQuiz = await db.query(
+      "select id from public.quizzes where course_version_id = $1 order by id limit 1",
+      [latestPublishedVersionId],
+    );
+    for (let index = 0; index < 11; index += 1) {
+      const profileId = `10000000-0000-4000-8000-${String(100 + index).padStart(12, "0")}`;
+      const email = `leader-${index + 1}@academy.test`;
+      await db.query(
+        "insert into public.user_invites (email, role, store_id, created_by) values ($1, 'employee', $2, $3)",
+        [email, storeId, adminId],
+      );
+      await db.query(
+        "insert into auth.users (id, email, raw_user_meta_data) values ($1, $2, $3::jsonb)",
+        [profileId, email, JSON.stringify({ first_name: `Leader${index + 1}`, last_name: `Employee${index + 1}` })],
+      );
+      for (let attemptIndex = 0; attemptIndex < 4; attemptIndex += 1) {
+        await db.query(
+          `insert into public.quiz_attempts (
+             profile_id, quiz_id, submitted_answers, correct_count, question_count,
+             score_percentage, passed, points_awarded
+           ) values ($1, $2, '[]', 4, 5, 80, true, 20)`,
+          [profileId, publishedQuiz.rows[0].id],
+        );
+      }
+    }
+
+    const outsideTopTen = await asUser(employeeId, () => db.query("select * from public.read_academy_leaderboard()"));
+    const currentOutsideTopTen = outsideTopTen.rows.find((entry) => entry.is_current_user);
+    assert.equal(outsideTopTen.rows.length, 11);
+    assert.equal(currentOutsideTopTen.leaderboard_position, 12);
+    assert.equal(outsideTopTen.rows.filter((entry) => entry.display_name.startsWith("Leader")).length, 10);
+
+    const otherEmployeeView = await asUser(otherStoreEmployeeId, () => db.query("select * from public.read_academy_leaderboard()"));
+    const otherEmployeeOwnRow = otherEmployeeView.rows.find((entry) => entry.is_current_user);
+    assert.equal(otherEmployeeOwnRow.display_name, "Olek N.");
+    assert.equal(otherEmployeeOwnRow.city, "Krakow");
+
+    await asUser(adminId, () => assert.rejects(
+      db.query("select * from public.read_academy_leaderboard()"),
+      /Employee access is required/,
+    ));
+    await db.query("select set_config('request.jwt.claim.sub', '', false)");
+    await assert.rejects(
+      db.query("select * from public.read_academy_leaderboard()"),
+      /Authentication is required/,
+    );
   });
 });

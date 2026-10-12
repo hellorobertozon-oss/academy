@@ -52,6 +52,14 @@ export type LearningLesson = {
   lessonCount: number;
 };
 
+export type LearningLeaderboardEntry = {
+  position: number;
+  displayName: string;
+  city: string | null;
+  totalPoints: number;
+  isCurrentUser: boolean;
+};
+
 type CourseRow = { id: number; slug: string; published_version_id: number | null };
 type CourseTranslationRow = { course_version_id: number; title: string; description: string };
 type ModuleRow = { id: number; course_version_id: number; sort_order: number };
@@ -357,5 +365,38 @@ export async function readEmployeePoints(): Promise<LearningRead<number>> {
     const lessonPoints = (lessonPointsResult.count ?? 0) * 10;
     const quizPoints = (quizPointsResult.count ?? 0) * 20;
     return { status: "ok", data: lessonPoints + quizPoints, languageCode };
+  });
+}
+
+export async function readEmployeeLeaderboard(): Promise<LearningRead<LearningLeaderboardEntry[]>> {
+  return withEmployeeClient<LearningLeaderboardEntry[]>(async (client, languageCode) => {
+    const { data, error } = await client.rpc("read_academy_leaderboard");
+    if (error || !Array.isArray(data)) return { status: "error" };
+
+    const entries: LearningLeaderboardEntry[] = [];
+    for (const value of data as Array<Record<string, unknown>>) {
+      const position = Number(value.leaderboard_position);
+      const totalPoints = Number(value.total_points);
+      if (
+        !Number.isSafeInteger(position)
+        || position <= 0
+        || !Number.isSafeInteger(totalPoints)
+        || totalPoints < 0
+        || typeof value.display_name !== "string"
+        || (value.city !== null && typeof value.city !== "string")
+        || typeof value.is_current_user !== "boolean"
+      ) {
+        return { status: "error" };
+      }
+      entries.push({
+        position,
+        displayName: value.display_name,
+        city: value.city,
+        totalPoints,
+        isCurrentUser: value.is_current_user,
+      });
+    }
+
+    return { status: "ok", data: entries, languageCode };
   });
 }

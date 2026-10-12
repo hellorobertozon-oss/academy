@@ -5,6 +5,8 @@ import { RiArrowLeftLine } from "@remixicon/react";
 import { AcademyHeader } from "@/components/academy-header";
 import { backActionClassName, RouteButton } from "@/components/route-button";
 import { useAcademy } from "@/components/academy-provider";
+import { Badge } from "@/components/base/badges/badge";
+import type { LearningLeaderboardEntry } from "@/lib/academy/learning";
 import { cx } from "@/utils/cx";
 
 const rewardTarget = 500;
@@ -14,7 +16,23 @@ const pointRules = [
   { title: "rewardTestTitle", points: 20 },
 ] as const;
 
-export function RewardsPage({ currentPoints }: { currentPoints: number | null }) {
+export function RewardsPage({
+  currentPoints,
+  leaderboard,
+  leaderboardCopy,
+}: {
+  currentPoints: number | null;
+  leaderboard: LearningLeaderboardEntry[] | null;
+  leaderboardCopy: {
+    title: string;
+    description: string;
+    empty: string;
+    loadError: string;
+    you: string;
+    city: string;
+    points: string;
+  };
+}) {
   const { t } = useAcademy();
   const pointsToReward = currentPoints === null ? null : Math.max(rewardTarget - currentPoints, 0);
 
@@ -126,6 +144,50 @@ export function RewardsPage({ currentPoints }: { currentPoints: number | null })
               </article>
             ))}
           </div>
+        </section>
+
+        <section className="mt-6 overflow-hidden rounded-3xl border border-border-button-default bg-background-primary-default" aria-labelledby="leaderboard-heading">
+          <div className="border-b border-separator-border px-5 py-5 sm:px-7">
+            <h2 id="leaderboard-heading" className="text-title-2-medium text-text-primary">{leaderboardCopy.title}</h2>
+            <p className="mt-1 text-body-2-regular text-text-secondary">{leaderboardCopy.description}</p>
+          </div>
+          {leaderboard === null ? (
+            <p role="alert" className="px-5 py-5 text-body-regular text-text-error-primary sm:px-7">{leaderboardCopy.loadError}</p>
+          ) : leaderboard.length ? (
+            <ol className="grid gap-2 p-4 sm:p-6" aria-label={leaderboardCopy.title}>
+              {leaderboard.map((entry) => (
+                <li
+                  key={entry.position}
+                  className={cx(
+                    "grid grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-3 rounded-xl border p-3 sm:gap-4 sm:p-4",
+                    entry.isCurrentUser
+                      ? "border-accent-400 bg-background-secondary-default"
+                      : "border-separator-border bg-background-primary-default",
+                  )}
+                >
+                  <span className="grid size-10 place-items-center rounded-full bg-background-tertiary-default text-body-semibold tabular-nums text-text-primary">
+                    {entry.position}
+                  </span>
+                  <span className="min-w-0">
+                    <span className="block truncate text-body-semibold text-text-primary">{entry.displayName}</span>
+                    {entry.city ? (
+                      <span className="mt-0.5 block truncate text-body-2-regular text-text-secondary">
+                        <span className="sr-only">{leaderboardCopy.city}: </span>{entry.city}
+                      </span>
+                    ) : null}
+                  </span>
+                  <span className="flex flex-col items-end gap-1">
+                    {entry.isCurrentUser ? <Badge color="primary">{leaderboardCopy.you}</Badge> : null}
+                    <span className="whitespace-nowrap text-body-semibold tabular-nums text-accent-300">
+                      {entry.totalPoints} <span className="text-body-2-medium text-text-secondary">{leaderboardCopy.points}</span>
+                    </span>
+                  </span>
+                </li>
+              ))}
+            </ol>
+          ) : (
+            <p className="px-5 py-5 text-body-regular text-text-secondary sm:px-7">{leaderboardCopy.empty}</p>
+          )}
         </section>
       </main>
     </div>
