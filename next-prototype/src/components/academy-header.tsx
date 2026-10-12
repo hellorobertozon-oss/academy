@@ -120,6 +120,9 @@ export function AcademyHeader({ mode }: { mode: HeaderMode }) {
                 className="z-50"
               >
                 <DropdownGroup>
+                  <DropdownItem onSelect={() => router.push("/profile")}>
+                    {t("profileDetails")}
+                  </DropdownItem>
                   <DropdownItem onSelect={() => router.push("/change-password")}>
                     {t("changePassword")}
                   </DropdownItem>

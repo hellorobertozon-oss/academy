@@ -43,7 +43,12 @@ export function ChangePasswordPage() {
         return;
       }
       setStatus(t("passwordSaved"));
-      router.replace("/dashboard");
+      const { data: profile } = await supabase
+        .from("profiles")
+        .select("first_name, last_name")
+        .maybeSingle();
+      const needsProfileSetup = !profile?.first_name?.trim() || !profile.last_name?.trim();
+      router.replace(needsProfileSetup ? "/profile" : "/dashboard");
       router.refresh();
     } catch {
       setStatus(t("loginConfigurationError"));

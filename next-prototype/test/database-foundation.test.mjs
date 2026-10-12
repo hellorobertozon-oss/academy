@@ -229,6 +229,30 @@ describe("Academy foundation migration", { concurrency: false }, () => {
     });
   });
 
+  it("lets an employee update their own name but not their email or store", async () => {
+    const updated = await asUser(employeeId, () => db.query(
+      `update public.profiles
+       set first_name = 'Emilia', last_name = 'Kowalska'
+       where id = $1
+       returning first_name, last_name, store_id`,
+      [employeeId],
+    ));
+    assert.deepEqual(updated.rows, [{
+      first_name: "Emilia",
+      last_name: "Kowalska",
+      store_id: storeId,
+    }]);
+
+    await asUser(employeeId, () => assert.rejects(
+      db.query("update public.profiles set email = 'new@academy.test' where id = $1", [employeeId]),
+      /permission denied/,
+    ));
+    await asUser(employeeId, () => assert.rejects(
+      db.query("update public.profiles set store_id = $1 where id = $2", [secondStoreId, employeeId]),
+      /permission denied/,
+    ));
+  });
+
   it("allows admins to manage stores and see employee records", async () => {
     await asUser(adminId, async () => {
       const profiles = await db.query("select email from public.profiles order by email");
