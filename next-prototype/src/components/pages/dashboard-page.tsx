@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import Image from "next/image";
-import { RiArrowRightLine } from "@remixicon/react";
+import { RiArrowRightLine, RiMapPin2Line } from "@remixicon/react";
 import { AcademyHeader } from "@/components/academy-header";
 import { useAcademy } from "@/components/academy-provider";
 import { RouteButton } from "@/components/route-button";
@@ -82,6 +82,16 @@ export function DashboardPage() {
           </div>
           <RouteButton href="/quiz" size="large" trailingIcon={RiArrowRightLine}>
             {t("openQuiz")}
+          </RouteButton>
+        </section>
+
+        <section className="mt-5 flex flex-col items-start justify-between gap-4 rounded-3xl border border-border-button-default bg-background-primary-default p-5 sm:flex-row sm:items-center sm:px-6">
+          <div>
+            <p className="text-body-medium text-text-primary">{t("storeMapTitle")}</p>
+            <p className="mt-1 text-body-2-regular text-text-secondary">{t("storeMapDescription")}</p>
+          </div>
+          <RouteButton href="/stores" size="large" leadingIcon={RiMapPin2Line} trailingIcon={RiArrowRightLine}>
+            {t("storeMapButton")}
           </RouteButton>
         </section>
       </main>

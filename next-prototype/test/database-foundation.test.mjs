@@ -4,9 +4,11 @@ import { after, before, describe, it } from "node:test";
 import { PGlite } from "@electric-sql/pglite";
 
 const migrationPath = new URL("../supabase/migrations/20261012090000_academy_foundation.sql", import.meta.url);
+const storeDirectoryMigrationPath = new URL("../supabase/migrations/20261012170000_academy_store_directory.sql", import.meta.url);
 const adminId = "00000000-0000-4000-8000-000000000001";
 const employeeId = "00000000-0000-4000-8000-000000000002";
 const secondEmployeeId = "00000000-0000-4000-8000-000000000003";
+const coworkerId = "00000000-0000-4000-8000-000000000005";
 
 describe("Academy foundation migration", { concurrency: false }, () => {
   let db;
@@ -37,13 +39,13 @@ describe("Academy foundation migration", { concurrency: false }, () => {
     await db.exec(await readFile(migrationPath, "utf8"));
 
     const firstStore = await db.query(
-      `insert into public.stores (name, street_address, city, postal_code, country_code)
-       values ('Xzone Warszawa', 'Marszałkowska 1', 'Warszawa', '00-001', 'PL')
+      `insert into public.stores (name, street_address, city, postal_code, country_code, latitude, longitude)
+       values ('Xzone Warszawa', 'Marszałkowska 1', 'Warszawa', '00-001', 'PL', 52.2297, 21.0122)
        returning id`,
     );
     const secondStore = await db.query(
-      `insert into public.stores (name, street_address, city, postal_code, country_code)
-       values ('Xzone Gdańsk', 'Długa 1', 'Gdańsk', '80-001', 'PL')
+      `insert into public.stores (name, street_address, city, postal_code, country_code, latitude, longitude)
+       values ('Xzone Gdańsk', 'Długa 1', 'Gdańsk', '80-001', 'PL', 54.3520, 18.6466)
        returning id`,
     );
     storeId = firstStore.rows[0].id;
@@ -85,6 +87,17 @@ describe("Academy foundation migration", { concurrency: false }, () => {
       "insert into auth.users (id, email, raw_user_meta_data) values ($1, $2, $3::jsonb)",
       [secondEmployeeId, "other@academy.test", JSON.stringify({ first_name: "Olek" })],
     );
+
+    await db.query(
+      "insert into public.user_invites (email, role, store_id, created_by) values ($1, 'employee', $2, $3)",
+      ["coworker@academy.test", storeId, adminId],
+    );
+    await db.query(
+      "insert into auth.users (id, email, raw_user_meta_data) values ($1, $2, $3::jsonb)",
+      [coworkerId, "coworker@academy.test", JSON.stringify({ first_name: "Ola", last_name: "Koleżanka" })],
+    );
+
+    await db.exec(await readFile(storeDirectoryMigrationPath, "utf8"));
   });
 
   after(async () => {
@@ -141,6 +154,62 @@ describe("Academy foundation migration", { concurrency: false }, () => {
     });
   });
 
+  it("limits the store map to an employee's own store and exposes coworker names without email", async () => {
+    const employeeDirectory = await asUser(employeeId, () =>
+      db.query("select * from public.read_academy_store_directory()"),
+    );
+    assert.ok(employeeDirectory.rows.length > 0);
+    assert.ok(employeeDirectory.rows.every((row) => row.store_id === storeId));
+    assert.deepEqual(
+      employeeDirectory.rows.map((row) => row.employee_name).sort(),
+      ["Emilia Employee", "Ola Koleżanka"],
+    );
+    assert.deepEqual(Object.keys(employeeDirectory.rows[0]).sort(), [
+      "city",
+      "country_code",
+      "employee_name",
+      "is_active",
+      "latitude",
+      "longitude",
+      "postal_code",
+      "store_id",
+      "store_name",
+      "street_address",
+    ]);
+    assert.equal(employeeDirectory.rows[0].latitude, 52.2297);
+    assert.equal(employeeDirectory.rows[0].longitude, 21.0122);
+
+    const otherEmployeeDirectory = await asUser(secondEmployeeId, () =>
+      db.query("select * from public.read_academy_store_directory()"),
+    );
+    assert.ok(otherEmployeeDirectory.rows.every((row) => row.store_id === secondStoreId));
+    assert.deepEqual(otherEmployeeDirectory.rows.map((row) => row.employee_name), ["Olek"]);
+
+    const adminDirectory = await asUser(adminId, () =>
+      db.query("select * from public.read_academy_store_directory()"),
+    );
+    assert.deepEqual(
+      [...new Set(adminDirectory.rows.map((row) => row.store_id))].sort(),
+      [storeId, secondStoreId].sort(),
+    );
+
+    await db.query("select set_config('request.jwt.claim.sub', '', false)");
+    await assert.rejects(
+      db.query("select * from public.read_academy_store_directory()"),
+      /Authentication is required/,
+    );
+
+    await db.exec("set role anon");
+    try {
+      await assert.rejects(
+        db.query("select * from public.read_academy_store_directory()"),
+        /permission denied/,
+      );
+    } finally {
+      await db.exec("reset role");
+    }
+  });
+
   it("prevents employees from creating invites or changing their role", async () => {
     await asUser(employeeId, async () => {
       await assert.rejects(
@@ -165,7 +234,7 @@ describe("Academy foundation migration", { concurrency: false }, () => {
       const profiles = await db.query("select email from public.profiles order by email");
       const stores = await db.query("select name from public.stores order by name");
 
-      assert.equal(profiles.rows.length, 3);
+      assert.equal(profiles.rows.length, 4);
       assert.equal(stores.rows.length, 2);
 
       const created = await db.query(

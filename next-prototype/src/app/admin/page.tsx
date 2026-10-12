@@ -101,6 +101,7 @@ async function AdminDashboard() {
           <div className="mt-2 flex flex-wrap gap-4">
             <LinkButton href="/admin/courses">Zarządzaj szkoleniami</LinkButton>
             <LinkButton href="/admin/progress" variant="secondary">Postępy pracowników</LinkButton>
+            <LinkButton href="/stores" variant="secondary">Mapa sklepów</LinkButton>
           </div>
         </header>
 

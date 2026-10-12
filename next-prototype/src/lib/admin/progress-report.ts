@@ -85,10 +85,10 @@ function readRow(value: Record<string, unknown>): AdminProgressRow | null {
 }
 
 export async function readAdminProgress(): Promise<AdminProgressRead> {
-  try {
-    const profile = await requireAcademyProfile();
-    if (profile.role !== "admin") return { status: "forbidden" };
+  const profile = await requireAcademyProfile();
+  if (profile.role !== "admin") return { status: "forbidden" };
 
+  try {
     const supabase = await createAcademyServerClient();
     const { data, error } = await supabase.rpc("read_academy_admin_progress");
     if (error || !Array.isArray(data)) return { status: "error" };

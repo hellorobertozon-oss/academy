@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Bebas_Neue, Inter } from "next/font/google";
 import { AcademyProvider } from "@/components/academy-provider";
+import "leaflet/dist/leaflet.css";
 import "@/styles/globals.css";
 
 const inter = Inter({
