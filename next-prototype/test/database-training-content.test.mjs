@@ -10,6 +10,7 @@ const assignmentsMigration = new URL("../supabase/migrations/20261012120000_acad
 const progressMigration = new URL("../supabase/migrations/20261012130000_academy_lesson_progress.sql", import.meta.url);
 const quizMigration = new URL("../supabase/migrations/20261012140000_academy_quizzes.sql", import.meta.url);
 const leaderboardMigration = new URL("../supabase/migrations/20261012150000_academy_leaderboard.sql", import.meta.url);
+const adminProgressMigration = new URL("../supabase/migrations/20261012160000_academy_admin_progress.sql", import.meta.url);
 const adminId = "10000000-0000-4000-8000-000000000001";
 const employeeId = "10000000-0000-4000-8000-000000000002";
 const frenchEmployeeId = "10000000-0000-4000-8000-000000000003";
@@ -85,6 +86,7 @@ describe("Academy course content migration", { concurrency: false }, () => {
     await db.exec(await readFile(progressMigration, "utf8"));
     await db.exec(await readFile(quizMigration, "utf8"));
     await db.exec(await readFile(leaderboardMigration, "utf8"));
+    await db.exec(await readFile(adminProgressMigration, "utf8"));
   });
 
   after(async () => {
@@ -966,6 +968,51 @@ describe("Academy course content migration", { concurrency: false }, () => {
       ),
       /Administrator access is required/,
     ));
+  });
+
+  it("reports assigned lesson and quiz progress to admins by employee, store and module", async () => {
+    const quizLesson = await db.query(
+      `select lesson.id, lesson.module_id
+       from public.quizzes as quiz
+       join public.course_lessons as lesson on lesson.id = quiz.lesson_id
+       where quiz.course_version_id = $1 and quiz.lesson_id is not null
+       order by quiz.id limit 1`,
+      [latestPublishedVersionId],
+    );
+    await asUserCommitted(employeeId, () => db.query(
+      "select * from public.complete_academy_lesson($1)",
+      [quizLesson.rows[0].id],
+    ));
+
+    const report = await asUser(adminId, () => db.query("select * from public.read_academy_admin_progress()"));
+    const employeeModule = report.rows.find((row) =>
+      row.employee_email === "employee@academy.test" && row.module_id === quizLesson.rows[0].module_id,
+    );
+    assert.ok(employeeModule);
+    assert.equal(employeeModule.store_name, "Xzone Warszawa");
+    assert.equal(employeeModule.store_city, "Warszawa");
+    assert.equal(employeeModule.lesson_count, 2);
+    assert.equal(employeeModule.completed_lesson_count, 1);
+    assert.equal(employeeModule.passed_quiz_count, 1);
+    assert.equal(employeeModule.quiz_attempt_count, 3);
+    assert.equal(employeeModule.latest_quiz_score, 100);
+    assert.ok(employeeModule.last_activity_at);
+    assert.equal(report.rows.some((row) => row.employee_email === "other@academy.test"), false);
+
+    const frenchSafetyRows = report.rows.filter((row) =>
+      row.employee_email === "fr@academy.test" && row.course_slug === "safety-briefing",
+    );
+    assert.deepEqual(frenchSafetyRows, []);
+
+    await asUser(employeeId, () => assert.rejects(
+      db.query("select * from public.read_academy_admin_progress()"),
+      /Administrator access is required/,
+    ));
+    await db.query("select set_config('request.jwt.claim.sub', '', false)");
+    await assert.rejects(
+      db.query("select * from public.read_academy_admin_progress()"),
+      /Administrator access is required/,
+    );
   });
 
   it("returns a privacy-limited global points leaderboard to employees only", async () => {
