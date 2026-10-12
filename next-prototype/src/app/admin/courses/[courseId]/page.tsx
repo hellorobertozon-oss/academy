@@ -16,6 +16,7 @@ import {
 import { SortableCollection } from "@/app/admin/courses/sortable-collection";
 import { CreateCourseDraftForm, PublishCourseForm } from "@/app/admin/courses/course-forms";
 import type { LanguageOption } from "@/app/admin/courses/course-forms";
+import { QuizTargetPanel, type AdminQuiz } from "@/app/admin/courses/quiz-forms";
 import {
   CourseAssignmentManager,
   type AssignmentEmployee,
@@ -46,6 +47,19 @@ type LessonRow = { id: number; module_id: number; sort_order: number };
 type ModuleTranslationRow = ModuleTranslation & { module_id: number };
 type LessonTranslationRow = LessonTranslation & { lesson_id: number };
 type CourseTranslationRow = CourseTranslation & { course_version_id: number };
+type QuizRow = {
+  id: number;
+  course_version_id: number;
+  module_id: number | null;
+  lesson_id: number | null;
+  pass_percentage: number;
+};
+type QuizTranslationRow = { quiz_id: number; language_code: string; title: string; instructions: string };
+type QuizQuestionRow = { id: number; quiz_id: number; sort_order: number };
+type QuizQuestionTranslationRow = { question_id: number; language_code: string; prompt: string };
+type QuizOptionRow = { id: number; question_id: number; sort_order: number };
+type QuizOptionTranslationRow = { option_id: number; language_code: string; label: string };
+type QuizCorrectAnswerRow = { question_id: number; option_id: number };
 
 function SectionHeading({ title, description }: { title: string; description: string }) {
   return (
@@ -147,20 +161,102 @@ async function CourseEditor({ courseId }: { courseId: number }) {
     : [emptyResults, emptyResults];
   const lessons = (lessonsResult.data ?? []) as LessonRow[];
   const lessonIds = lessons.map((lesson) => lesson.id);
-  const lessonTranslationsResult = lessonIds.length
-    ? await supabase
-        .from("lesson_translations")
-        .select("lesson_id, language_code, title, summary, youtube_video_id, content, product_bullets")
-        .in("lesson_id", lessonIds)
-    : emptyResults;
+  const [lessonTranslationsResult, quizzesResult] = versionId
+    ? await Promise.all([
+        lessonIds.length
+          ? supabase
+              .from("lesson_translations")
+              .select("lesson_id, language_code, title, summary, youtube_video_id, content, product_bullets")
+              .in("lesson_id", lessonIds)
+          : Promise.resolve(emptyResults),
+        supabase
+          .from("quizzes")
+          .select("id, course_version_id, module_id, lesson_id, pass_percentage")
+          .eq("course_version_id", versionId),
+      ])
+    : [emptyResults, emptyResults];
   const courseTranslations = (courseTranslationsResult.data ?? []) as CourseTranslationRow[];
   const moduleTranslations = (moduleTranslationsResult.data ?? []) as ModuleTranslationRow[];
   const lessonTranslations = (lessonTranslationsResult.data ?? []) as LessonTranslationRow[];
+  const quizRows = (quizzesResult.data ?? []) as QuizRow[];
+  const quizIds = quizRows.map((quiz) => quiz.id);
+  const [quizTranslationsResult, quizQuestionsResult] = quizIds.length
+    ? await Promise.all([
+        supabase
+          .from("quiz_translations")
+          .select("quiz_id, language_code, title, instructions")
+          .in("quiz_id", quizIds),
+        supabase
+          .from("quiz_questions")
+          .select("id, quiz_id, sort_order")
+          .in("quiz_id", quizIds)
+          .order("sort_order"),
+      ])
+    : [emptyResults, emptyResults];
+  const quizQuestionRows = (quizQuestionsResult.data ?? []) as QuizQuestionRow[];
+  const quizQuestionIds = quizQuestionRows.map((question) => question.id);
+  const [quizQuestionTranslationsResult, quizOptionsResult, quizCorrectAnswersResult] = quizQuestionIds.length
+    ? await Promise.all([
+        supabase
+          .from("quiz_question_translations")
+          .select("question_id, language_code, prompt")
+          .in("question_id", quizQuestionIds),
+        supabase
+          .from("quiz_options")
+          .select("id, question_id, sort_order")
+          .in("question_id", quizQuestionIds)
+          .order("sort_order"),
+        supabase
+          .from("quiz_correct_answers")
+          .select("question_id, option_id")
+          .in("question_id", quizQuestionIds),
+      ])
+    : [emptyResults, emptyResults, emptyResults];
+  const quizOptionRows = (quizOptionsResult.data ?? []) as QuizOptionRow[];
+  const quizOptionIds = quizOptionRows.map((option) => option.id);
+  const quizOptionTranslationsResult = quizOptionIds.length
+    ? await supabase
+        .from("quiz_option_translations")
+        .select("option_id, language_code, label")
+        .in("option_id", quizOptionIds)
+    : emptyResults;
+  const quizTranslations = (quizTranslationsResult.data ?? []) as QuizTranslationRow[];
+  const quizQuestionTranslations = (quizQuestionTranslationsResult.data ?? []) as QuizQuestionTranslationRow[];
+  const quizOptionTranslations = (quizOptionTranslationsResult.data ?? []) as QuizOptionTranslationRow[];
+  const quizCorrectAnswers = (quizCorrectAnswersResult.data ?? []) as QuizCorrectAnswerRow[];
+  const adminQuizzes: AdminQuiz[] = quizRows.map((quiz) => ({
+    ...quiz,
+    translations: quizTranslations
+      .filter((translation) => translation.quiz_id === quiz.id)
+      .map(({ language_code, title, instructions }) => ({ language_code, title, instructions })),
+    questions: quizQuestionRows
+      .filter((question) => question.quiz_id === quiz.id)
+      .map((question) => ({
+        id: question.id,
+        sort_order: question.sort_order,
+        translations: quizQuestionTranslations
+          .filter((translation) => translation.question_id === question.id)
+          .map(({ language_code, prompt }) => ({ language_code, prompt })),
+        options: quizOptionRows
+          .filter((option) => option.question_id === question.id)
+          .map((option) => ({
+            id: option.id,
+            sort_order: option.sort_order,
+            is_correct: quizCorrectAnswers.some((answer) => answer.question_id === question.id && answer.option_id === option.id),
+            translations: quizOptionTranslations
+              .filter((translation) => translation.option_id === option.id)
+              .map(({ language_code, label }) => ({ language_code, label })),
+          })),
+      })),
+  }));
   const loadError = Boolean(
     languagesResult.error || versionsResult.error || courseTranslationsResult.error || modulesResult.error ||
-    moduleTranslationsResult.error || lessonsResult.error || lessonTranslationsResult.error,
+    moduleTranslationsResult.error || lessonsResult.error || lessonTranslationsResult.error || quizzesResult.error ||
+    quizTranslationsResult.error || quizQuestionsResult.error || quizQuestionTranslationsResult.error ||
+    quizOptionsResult.error || quizCorrectAnswersResult.error || quizOptionTranslationsResult.error,
   );
   const editable = currentVersion?.status === "draft";
+  const currentVersionId = currentVersion?.id ?? 0;
   const locale = languages.find((language) => language.code === course.default_language_code);
   const moduleItems = modules.map((module) => {
     const translations = moduleTranslations.filter((translation) => translation.module_id === module.id);
@@ -169,23 +265,40 @@ async function CourseEditor({ courseId }: { courseId: number }) {
     const lessonItems = moduleLessons.map((lesson) => {
       const lessonTexts = lessonTranslations.filter((translation) => translation.lesson_id === lesson.id);
       const lessonTitle = translatedTitle(lessonTexts, course.default_language_code, "Bez tytułu");
+      const lessonQuiz = adminQuizzes.find((quiz) => quiz.lesson_id === lesson.id);
       return {
         id: lesson.id,
         title: lessonTitle,
         content: (
-          <AdminDisclosure title={`Lekcja: ${lessonTitle}`}>
-            <LessonTranslationPanel
-              moduleId={module.id}
-              lessonId={lesson.id}
-              languages={languages}
-              translations={lessonTexts}
-              defaultLanguage={course.default_language_code}
-              disabled={!editable}
-            />
-          </AdminDisclosure>
+          <div className="flex flex-col gap-3">
+            <AdminDisclosure title={`Lekcja: ${lessonTitle}`}>
+              <LessonTranslationPanel
+                moduleId={module.id}
+                lessonId={lesson.id}
+                languages={languages}
+                translations={lessonTexts}
+                defaultLanguage={course.default_language_code}
+                disabled={!editable}
+              />
+            </AdminDisclosure>
+            {lessonQuiz || editable ? (
+              <AdminDisclosure title={lessonQuiz ? `Quiz: ${lessonQuiz.translations.find((translation) => translation.language_code === course.default_language_code)?.title ?? "Quiz lekcji"}` : "+ Dodaj quiz do lekcji"}>
+                <QuizTargetPanel
+                  courseVersionId={currentVersionId}
+                  targetType="lesson"
+                  targetId={lesson.id}
+                  languages={languages}
+                  defaultLanguage={course.default_language_code}
+                  quiz={lessonQuiz}
+                  disabled={!editable}
+                />
+              </AdminDisclosure>
+            ) : null}
+          </div>
         ),
       };
     });
+    const moduleQuiz = adminQuizzes.find((quiz) => quiz.module_id === module.id);
 
     return {
       id: module.id,
@@ -205,6 +318,19 @@ async function CourseEditor({ courseId }: { courseId: number }) {
               disabled={!editable}
             />
           </AdminDisclosure>
+          {moduleQuiz || editable ? (
+            <AdminDisclosure title={moduleQuiz ? `Quiz: ${moduleQuiz.translations.find((translation) => translation.language_code === course.default_language_code)?.title ?? "Quiz modułu"}` : "+ Dodaj quiz do modułu"}>
+              <QuizTargetPanel
+                courseVersionId={currentVersionId}
+                targetType="module"
+                targetId={module.id}
+                languages={languages}
+                defaultLanguage={course.default_language_code}
+                quiz={moduleQuiz}
+                disabled={!editable}
+              />
+            </AdminDisclosure>
+          ) : null}
           {moduleLessons.length ? (
             <SortableCollection
               key={`${module.id}:${moduleLessons.map((lesson) => lesson.id).join(",")}`}

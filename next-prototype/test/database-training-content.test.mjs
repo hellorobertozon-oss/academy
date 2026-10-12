@@ -8,6 +8,7 @@ const contentMigration = new URL("../supabase/migrations/20261012100000_academy_
 const orderingMigration = new URL("../supabase/migrations/20261012110000_academy_content_ordering.sql", import.meta.url);
 const assignmentsMigration = new URL("../supabase/migrations/20261012120000_academy_course_assignments.sql", import.meta.url);
 const progressMigration = new URL("../supabase/migrations/20261012130000_academy_lesson_progress.sql", import.meta.url);
+const quizMigration = new URL("../supabase/migrations/20261012140000_academy_quizzes.sql", import.meta.url);
 const adminId = "10000000-0000-4000-8000-000000000001";
 const employeeId = "10000000-0000-4000-8000-000000000002";
 const frenchEmployeeId = "10000000-0000-4000-8000-000000000003";
@@ -81,6 +82,7 @@ describe("Academy course content migration", { concurrency: false }, () => {
     await db.exec(await readFile(orderingMigration, "utf8"));
     await db.exec(await readFile(assignmentsMigration, "utf8"));
     await db.exec(await readFile(progressMigration, "utf8"));
+    await db.exec(await readFile(quizMigration, "utf8"));
   });
 
   after(async () => {
@@ -609,5 +611,358 @@ describe("Academy course content migration", { concurrency: false }, () => {
         /Employee access is required/,
       );
     });
+  });
+
+  it("supports translated lesson and module quizzes with unlimited, protected attempts", async () => {
+    const targetLesson = await db.query(
+      `select lesson.id as lesson_id, module.id as module_id
+       from public.course_modules as module
+       join public.course_lessons as lesson on lesson.module_id = module.id
+       where module.course_version_id = $1
+       order by module.sort_order, lesson.sort_order
+       limit 1`,
+      [draftVersionId],
+    );
+    const lessonId = targetLesson.rows[0].lesson_id;
+    const moduleId = targetLesson.rows[0].module_id;
+    const questionRows = [];
+    const optionRowsByQuestion = [];
+    let lessonQuizId;
+    let moduleQuizId;
+
+    await asUserCommitted(adminId, async () => {
+      await db.query(
+        `insert into public.lesson_translations (lesson_id, language_code, title)
+         select lesson.id, course.default_language_code, 'Lekcja do testow'
+         from public.course_modules as module
+         join public.course_versions as version on version.id = module.course_version_id
+         join public.courses as course on course.id = version.course_id
+         join public.course_lessons as lesson on lesson.module_id = module.id
+         left join public.lesson_translations as translation
+           on translation.lesson_id = lesson.id and translation.language_code = course.default_language_code
+         where version.id = $1 and translation.lesson_id is null`,
+        [draftVersionId],
+      );
+      const lessonQuiz = await db.query(
+        "insert into public.quizzes (course_version_id, lesson_id) values ($1, $2) returning id",
+        [draftVersionId, lessonId],
+      );
+      lessonQuizId = lessonQuiz.rows[0].id;
+      await db.query(
+        "insert into public.quiz_translations (quiz_id, language_code, title, instructions) values ($1, 'pl', 'Test lekcji', 'Wybierz najlepsza odpowiedz.')",
+        [lessonQuizId],
+      );
+      await assert.rejects(
+        db.query("select public.publish_academy_course($1, $2)", [courseId, draftVersionId]),
+        /Every quiz needs a default-language title/,
+      );
+
+      for (let index = 0; index < 5; index += 1) {
+        const question = await db.query(
+          "insert into public.quiz_questions (quiz_id, sort_order) values ($1, $2) returning id",
+          [lessonQuizId, index],
+        );
+        const questionId = question.rows[0].id;
+        questionRows.push({ id: questionId, sort_order: index });
+        await db.query(
+          "insert into public.quiz_question_translations (question_id, language_code, prompt) values ($1, 'pl', $2)",
+          [questionId, `Pytanie ${index + 1}`],
+        );
+
+        const options = await db.query(
+          `insert into public.quiz_options (question_id, sort_order)
+           values ($1, 0), ($1, 1) returning id, sort_order`,
+          [questionId],
+        );
+        const orderedOptions = options.rows.toSorted((left, right) => left.sort_order - right.sort_order);
+        optionRowsByQuestion.push(orderedOptions);
+        await db.query(
+          `insert into public.quiz_option_translations (option_id, language_code, label)
+           values ($1, 'pl', 'Odpowiedz poprawna'), ($2, 'pl', 'Odpowiedz bledna')`,
+          [orderedOptions[0].id, orderedOptions[1].id],
+        );
+        await db.query(
+          "insert into public.quiz_correct_answers (question_id, option_id) values ($1, $2)",
+          [questionId, orderedOptions[0].id],
+        );
+      }
+
+      const moduleQuiz = await db.query(
+        "insert into public.quizzes (course_version_id, module_id) values ($1, $2) returning id",
+        [draftVersionId, moduleId],
+      );
+      moduleQuizId = moduleQuiz.rows[0].id;
+      await db.query(
+        "insert into public.quiz_translations (quiz_id, language_code, title) values ($1, 'pl', 'Test modulu')",
+        [moduleQuizId],
+      );
+      const moduleQuestion = await db.query(
+        "insert into public.quiz_questions (quiz_id, sort_order) values ($1, 0) returning id",
+        [moduleQuizId],
+      );
+      const moduleQuestionId = moduleQuestion.rows[0].id;
+      await db.query(
+        "insert into public.quiz_question_translations (question_id, language_code, prompt) values ($1, 'pl', 'Pytanie modulu')",
+        [moduleQuestionId],
+      );
+      const moduleOptions = await db.query(
+        `insert into public.quiz_options (question_id, sort_order)
+         values ($1, 0), ($1, 1) returning id, sort_order`,
+        [moduleQuestionId],
+      );
+      const orderedModuleOptions = moduleOptions.rows.toSorted((left, right) => left.sort_order - right.sort_order);
+      await db.query(
+        `insert into public.quiz_option_translations (option_id, language_code, label)
+         values ($1, 'pl', 'Tak'), ($2, 'pl', 'Nie')`,
+        [orderedModuleOptions[0].id, orderedModuleOptions[1].id],
+      );
+      await db.query(
+        "insert into public.quiz_correct_answers (question_id, option_id) values ($1, $2)",
+        [moduleQuestionId, orderedModuleOptions[0].id],
+      );
+
+      await assert.rejects(
+        db.query(
+          "insert into public.quizzes (course_version_id, module_id) values ($1, $2)",
+          [draftVersionId, moduleId],
+        ),
+        /unique constraint/,
+      );
+      await assert.rejects(
+        db.query(
+          "insert into public.quizzes (course_version_id, lesson_id) values ($1, $2)",
+          [latestPublishedVersionId, lessonId],
+        ),
+        /Quiz target must belong to its course version/,
+      );
+
+      await db.query("select public.publish_academy_course($1, $2)", [courseId, draftVersionId]);
+    });
+    latestPublishedVersionId = draftVersionId;
+
+    const buildAnswers = (correctQuestionCount) => questionRows.map((question, index) => ({
+      question_id: question.id,
+      option_id: optionRowsByQuestion[index][index < correctQuestionCount ? 0 : 1].id,
+    }));
+    const failedAttempt = await asUserCommitted(employeeId, () => db.query(
+      "select * from public.submit_academy_quiz($1, $2::jsonb)",
+      [lessonQuizId, JSON.stringify(buildAnswers(3))],
+    ));
+    assert.deepEqual(failedAttempt.rows[0], {
+      attempt_id: failedAttempt.rows[0].attempt_id,
+      attempt_number: 1,
+      correct_count: 3,
+      question_count: 5,
+      score_percentage: 60,
+      passed: false,
+      points_awarded: 0,
+    });
+
+    const passingAttempt = await asUserCommitted(employeeId, () => db.query(
+      "select * from public.submit_academy_quiz($1, $2::jsonb)",
+      [lessonQuizId, JSON.stringify(buildAnswers(4))],
+    ));
+    assert.equal(passingAttempt.rows[0].score_percentage, 80);
+    assert.equal(passingAttempt.rows[0].passed, true);
+    assert.equal(passingAttempt.rows[0].points_awarded, 20);
+    assert.equal(passingAttempt.rows[0].attempt_number, 2);
+
+    const repeatedPass = await asUserCommitted(employeeId, () => db.query(
+      "select * from public.submit_academy_quiz($1, $2::jsonb)",
+      [lessonQuizId, JSON.stringify(buildAnswers(5))],
+    ));
+    assert.equal(repeatedPass.rows[0].score_percentage, 100);
+    assert.equal(repeatedPass.rows[0].passed, true);
+    assert.equal(repeatedPass.rows[0].points_awarded, 0);
+    assert.equal(repeatedPass.rows[0].attempt_number, 3);
+
+    await asUser(employeeId, async () => {
+      const quizzes = await db.query("select id, module_id, lesson_id, pass_percentage from public.quizzes order by id");
+      assert.deepEqual(quizzes.rows, [
+        { id: lessonQuizId, module_id: null, lesson_id: lessonId, pass_percentage: 80 },
+        { id: moduleQuizId, module_id: moduleId, lesson_id: null, pass_percentage: 80 },
+      ]);
+      const questionRows = await db.query("select id from public.quiz_questions where quiz_id = $1", [lessonQuizId]);
+      assert.equal(questionRows.rows.length, 5);
+      const answers = await db.query("select question_id, option_id from public.quiz_correct_answers");
+      assert.deepEqual(answers.rows, []);
+      const attempts = await db.query(
+        "select correct_count, score_percentage, passed, points_awarded from public.quiz_attempts order by id",
+      );
+      assert.deepEqual(attempts.rows.map((attempt) => [
+        attempt.correct_count,
+        attempt.score_percentage,
+        attempt.passed,
+        attempt.points_awarded,
+      ]), [
+        [3, 60, false, 0],
+        [4, 80, true, 20],
+        [5, 100, true, 0],
+      ]);
+    });
+
+    await asUser(employeeId, () => assert.rejects(
+      db.query(
+        "insert into public.quiz_attempts (profile_id, quiz_id, submitted_answers, correct_count, question_count, score_percentage, passed, points_awarded) values ($1, $2, '[]', 0, 5, 0, false, 0)",
+        [employeeId, lessonQuizId],
+      ),
+      /permission denied/,
+    ));
+    await asUser(employeeId, () => assert.rejects(
+      db.query(
+        "select * from public.submit_academy_quiz($1, $2::jsonb)",
+        [lessonQuizId, JSON.stringify([
+          { question_id: questionRows[0].id, option_id: optionRowsByQuestion[0][0].id },
+          { question_id: questionRows[0].id, option_id: optionRowsByQuestion[0][1].id },
+        ])],
+      ),
+      /A question can only have one selected answer/,
+    ));
+
+    await asUser(frenchEmployeeId, async () => {
+      const quizzes = await db.query("select id from public.quizzes");
+      assert.deepEqual(quizzes.rows, []);
+      await assert.rejects(
+        db.query("select * from public.submit_academy_quiz($1, '[]'::jsonb)", [lessonQuizId]),
+        /Quiz is not available to this employee/,
+      );
+    });
+
+    const nextDraft = await asUserCommitted(adminId, () => db.query(
+      "select public.create_academy_course_draft($1) as version_id",
+      [courseId],
+    ));
+    draftVersionId = nextDraft.rows[0].version_id;
+    const clonedQuizzes = await asUser(adminId, async () => {
+      const quizzes = await db.query(
+        "select module_id, lesson_id, pass_percentage from public.quizzes where course_version_id = $1 order by id",
+        [draftVersionId],
+      );
+      const questions = await db.query(
+        `select quiz.id as quiz_id, count(question.id)::integer as question_count
+         from public.quizzes as quiz
+         left join public.quiz_questions as question on question.quiz_id = quiz.id
+         where quiz.course_version_id = $1
+         group by quiz.id order by quiz.id`,
+        [draftVersionId],
+      );
+      const correctAnswers = await db.query(
+        `select count(*)::integer as answer_count
+         from public.quiz_correct_answers as answer
+         join public.quiz_questions as question on question.id = answer.question_id
+         join public.quizzes as quiz on quiz.id = question.quiz_id
+         where quiz.course_version_id = $1`,
+        [draftVersionId],
+      );
+      return { quizzes, questions, correctAnswers };
+    });
+    assert.equal(clonedQuizzes.quizzes.rows.length, 2);
+    assert.ok(clonedQuizzes.quizzes.rows.every((quiz) => quiz.pass_percentage === 80));
+    assert.deepEqual(clonedQuizzes.questions.rows.map((quiz) => quiz.question_count), [5, 1]);
+    assert.equal(clonedQuizzes.correctAnswers.rows[0].answer_count, 6);
+  });
+
+  it("saves quiz structure in the default language and translations against the same answers", async () => {
+    const quizId = await asUserCommitted(adminId, async () => {
+      const target = await db.query(
+        `select lesson.id
+         from public.course_modules as module
+         join public.course_lessons as lesson on lesson.module_id = module.id
+         where module.course_version_id = $1
+           and not exists (select 1 from public.quizzes as quiz where quiz.lesson_id = lesson.id)
+         order by module.sort_order, lesson.sort_order
+         limit 1`,
+        [draftVersionId],
+      );
+      const quiz = await db.query(
+        "insert into public.quizzes (course_version_id, lesson_id) values ($1, $2) returning id",
+        [draftVersionId, target.rows[0].id],
+      );
+      const id = quiz.rows[0].id;
+      const questions = [{
+        question_id: null,
+        prompt: "Jak zapisac nowy produkt?",
+        options: [
+          { option_id: null, label: "W panelu", is_correct: true },
+          { option_id: null, label: "W notatniku", is_correct: false },
+        ],
+      }];
+      await db.query(
+        "select public.save_academy_quiz_content($1, 'pl', 'Nowy quiz', 'Wybierz odpowiedz.', $2::jsonb)",
+        [id, JSON.stringify(questions)],
+      );
+      return id;
+    });
+
+    const stored = await asUser(adminId, async () => {
+      const quizTranslation = await db.query(
+        "select title, instructions from public.quiz_translations where quiz_id = $1 and language_code = 'pl'",
+        [quizId],
+      );
+      const question = await db.query(
+        `select question.id, translation.prompt
+         from public.quiz_questions as question
+         join public.quiz_question_translations as translation on translation.question_id = question.id
+         where question.quiz_id = $1 and translation.language_code = 'pl'`,
+        [quizId],
+      );
+      const options = await db.query(
+        `select option.id, option_translation.label, (answer.option_id = option.id) as is_correct
+         from public.quiz_options as option
+         join public.quiz_question_translations as prompt on prompt.question_id = option.question_id
+         join public.quiz_option_translations as option_translation on option_translation.option_id = option.id
+         left join public.quiz_correct_answers as answer on answer.question_id = option.question_id
+         where prompt.language_code = 'pl' and option_translation.language_code = 'pl'
+           and option.question_id = $1
+         order by option.sort_order`,
+        [question.rows[0].id],
+      );
+      return { quizTranslation, question, options };
+    });
+    assert.deepEqual(stored.quizTranslation.rows, [{ title: "Nowy quiz", instructions: "Wybierz odpowiedz." }]);
+    assert.equal(stored.question.rows[0].prompt, "Jak zapisac nowy produkt?");
+    assert.equal(stored.options.rows.length, 2);
+    assert.equal(stored.options.rows.filter((option) => option.is_correct).length, 1);
+
+    await asUserCommitted(adminId, () => db.query(
+      "select public.save_academy_quiz_content($1, 'fr', 'Nouveau quiz', 'Choisissez une reponse.', $2::jsonb)",
+      [quizId, JSON.stringify([{
+        question_id: stored.question.rows[0].id,
+        prompt: "Comment ajouter un produit ?",
+        options: stored.options.rows.map((option) => ({
+          option_id: option.id,
+          label: option.is_correct ? "Dans le panneau" : "Dans un carnet",
+          is_correct: false,
+        })),
+      }])],
+    ));
+
+    await asUser(adminId, async () => {
+      const frenchRows = await db.query(
+        `select quiz_translation.title, question_translation.prompt, option_translation.label
+         from public.quiz_translations as quiz_translation
+         join public.quiz_questions as question on question.quiz_id = quiz_translation.quiz_id
+         join public.quiz_question_translations as question_translation on question_translation.question_id = question.id
+         join public.quiz_options as option on option.question_id = question.id
+         join public.quiz_option_translations as option_translation on option_translation.option_id = option.id
+         where quiz_translation.quiz_id = $1 and quiz_translation.language_code = 'fr'
+           and question_translation.language_code = 'fr' and option_translation.language_code = 'fr'
+         order by option.sort_order`,
+        [quizId],
+      );
+      assert.deepEqual(frenchRows.rows.map((row) => [row.title, row.prompt]), [
+        ["Nouveau quiz", "Comment ajouter un produit ?"],
+        ["Nouveau quiz", "Comment ajouter un produit ?"],
+      ]);
+      assert.deepEqual(frenchRows.rows.map((row) => row.label), ["Dans le panneau", "Dans un carnet"]);
+    });
+
+    await asUser(employeeId, () => assert.rejects(
+      db.query(
+        "select public.save_academy_quiz_content($1, 'pl', 'Changed', '', $2::jsonb)",
+        [quizId, JSON.stringify([])],
+      ),
+      /Administrator access is required/,
+    ));
   });
 });

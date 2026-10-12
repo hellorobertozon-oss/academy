@@ -343,11 +343,19 @@ export async function readCourseLesson(
 
 export async function readEmployeePoints(): Promise<LearningRead<number>> {
   return withEmployeeClient<number>(async (client, languageCode) => {
-    const { count, error } = await client
-      .from("lesson_completions")
-      .select("lesson_id", { count: "exact", head: true });
-    if (error) return { status: "error" };
+    const [lessonPointsResult, quizPointsResult] = await Promise.all([
+      client
+        .from("lesson_completions")
+        .select("lesson_id", { count: "exact", head: true }),
+      client
+        .from("quiz_attempts")
+        .select("id", { count: "exact", head: true })
+        .eq("points_awarded", 20),
+    ]);
+    if (lessonPointsResult.error || quizPointsResult.error) return { status: "error" };
 
-    return { status: "ok", data: (count ?? 0) * 10, languageCode };
+    const lessonPoints = (lessonPointsResult.count ?? 0) * 10;
+    const quizPoints = (quizPointsResult.count ?? 0) * 20;
+    return { status: "ok", data: lessonPoints + quizPoints, languageCode };
   });
 }
