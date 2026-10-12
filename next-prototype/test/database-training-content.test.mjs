@@ -6,13 +6,16 @@ import { PGlite } from "@electric-sql/pglite";
 const foundationMigration = new URL("../supabase/migrations/20261012090000_academy_foundation.sql", import.meta.url);
 const contentMigration = new URL("../supabase/migrations/20261012100000_academy_training_content.sql", import.meta.url);
 const orderingMigration = new URL("../supabase/migrations/20261012110000_academy_content_ordering.sql", import.meta.url);
+const assignmentsMigration = new URL("../supabase/migrations/20261012120000_academy_course_assignments.sql", import.meta.url);
 const adminId = "10000000-0000-4000-8000-000000000001";
 const employeeId = "10000000-0000-4000-8000-000000000002";
 const frenchEmployeeId = "10000000-0000-4000-8000-000000000003";
+const otherStoreEmployeeId = "10000000-0000-4000-8000-000000000004";
 
 describe("Academy course content migration", { concurrency: false }, () => {
   let db;
   let storeId;
+  let otherStoreId;
   let courseId;
   let publishedVersionId;
   let latestPublishedVersionId;
@@ -45,6 +48,11 @@ describe("Academy course content migration", { concurrency: false }, () => {
        values ('Xzone Warszawa', 'Marszałkowska 1', 'Warszawa', '00-001') returning id`,
     );
     storeId = store.rows[0].id;
+    const otherStore = await db.query(
+      `insert into public.stores (name, street_address, city, postal_code)
+       values ('Xzone KrakĂłw', 'DĹ‚uga 2', 'KrakĂłw', '30-001') returning id`,
+    );
+    otherStoreId = otherStore.rows[0].id;
     await db.query("insert into public.user_invites (email, role) values ('admin@academy.test', 'admin')");
     await db.query(
       "insert into auth.users (id, email, raw_user_meta_data) values ($1, $2, $3::jsonb)",
@@ -59,8 +67,18 @@ describe("Academy course content migration", { concurrency: false }, () => {
       [employeeId, "employee@academy.test", JSON.stringify({ first_name: "Emilia" })],
     );
 
+    await db.query(
+      "insert into public.user_invites (email, role, store_id, created_by) values ('other@academy.test', 'employee', $1, $2)",
+      [otherStoreId, adminId],
+    );
+    await db.query(
+      "insert into auth.users (id, email, raw_user_meta_data) values ($1, $2, $3::jsonb)",
+      [otherStoreEmployeeId, "other@academy.test", JSON.stringify({ first_name: "Olek" })],
+    );
+
     await db.exec(await readFile(contentMigration, "utf8"));
     await db.exec(await readFile(orderingMigration, "utf8"));
+    await db.exec(await readFile(assignmentsMigration, "utf8"));
   });
 
   after(async () => {
@@ -97,7 +115,7 @@ describe("Academy course content migration", { concurrency: false }, () => {
 
     await db.query(
       "insert into public.user_invites (email, role, store_id, created_by) values ('fr@academy.test', 'employee', $1, $2)",
-      [storeId, adminId],
+      [otherStoreId, adminId],
     );
     await db.query(
       "insert into auth.users (id, email, raw_user_meta_data) values ($1, $2, $3::jsonb)",
@@ -389,5 +407,128 @@ describe("Academy course content migration", { concurrency: false }, () => {
       [latestPublishedVersionId],
     );
     assert.deepEqual(stillPublished.rows, publishedTranslation.rows);
+  });
+
+  it("restricts published course access to assigned employees and available translations", async () => {
+    await asUserCommitted(adminId, () => db.query(
+      "insert into public.course_assignments (course_id, store_id, assigned_by) values ($1, $2, $3)",
+      [courseId, storeId, adminId],
+    ));
+    await asUserCommitted(adminId, async () => {
+      await db.query("update public.stores set is_active = false where id = $1", [otherStoreId]);
+      await assert.rejects(
+        db.query(
+          "insert into public.course_assignments (course_id, store_id, assigned_by) values ($1, $2, $3)",
+          [courseId, otherStoreId, adminId],
+        ),
+        /Course assignments can only target active stores/,
+      );
+      await db.query("update public.stores set is_active = true where id = $1", [otherStoreId]);
+    });
+
+    await asUser(otherStoreEmployeeId, async () => {
+      const courses = await db.query("select id from public.courses");
+      const assignments = await db.query("select id from public.course_assignments");
+      assert.deepEqual(courses.rows, []);
+      assert.deepEqual(assignments.rows, []);
+      await assert.rejects(
+        db.query(
+          "insert into public.course_assignments (course_id, profile_id, assigned_by) values ($1, $2, $3)",
+          [courseId, otherStoreEmployeeId, otherStoreEmployeeId],
+        ),
+        /row-level security policy/,
+      );
+    });
+
+    await asUser(employeeId, async () => {
+      const courses = await db.query("select id, published_version_id from public.courses");
+      const versions = await db.query("select id, status from public.course_versions where course_id = $1", [courseId]);
+      const translations = await db.query("select language_code, title from public.course_translations");
+      assert.deepEqual(courses.rows, [{ id: courseId, published_version_id: latestPublishedVersionId }]);
+      assert.deepEqual(versions.rows, [{ id: latestPublishedVersionId, status: "published" }]);
+      assert.deepEqual(translations.rows, [{ language_code: "pl", title: "Wersja robocza" }]);
+    });
+
+    let untranslatedCourseId;
+    await asUserCommitted(adminId, async () => {
+      const created = await db.query(
+        "select * from public.create_academy_course($1, $2, $3)",
+        ["safety-briefing", "pl", "Zasady bezpieczenstwa"],
+      );
+      untranslatedCourseId = created.rows[0].course_id;
+      const versionId = created.rows[0].version_id;
+      await db.query(
+        "insert into public.course_translations (course_version_id, language_code, title) values ($1, 'fr', 'Consignes de securite')",
+        [versionId],
+      );
+      const courseModule = await db.query(
+        "insert into public.course_modules (course_version_id, sort_order) values ($1, 0) returning id",
+        [versionId],
+      );
+      await db.query(
+        "insert into public.module_translations (module_id, language_code, title) values ($1, 'pl', 'Zasady')",
+        [courseModule.rows[0].id],
+      );
+      const lesson = await db.query(
+        "insert into public.course_lessons (module_id, sort_order) values ($1, 0) returning id",
+        [courseModule.rows[0].id],
+      );
+      await db.query(
+        `insert into public.lesson_translations (lesson_id, language_code, title, content)
+         values ($1, 'pl', 'Podstawy bezpieczenstwa', '{"type":"doc","content":[{"type":"paragraph"}]}'::jsonb)`,
+        [lesson.rows[0].id],
+      );
+      await db.query("select public.publish_academy_course($1, $2)", [untranslatedCourseId, versionId]);
+      await db.query(
+        "insert into public.course_assignments (course_id, profile_id, assigned_by) values ($1, $2, $3), ($4, $2, $3)",
+        [courseId, frenchEmployeeId, adminId, untranslatedCourseId],
+      );
+      await assert.rejects(
+        db.query(
+          "insert into public.course_assignments (course_id, profile_id, assigned_by) values ($1, $2, $3)",
+          [courseId, adminId, adminId],
+        ),
+        /Course assignments can only target employees/,
+      );
+      await assert.rejects(
+        db.query(
+          "insert into public.course_assignments (course_id, store_id, assigned_by) values ($1, $2, $3)",
+          [courseId, otherStoreId, employeeId],
+        ),
+        /Assignment actor must match the authenticated user/,
+      );
+    });
+
+    await asUser(frenchEmployeeId, async () => {
+      const courses = await db.query(
+        `select course.id, translation.title
+         from public.courses as course
+         join public.course_translations as translation
+           on translation.course_version_id = course.published_version_id
+         order by course.id`,
+      );
+      const moduleCourses = await db.query(
+        `select version.course_id
+         from public.course_modules as module
+         join public.course_versions as version on version.id = module.course_version_id
+         order by version.course_id, module.id`,
+      );
+      const lessonCourses = await db.query(
+        `select version.course_id
+         from public.course_lessons as lesson
+         join public.course_modules as module on module.id = lesson.module_id
+         join public.course_versions as version on version.id = module.course_version_id
+         order by version.course_id, lesson.id`,
+      );
+      const translations = await db.query("select language_code, title from public.lesson_translations");
+
+      assert.deepEqual(courses.rows, [
+        { id: courseId, title: "Bases de conduite" },
+        { id: untranslatedCourseId, title: "Consignes de securite" },
+      ]);
+      assert.deepEqual(moduleCourses.rows, [{ course_id: courseId }]);
+      assert.deepEqual(lessonCourses.rows, [{ course_id: courseId }]);
+      assert.deepEqual(translations.rows, [{ language_code: "fr", title: "Avant de partir" }]);
+    });
   });
 });

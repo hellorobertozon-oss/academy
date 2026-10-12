@@ -13,9 +13,9 @@ The SQL migrations in `migrations/` are versioned source code. They have **not**
 - Lesson translations store Tiptap-compatible JSON, a validated YouTube video ID and optional short product bullet points.
 - Publishing checks that each module and lesson has a title in the course's default language. Creating the next draft copies the published translations and content.
 - `20261012110000_academy_content_ordering.sql` adds atomic module and lesson ordering functions. They accept only the complete ID list for a draft, so an employee or partial reorder cannot change published order.
-- RLS keeps lesson content hidden from employees until course assignments and employee reading rules are added in a later stage.
+- `20261012120000_academy_course_assignments.sql` adds course assignments for stores and individual employees. Employees can read only assigned, published courses and content translated into their preferred language. Untranslated modules and lessons stay hidden, and assignment records are admin-only.
 
-The content migration and its access rules are exercised against isolated PGlite by `npm test`; the tests do not use either remote Supabase project.
+The content, ordering and assignment migrations are exercised against isolated PGlite by `npm test`; the tests cover language filtering and row-level access without connecting to either remote Supabase project.
 
 ## Local environment
 
