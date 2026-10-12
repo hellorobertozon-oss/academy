@@ -5,6 +5,7 @@ import { PGlite } from "@electric-sql/pglite";
 
 const foundationMigration = new URL("../supabase/migrations/20261012090000_academy_foundation.sql", import.meta.url);
 const contentMigration = new URL("../supabase/migrations/20261012100000_academy_training_content.sql", import.meta.url);
+const orderingMigration = new URL("../supabase/migrations/20261012110000_academy_content_ordering.sql", import.meta.url);
 const adminId = "10000000-0000-4000-8000-000000000001";
 const employeeId = "10000000-0000-4000-8000-000000000002";
 const frenchEmployeeId = "10000000-0000-4000-8000-000000000003";
@@ -59,6 +60,7 @@ describe("Academy course content migration", { concurrency: false }, () => {
     );
 
     await db.exec(await readFile(contentMigration, "utf8"));
+    await db.exec(await readFile(orderingMigration, "utf8"));
   });
 
   after(async () => {
@@ -267,6 +269,70 @@ describe("Academy course content migration", { concurrency: false }, () => {
   });
 
   it("keeps course content and language changes unavailable to employees", async () => {
+    const firstModule = await db.query(
+      "select id from public.course_modules where course_version_id = $1 order by sort_order limit 1",
+      [draftVersionId],
+    );
+    const firstModuleId = firstModule.rows[0].id;
+    const secondModule = await asUserCommitted(adminId, async () => {
+      const result = await db.query(
+        "insert into public.course_modules (course_version_id, sort_order) values ($1, 1) returning id",
+        [draftVersionId],
+      );
+      await db.query(
+        "insert into public.module_translations (module_id, language_code, title) values ($1, 'pl', 'Drugi moduł')",
+        [result.rows[0].id],
+      );
+      return result;
+    });
+    const secondModuleId = secondModule.rows[0].id;
+    const secondLesson = await asUserCommitted(adminId, () => db.query(
+      "insert into public.course_lessons (module_id, sort_order) values ($1, 1) returning id",
+      [firstModuleId],
+    ));
+    const secondLessonId = secondLesson.rows[0].id;
+    const firstLesson = await db.query(
+      "select id from public.course_lessons where module_id = $1 and id <> $2 order by sort_order limit 1",
+      [firstModuleId, secondLessonId],
+    );
+    const firstLessonId = firstLesson.rows[0].id;
+
+    await asUserCommitted(adminId, async () => {
+      await db.query(
+        "select public.reorder_academy_modules($1, ARRAY[$2::bigint, $3::bigint])",
+        [draftVersionId, secondModuleId, firstModuleId],
+      );
+      await db.query(
+        "select public.reorder_academy_lessons($1, ARRAY[$2::bigint, $3::bigint])",
+        [firstModuleId, secondLessonId, firstLessonId],
+      );
+    });
+    const reorderedModules = await db.query(
+      "select id from public.course_modules where course_version_id = $1 order by sort_order",
+      [draftVersionId],
+    );
+    const reorderedLessons = await db.query(
+      "select id from public.course_lessons where module_id = $1 order by sort_order",
+      [firstModuleId],
+    );
+    assert.deepEqual(reorderedModules.rows.map((row) => row.id), [secondModuleId, firstModuleId]);
+    assert.deepEqual(reorderedLessons.rows.map((row) => row.id), [secondLessonId, firstLessonId]);
+
+    await asUser(adminId, () => assert.rejects(
+      db.query(
+        "select public.reorder_academy_modules($1, ARRAY[$2::bigint, $2::bigint])",
+        [draftVersionId, firstModuleId],
+      ),
+      /every module exactly once/,
+    ));
+    await asUser(employeeId, () => assert.rejects(
+      db.query(
+        "select public.reorder_academy_modules($1, ARRAY[$2::bigint, $3::bigint])",
+        [draftVersionId, secondModuleId, firstModuleId],
+      ),
+      /Administrator access is required/,
+    ));
+
     await asUser(employeeId, async () => {
       const courses = await db.query("select id from public.courses");
       const versions = await db.query("select id from public.course_versions");

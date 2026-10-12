@@ -1,4 +1,5 @@
 import { AcademyHeader } from "@/components/academy-header";
+import { LinkButton } from "@/components/base/buttons/link-button";
 import {
   Table,
   TableBody,
@@ -97,6 +98,9 @@ async function AdminDashboard() {
           <p className="max-w-3xl text-body-regular text-text-secondary">
             Zarządzaj sklepami, dostępem pracowników i administratorami.
           </p>
+          <div className="mt-2 flex flex-wrap gap-4">
+            <LinkButton href="/admin/courses">Zarządzaj szkoleniami</LinkButton>
+          </div>
         </header>
 
         {loadError ? (

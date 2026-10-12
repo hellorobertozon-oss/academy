@@ -12,6 +12,7 @@ The SQL migrations in `migrations/` are versioned source code. They have **not**
 - A course has immutable published versions and at most one editable draft. Modules, lessons and their translations belong to a version.
 - Lesson translations store Tiptap-compatible JSON, a validated YouTube video ID and optional short product bullet points.
 - Publishing checks that each module and lesson has a title in the course's default language. Creating the next draft copies the published translations and content.
+- `20261012110000_academy_content_ordering.sql` adds atomic module and lesson ordering functions. They accept only the complete ID list for a draft, so an employee or partial reorder cannot change published order.
 - RLS keeps lesson content hidden from employees until course assignments and employee reading rules are added in a later stage.
 
 The content migration and its access rules are exercised against isolated PGlite by `npm test`; the tests do not use either remote Supabase project.
