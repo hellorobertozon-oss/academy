@@ -2,7 +2,19 @@
 
 This project is scoped to the Supabase project ref `aslzogstpyppmbdhvuss` (Academy). The separate `supabase` project is Magazyn. Check the root `AGENTS.md` before any database command.
 
-The migration in `migrations/` is versioned source code. It has **not** been applied to a remote database. The app validates the configured Supabase hostname and refuses to connect if it points at Magazyn or another project.
+The SQL migrations in `migrations/` are versioned source code. They have **not** been applied to a remote database. The app validates the configured Supabase hostname and refuses to connect if it points at Magazyn or another project.
+
+## Training content model
+
+`20261012100000_academy_training_content.sql` adds the initial content CMS schema:
+
+- `academy_languages` is an editable list seeded with Polish, English, German and Czech.
+- A course has immutable published versions and at most one editable draft. Modules, lessons and their translations belong to a version.
+- Lesson translations store Tiptap-compatible JSON, a validated YouTube video ID and optional short product bullet points.
+- Publishing checks that each module and lesson has a title in the course's default language. Creating the next draft copies the published translations and content.
+- RLS keeps lesson content hidden from employees until course assignments and employee reading rules are added in a later stage.
+
+The content migration and its access rules are exercised against isolated PGlite by `npm test`; the tests do not use either remote Supabase project.
 
 ## Local environment
 
