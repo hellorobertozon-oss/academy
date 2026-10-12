@@ -103,6 +103,8 @@ export interface AuthCardProps {
   inputLabelClassName?: string;
   inputClassName?: string;
   submitButtonClassName?: string;
+  submitButtonLabel?: ReactNode;
+  isSubmitting?: boolean;
   submitButtonVariant?: ButtonProps["variant"];
   forgotPasswordLabel?: ReactNode;
   forgotPasswordHref?: string;
@@ -167,6 +169,8 @@ export function AuthCard({
   inputLabelClassName,
   inputClassName,
   submitButtonClassName,
+  submitButtonLabel,
+  isSubmitting = false,
   submitButtonVariant = "primary",
   forgotPasswordLabel,
   forgotPasswordHref,
@@ -257,7 +261,7 @@ export function AuthCard({
         </p>
       </div>
 
-      <form onSubmit={submit} className="mt-8 flex flex-col gap-5">
+      <form onSubmit={submit} className="mt-8 flex flex-col gap-5" aria-busy={isSubmitting}>
         {verify ? (
           <div className="flex flex-col gap-1.5">
             <span className="text-body-medium text-text-secondary">
@@ -344,8 +348,8 @@ export function AuthCard({
           </div>
         )}
 
-        <Button type="submit" variant={submitButtonVariant} className={cx("w-full", submitButtonClassName)}>
-          {copy.cta}
+        <Button type="submit" variant={submitButtonVariant} disabled={isSubmitting} className={cx("w-full", submitButtonClassName)}>
+          {submitButtonLabel ?? copy.cta}
         </Button>
 
         {!signup && !verify && forgotPasswordHref ? (

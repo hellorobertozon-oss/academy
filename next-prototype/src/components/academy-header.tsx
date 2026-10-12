@@ -18,6 +18,7 @@ import { Select, SelectItem } from "@/components/base/select/select";
 import { useAcademy } from "@/components/academy-provider";
 import { backActionClassName } from "@/components/route-button";
 import { cx } from "@/utils/cx";
+import { createAcademyBrowserClient } from "@/lib/supabase/browser";
 
 type HeaderMode = "landing" | "login" | "app";
 
@@ -25,6 +26,18 @@ export function AcademyHeader({ mode }: { mode: HeaderMode }) {
   const { language, setLanguage, t } = useAcademy();
   const router = useRouter();
   const appMode = mode === "app";
+
+  async function signOut() {
+    try {
+      const supabase = createAcademyBrowserClient();
+      await supabase.auth.signOut();
+    } catch {
+      // Continue to the public login page if the session has already expired.
+    } finally {
+      router.replace("/login");
+      router.refresh();
+    }
+  }
 
   return (
     <header className={cx(
@@ -111,7 +124,7 @@ export function AcademyHeader({ mode }: { mode: HeaderMode }) {
                     {t("changePassword")}
                   </DropdownItem>
                   <DropdownDivider />
-                  <DropdownItem onSelect={() => router.push("/")}>
+                  <DropdownItem onSelect={() => void signOut()}>
                     {t("logout")}
                   </DropdownItem>
                 </DropdownGroup>

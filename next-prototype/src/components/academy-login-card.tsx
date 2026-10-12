@@ -6,6 +6,7 @@ import Image from "next/image";
 import { AuthCard } from "@/components/application/auth/auth-card";
 import { TemplateCopyProvider } from "@/components/foundations/template-copy/template-copy";
 import { useAcademy, type CopyKey } from "@/components/academy-provider";
+import { createAcademyBrowserClient } from "@/lib/supabase/browser";
 
 const AUTH_COPY: Record<string, string> = {
   Email: "email",
@@ -27,6 +28,37 @@ export function AcademyLoginCard({ headingLevel = 1, className, showLogo = false
   const { t } = useAcademy();
   const router = useRouter();
   const [status, setStatus] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  async function submit(data: FormData) {
+    if (isSubmitting) return;
+
+    setIsSubmitting(true);
+    setStatus("");
+
+    try {
+      const supabase = createAcademyBrowserClient();
+      const email = String(data.get("email") ?? "").trim().toLowerCase();
+      const password = String(data.get("password") ?? "");
+      const { error } = await supabase.auth.signInWithPassword({ email, password });
+
+      if (error) {
+        setStatus(
+          error.message.toLowerCase().includes("email not confirmed")
+            ? t("loginEmailNotConfirmed")
+            : t("loginMessage"),
+        );
+        return;
+      }
+
+      router.replace("/dashboard");
+      router.refresh();
+    } catch {
+      setStatus(t("loginConfigurationError"));
+    } finally {
+      setIsSubmitting(false);
+    }
+  }
 
   return (
     <>
@@ -46,15 +78,17 @@ export function AcademyLoginCard({ headingLevel = 1, className, showLogo = false
           showRemember={false}
           showAccountSwitch={false}
           headingLevel={headingLevel}
-          forgotPasswordHref="#forgot-password"
+          forgotPasswordHref="/forgot-password"
           forgotPasswordLabel={t("forgotPassword")}
-          onForgotPassword={() => setStatus(t("recoveryMessage"))}
+          onForgotPassword={() => router.push("/forgot-password")}
           inputFieldClassName="min-h-16 rounded-full border-0 bg-auth-input-background px-6 py-4"
           inputLabelClassName="text-title-3-semibold"
           inputClassName="text-title-3-regular text-auth-input-foreground placeholder:text-title-3-regular placeholder:text-auth-input-placeholder"
           submitButtonVariant="secondary"
           submitButtonClassName="h-14 w-full self-end rounded-full border-transparent bg-[#3EDEB6] px-6 text-title-2-semibold text-[#141B4D] shadow-none hover:border-[#2CC69C] hover:bg-[#2CC69C] active:border-[#1A9C7A] active:bg-[#1A9C7A]"
-          onSubmit={() => router.push("/dashboard")}
+          onSubmit={submit}
+          submitButtonLabel={isSubmitting ? t("loginSubmitting") : undefined}
+          isSubmitting={isSubmitting}
           className={className ?? "max-w-[540px] border-border-button-default bg-background-primary-default p-6 shadow-none sm:p-8"}
         />
       </TemplateCopyProvider>
