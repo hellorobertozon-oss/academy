@@ -2,6 +2,7 @@ import { notFound, redirect } from "next/navigation";
 import { RiArrowLeftLine, RiArrowRightLine } from "@remixicon/react";
 import { AcademyHeader } from "@/components/academy-header";
 import { LinkButton } from "@/components/base/buttons/link-button";
+import { LessonCompletion } from "@/components/pages/lesson-completion";
 import { RichContent } from "@/components/pages/rich-content";
 import { readCourseLesson } from "@/lib/academy/learning";
 import { getLearningCopy } from "@/lib/academy/learning-copy";
@@ -89,6 +90,17 @@ export default async function Page({
               </ul>
             </section>
           ) : null}
+          <div className="border-t border-separator-border pt-6">
+            <LessonCompletion
+              lessonId={lesson.id}
+              completed={lesson.completed}
+              markLabel={copy.markLessonComplete}
+              completedLabel={copy.lessonCompleted}
+              pendingLabel={copy.completionPending}
+              awardedMessage={copy.completionAwarded}
+              errorMessage={copy.completionError}
+            />
+          </div>
         </article>
 
         <nav aria-label={copy.lessons} className="grid gap-3 sm:grid-cols-2">

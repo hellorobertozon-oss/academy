@@ -7,6 +7,7 @@ const foundationMigration = new URL("../supabase/migrations/20261012090000_acade
 const contentMigration = new URL("../supabase/migrations/20261012100000_academy_training_content.sql", import.meta.url);
 const orderingMigration = new URL("../supabase/migrations/20261012110000_academy_content_ordering.sql", import.meta.url);
 const assignmentsMigration = new URL("../supabase/migrations/20261012120000_academy_course_assignments.sql", import.meta.url);
+const progressMigration = new URL("../supabase/migrations/20261012130000_academy_lesson_progress.sql", import.meta.url);
 const adminId = "10000000-0000-4000-8000-000000000001";
 const employeeId = "10000000-0000-4000-8000-000000000002";
 const frenchEmployeeId = "10000000-0000-4000-8000-000000000003";
@@ -79,6 +80,7 @@ describe("Academy course content migration", { concurrency: false }, () => {
     await db.exec(await readFile(contentMigration, "utf8"));
     await db.exec(await readFile(orderingMigration, "utf8"));
     await db.exec(await readFile(assignmentsMigration, "utf8"));
+    await db.exec(await readFile(progressMigration, "utf8"));
   });
 
   after(async () => {
@@ -529,6 +531,83 @@ describe("Academy course content migration", { concurrency: false }, () => {
       assert.deepEqual(moduleCourses.rows, [{ course_id: courseId }]);
       assert.deepEqual(lessonCourses.rows, [{ course_id: courseId }]);
       assert.deepEqual(translations.rows, [{ language_code: "fr", title: "Avant de partir" }]);
+    });
+  });
+
+  it("stores lesson completion once, awards points once, and limits access", async () => {
+    const lesson = await db.query(
+      `select lesson.id
+       from public.course_versions as version
+       join public.course_modules as module on module.course_version_id = version.id
+       join public.course_lessons as lesson on lesson.module_id = module.id
+       where version.id = $1
+       order by module.sort_order, lesson.sort_order
+       limit 1`,
+      [latestPublishedVersionId],
+    );
+    const lessonId = lesson.rows[0].id;
+
+    const firstCompletion = await asUserCommitted(employeeId, () => db.query(
+      "select * from public.complete_academy_lesson($1)",
+      [lessonId],
+    ));
+    assert.deepEqual(firstCompletion.rows, [{
+      lesson_id: lessonId,
+      completed_at: firstCompletion.rows[0].completed_at,
+      points_awarded: 10,
+      newly_completed: true,
+    }]);
+
+    const repeatedCompletion = await asUserCommitted(employeeId, () => db.query(
+      "select * from public.complete_academy_lesson($1)",
+      [lessonId],
+    ));
+    assert.equal(repeatedCompletion.rows[0].newly_completed, false);
+    assert.equal(repeatedCompletion.rows[0].points_awarded, 10);
+    assert.equal(repeatedCompletion.rows[0].completed_at.toISOString(), firstCompletion.rows[0].completed_at.toISOString());
+
+    await asUser(employeeId, async () => {
+      const completions = await db.query("select lesson_id, points_awarded from public.lesson_completions");
+      assert.deepEqual(completions.rows, [{ lesson_id: lessonId, points_awarded: 10 }]);
+      await assert.rejects(
+        db.query(
+          "insert into public.lesson_completions (profile_id, lesson_id) values ($1, $2)",
+          [employeeId, lessonId],
+        ),
+        /permission denied/,
+      );
+    });
+
+    await asUser(otherStoreEmployeeId, async () => {
+      const completions = await db.query("select lesson_id from public.lesson_completions");
+      assert.deepEqual(completions.rows, []);
+      await assert.rejects(
+        db.query("select * from public.complete_academy_lesson($1)", [lessonId]),
+        /Lesson is not available to this employee/,
+      );
+    });
+
+    const draftLesson = await db.query(
+      `select lesson.id
+       from public.course_modules as module
+       join public.course_lessons as lesson on lesson.module_id = module.id
+       where module.course_version_id = $1
+       order by module.sort_order, lesson.sort_order
+       limit 1`,
+      [draftVersionId],
+    );
+    await asUser(employeeId, () => assert.rejects(
+      db.query("select * from public.complete_academy_lesson($1)", [draftLesson.rows[0].id]),
+      /Lesson is not available to this employee/,
+    ));
+
+    await asUser(adminId, async () => {
+      const completions = await db.query("select lesson_id, profile_id from public.lesson_completions");
+      assert.deepEqual(completions.rows, [{ lesson_id: lessonId, profile_id: employeeId }]);
+      await assert.rejects(
+        db.query("select * from public.complete_academy_lesson($1)", [lessonId]),
+        /Employee access is required/,
+      );
     });
   });
 });

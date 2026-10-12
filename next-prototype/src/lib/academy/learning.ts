@@ -18,6 +18,7 @@ export type LearningCourseCard = {
   description: string;
   moduleCount: number;
   lessonCount: number;
+  completedLessonCount: number;
 };
 
 export type LearningCourseOutline = {
@@ -29,7 +30,7 @@ export type LearningCourseOutline = {
     id: number;
     title: string;
     summary: string;
-    lessons: Array<{ id: number; title: string; summary: string }>;
+    lessons: Array<{ id: number; title: string; summary: string; completed: boolean }>;
   }>;
 };
 
@@ -43,6 +44,7 @@ export type LearningLesson = {
     youtube_video_id: string | null;
     content: unknown;
     product_bullets: string[];
+    completed: boolean;
   };
   previousLessonId: number | null;
   nextLessonId: number | null;
@@ -55,6 +57,7 @@ type CourseTranslationRow = { course_version_id: number; title: string; descript
 type ModuleRow = { id: number; course_version_id: number; sort_order: number };
 type ModuleTranslationRow = { module_id: number; title: string; summary: string };
 type LessonRow = { id: number; module_id: number; sort_order: number };
+type LessonCompletionRow = { lesson_id: number; points_awarded: number };
 type LessonTranslationRow = {
   lesson_id: number;
   title: string;
@@ -109,12 +112,19 @@ export async function readAssignedCourses(): Promise<LearningRead<LearningCourse
       : { data: [], error: null };
     if (lessonsResult.error) return { status: "error" };
 
+    const lessonRows = (lessonsResult.data ?? []) as LessonRow[];
+    const lessonIds = lessonRows.map((lesson) => lesson.id);
+    const completionsResult = lessonIds.length
+      ? await client.from("lesson_completions").select("lesson_id").in("lesson_id", lessonIds)
+      : { data: [], error: null };
+    if (completionsResult.error) return { status: "error" };
+
     const modulesByVersion = new Map<number, number>();
     for (const courseModule of modules) {
       modulesByVersion.set(courseModule.course_version_id, (modulesByVersion.get(courseModule.course_version_id) ?? 0) + 1);
     }
     const lessonCountsByModule = new Map<number, number>();
-    for (const lesson of lessonsResult.data ?? []) {
+    for (const lesson of lessonRows) {
       lessonCountsByModule.set(lesson.module_id, (lessonCountsByModule.get(lesson.module_id) ?? 0) + 1);
     }
     const lessonsByVersion = new Map<number, number>();
@@ -123,6 +133,19 @@ export async function readAssignedCourses(): Promise<LearningRead<LearningCourse
         courseModule.course_version_id,
         (lessonsByVersion.get(courseModule.course_version_id) ?? 0) + (lessonCountsByModule.get(courseModule.id) ?? 0),
       );
+    }
+    const moduleById = new Map(modules.map((courseModule) => [courseModule.id, courseModule]));
+    const lessonById = new Map(lessonRows.map((lesson) => [lesson.id, lesson]));
+    const completedCountsByVersion = new Map<number, number>();
+    for (const completion of (completionsResult.data ?? []) as Array<Pick<LessonCompletionRow, "lesson_id">>) {
+      const lesson = lessonById.get(completion.lesson_id);
+      const courseModule = lesson ? moduleById.get(lesson.module_id) : undefined;
+      if (courseModule) {
+        completedCountsByVersion.set(
+          courseModule.course_version_id,
+          (completedCountsByVersion.get(courseModule.course_version_id) ?? 0) + 1,
+        );
+      }
     }
     const translationByVersion = new Map(translations.map((translation) => [translation.course_version_id, translation]));
 
@@ -140,6 +163,7 @@ export async function readAssignedCourses(): Promise<LearningRead<LearningCourse
           description: translation.description,
           moduleCount: modulesByVersion.get(course.published_version_id) ?? 0,
           lessonCount: lessonsByVersion.get(course.published_version_id) ?? 0,
+          completedLessonCount: completedCountsByVersion.get(course.published_version_id) ?? 0,
         }];
       }),
     };
@@ -196,13 +220,19 @@ async function readCourseOutlineWithClient(
 
   const lessons = (lessonsResult.data ?? []) as LessonRow[];
   const lessonIds = lessons.map((lesson) => lesson.id);
-  const lessonTranslationsResult = lessonIds.length
-    ? await client
-        .from("lesson_translations")
-        .select("lesson_id, title, summary")
-        .in("lesson_id", lessonIds)
-    : { data: [], error: null };
-  if (lessonTranslationsResult.error) return { status: "error" };
+  const [lessonTranslationsResult, completionsResult] = lessonIds.length
+    ? await Promise.all([
+        client
+          .from("lesson_translations")
+          .select("lesson_id, title, summary")
+          .in("lesson_id", lessonIds),
+        client
+          .from("lesson_completions")
+          .select("lesson_id")
+          .in("lesson_id", lessonIds),
+      ])
+    : [{ data: [], error: null }, { data: [], error: null }];
+  if (lessonTranslationsResult.error || completionsResult.error) return { status: "error" };
 
   const moduleTranslations = new Map(
     ((moduleTranslationsResult.data ?? []) as ModuleTranslationRow[]).map((translation) => [translation.module_id, translation]),
@@ -210,6 +240,10 @@ async function readCourseOutlineWithClient(
   const lessonTranslations = new Map(
     ((lessonTranslationsResult.data ?? []) as Array<Pick<LessonTranslationRow, "lesson_id" | "title" | "summary">>)
       .map((translation) => [translation.lesson_id, translation]),
+  );
+  const completedLessonIds = new Set(
+    ((completionsResult.data ?? []) as Array<Pick<LessonCompletionRow, "lesson_id">>)
+      .map((completion) => completion.lesson_id),
   );
   const courseTranslation = courseTranslationResult.data as CourseTranslationRow;
   const outline: LearningCourseOutline = {
@@ -228,7 +262,12 @@ async function readCourseOutlineWithClient(
           if (lesson.module_id !== courseModule.id) return [];
           const lessonTranslation = lessonTranslations.get(lesson.id);
           return lessonTranslation
-            ? [{ id: lesson.id, title: lessonTranslation.title, summary: lessonTranslation.summary }]
+            ? [{
+                id: lesson.id,
+                title: lessonTranslation.title,
+                summary: lessonTranslation.summary,
+                completed: completedLessonIds.has(lesson.id),
+              }]
             : [];
         }),
       }];
@@ -291,6 +330,7 @@ export async function readCourseLesson(
           youtube_video_id: lessonTranslation.youtube_video_id,
           content: lessonTranslation.content,
           product_bullets: lessonTranslation.product_bullets,
+          completed: parentModule.lessons.find((courseLesson) => courseLesson.id === lessonId)?.completed ?? false,
         },
         previousLessonId: lessonIndex > 0 ? allLessons[lessonIndex - 1].id : null,
         nextLessonId: lessonIndex >= 0 && lessonIndex < allLessons.length - 1 ? allLessons[lessonIndex + 1].id : null,
@@ -298,5 +338,16 @@ export async function readCourseLesson(
         lessonCount: allLessons.length,
       },
     };
+  });
+}
+
+export async function readEmployeePoints(): Promise<LearningRead<number>> {
+  return withEmployeeClient<number>(async (client, languageCode) => {
+    const { count, error } = await client
+      .from("lesson_completions")
+      .select("lesson_id", { count: "exact", head: true });
+    if (error) return { status: "error" };
+
+    return { status: "ok", data: (count ?? 0) * 10, languageCode };
   });
 }

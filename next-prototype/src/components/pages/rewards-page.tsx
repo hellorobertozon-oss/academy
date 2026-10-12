@@ -7,7 +7,6 @@ import { backActionClassName, RouteButton } from "@/components/route-button";
 import { useAcademy } from "@/components/academy-provider";
 import { cx } from "@/utils/cx";
 
-const currentPoints = 200;
 const rewardTarget = 500;
 
 const pointRules = [
@@ -15,9 +14,9 @@ const pointRules = [
   { title: "rewardTestTitle", points: 20 },
 ] as const;
 
-export function RewardsPage() {
+export function RewardsPage({ currentPoints }: { currentPoints: number | null }) {
   const { t } = useAcademy();
-  const pointsToReward = Math.max(rewardTarget - currentPoints, 0);
+  const pointsToReward = currentPoints === null ? null : Math.max(rewardTarget - currentPoints, 0);
 
   return (
     <div className="min-h-screen bg-background-full">
@@ -33,6 +32,12 @@ export function RewardsPage() {
           <h1 className="mt-2 font-display text-display-2-regular uppercase tracking-wide text-text-primary">{t("rewardsTitle")}</h1>
           <p className="mt-3 max-w-2xl text-body-regular text-text-secondary">{t("rewardsDescriptionLong")}</p>
         </header>
+
+        {currentPoints === null ? (
+          <div role="alert" className="mt-6 rounded-2xl border border-border-error-default bg-background-primary-default p-4 text-body-regular text-text-error-primary">
+            {t("progressLoadError")}
+          </div>
+        ) : null}
 
         <section className="mt-8 overflow-hidden rounded-3xl border border-border-button-default bg-background-primary-default shadow-lg" aria-label={t("rewardBadge")}>
           <div className="grid lg:grid-cols-[minmax(0,0.95fr)_minmax(0,1.05fr)]">
@@ -77,11 +82,13 @@ export function RewardsPage() {
                   <div>
                     <p className="text-body-medium text-text-secondary">{t("pointsBalance")}</p>
                     <p className="mt-1 font-display text-display-2-regular tabular-nums text-accent-300">
-                      {currentPoints}<span className="ms-1 text-body-medium">{t("pointsUnit")}</span>
+                      {currentPoints ?? "—"}<span className="ms-1 text-body-medium">{t("pointsUnit")}</span>
                     </p>
                   </div>
                   <div className="text-end">
-                    {pointsToReward > 0 ? (
+                    {pointsToReward === null ? (
+                      <p className="pt-5 text-body-semibold text-text-tertiary">—</p>
+                    ) : pointsToReward > 0 ? (
                       <>
                         <p className="text-body-medium text-text-secondary">{t("rewardPointsMissingLabel")}</p>
                         <p className="mt-1 font-display text-display-2-regular tabular-nums text-text-primary">

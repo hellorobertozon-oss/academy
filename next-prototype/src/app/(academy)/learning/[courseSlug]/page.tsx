@@ -1,5 +1,5 @@
 import { notFound, redirect } from "next/navigation";
-import { RiArrowLeftLine, RiArrowRightLine } from "@remixicon/react";
+import { RiArrowLeftLine, RiArrowRightLine, RiCheckLine } from "@remixicon/react";
 import { AcademyHeader } from "@/components/academy-header";
 import { Badge } from "@/components/base/badges/badge";
 import { LinkButton } from "@/components/base/buttons/link-button";
@@ -71,6 +71,12 @@ export default async function Page({ params }: { params: Promise<{ courseSlug: s
                                 <span className="text-title-3-medium text-text-primary">{lesson.title}</span>
                                 {lesson.summary ? <span className="text-body-2-regular text-text-secondary">{lesson.summary}</span> : null}
                               </span>
+                              {lesson.completed ? (
+                                <span className="ms-auto flex shrink-0 items-center gap-1 text-caption-1-semibold text-accent-300">
+                                  <RiCheckLine className="size-4" aria-hidden="true" />
+                                  <span className="sr-only">{copy.lessonCompleted}</span>
+                                </span>
+                              ) : null}
                             </span>
                           </LinkButton>
                         </li>

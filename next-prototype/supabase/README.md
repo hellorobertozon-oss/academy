@@ -15,8 +15,9 @@ The SQL migrations in `migrations/` are versioned source code. They have **not**
 - `20261012110000_academy_content_ordering.sql` adds atomic module and lesson ordering functions. They accept only the complete ID list for a draft, so an employee or partial reorder cannot change published order.
 - `20261012120000_academy_course_assignments.sql` adds course assignments for stores and individual employees. Employees can read only assigned, published courses and content translated into their preferred language. Untranslated modules and lessons stay hidden, and assignment records are admin-only.
 - The employee learning pages read the course list, outline and lesson from these RLS-protected tables. Changing Polish/English in the app updates the profile language used by those read policies.
+- `20261012130000_academy_lesson_progress.sql` records one completion per employee and lesson, awards 10 points once, and exposes completion rows only to that employee and admins. Employees must complete an assigned, published lesson available in their language; writes go through a security-definer function.
 
-The content, ordering and assignment migrations are exercised against isolated PGlite by `npm test`; the tests cover language filtering and row-level access without connecting to either remote Supabase project.
+The content, ordering, assignment and lesson-progress migrations are exercised against isolated PGlite by `npm test`; the tests cover language filtering, row-level access and idempotent point awards without connecting to either remote Supabase project.
 
 ## Local environment
 
@@ -43,5 +44,5 @@ Add the local app URL and the production callback URL to Academy Auth's allowed 
 
 ## Local checks
 
-`npm test` runs the migration against an isolated PGlite database and tests invitation enforcement and row-level access. These tests do not connect to either Supabase project.
+`npm test` runs the migrations against an isolated PGlite database and tests invitation enforcement, row-level access, and lesson completion. These tests do not connect to either Supabase project.
 

@@ -55,6 +55,31 @@ export default async function Page() {
                     <Badge color="neutral">{course.moduleCount} {copy.modules}</Badge>
                     <Badge color="neutral">{course.lessonCount} {copy.lessons}</Badge>
                   </div>
+                  {course.lessonCount > 0 ? (
+                    <div className="flex w-full max-w-xl flex-col gap-2">
+                      <div className="flex items-center justify-between gap-4">
+                        <span className="text-body-2-medium text-text-secondary">{copy.progressLabel}</span>
+                        <span className="text-body-2-medium tabular-nums text-text-secondary">
+                          {course.completedLessonCount}/{course.lessonCount}
+                        </span>
+                      </div>
+                      <div
+                        role="progressbar"
+                        aria-label={copy.courseProgress
+                          .replace("{completed}", String(course.completedLessonCount))
+                          .replace("{total}", String(course.lessonCount))}
+                        aria-valuemin={0}
+                        aria-valuemax={course.lessonCount}
+                        aria-valuenow={course.completedLessonCount}
+                        className="h-2 overflow-hidden rounded-full bg-background-secondary-default"
+                      >
+                        <div
+                          className="h-full rounded-full bg-accent-300 transition-[width] duration-300"
+                          style={{ width: `${Math.round((course.completedLessonCount / course.lessonCount) * 100)}%` }}
+                        />
+                      </div>
+                    </div>
+                  ) : null}
                 </div>
                 <LinkButton href={`/learning/${course.slug}`} trailingIcon={RiArrowRightLine} className="self-start sm:self-center">
                   {copy.openCourse}
