@@ -15,7 +15,7 @@ import {
   DropdownTrigger,
 } from "@/components/base/dropdown/dropdown";
 import { Select, SelectItem } from "@/components/base/select/select";
-import { useAcademy } from "@/components/academy-provider";
+import { useAcademy, type AcademyLanguage } from "@/components/academy-provider";
 import { backActionClassName } from "@/components/route-button";
 import { cx } from "@/utils/cx";
 import { createAcademyBrowserClient } from "@/lib/supabase/browser";
@@ -83,7 +83,7 @@ export function AcademyHeader({ mode }: { mode: HeaderMode }) {
             <Select
               aria-label={t("language")}
               selectedKey={language}
-              onSelectionChange={(key) => setLanguage(String(key) as "pl" | "en")}
+              onSelectionChange={(key) => setLanguage(String(key) as AcademyLanguage)}
               triggerClassName="min-h-10 border-0 bg-transparent px-1.5 py-2 text-text-primary shadow-none hover:border-transparent hover:bg-transparent"
               popoverClassName="z-50"
             >
@@ -98,6 +98,18 @@ export function AcademyHeader({ mode }: { mode: HeaderMode }) {
                   <Image src="/assets/flag-en.svg" alt="" fill sizes="24px" />
                 </span>
                 <span>{t("english")}</span>
+              </SelectItem>
+              <SelectItem id="de">
+                <span aria-hidden="true" className="relative size-6 shrink-0 overflow-hidden rounded-full border border-separator-border">
+                  <Image src="/assets/flag-de.svg" alt="" fill sizes="24px" />
+                </span>
+                <span>{t("german")}</span>
+              </SelectItem>
+              <SelectItem id="cs">
+                <span aria-hidden="true" className="relative size-6 shrink-0 overflow-hidden rounded-full border border-separator-border">
+                  <Image src="/assets/flag-cs.svg" alt="" fill sizes="24px" />
+                </span>
+                <span>{t("czech")}</span>
               </SelectItem>
             </Select>
 

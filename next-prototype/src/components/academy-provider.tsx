@@ -1,11 +1,16 @@
 "use client";
 
-import { createContext, useCallback, useContext, useEffect, useMemo, useState, useSyncExternalStore, type ReactNode } from "react";
+import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState, useSyncExternalStore, type ReactNode } from "react";
 import { useRouter } from "next/navigation";
 import { DirectionProvider } from "@/components/foundations/direction/direction";
-import { updatePreferredLanguageAction } from "@/app/language-actions";
+import { readPreferredLanguageAction, updatePreferredLanguageAction } from "@/app/language-actions";
 
-export type AcademyLanguage = "pl" | "en";
+export const ACADEMY_LANGUAGES = ["pl", "en", "de", "cs"] as const;
+export type AcademyLanguage = (typeof ACADEMY_LANGUAGES)[number];
+
+function isAcademyLanguage(value: unknown): value is AcademyLanguage {
+  return typeof value === "string" && ACADEMY_LANGUAGES.includes(value as AcademyLanguage);
+}
 
 const COPY = {
   pl: {
@@ -17,6 +22,8 @@ const COPY = {
     language: "Zmień język",
     polish: "Polski",
     english: "English",
+    german: "German",
+    czech: "Czech",
     profile: "Profil",
     profileMenu: "Menu profilu",
     changePassword: "Zmień hasło",
@@ -338,6 +345,8 @@ const COPY = {
     language: "Change language",
     polish: "Polski",
     english: "English",
+    german: "German",
+    czech: "Czech",
     profile: "Profile",
     profileMenu: "Profile menu",
     changePassword: "Change password",
@@ -693,7 +702,8 @@ function subscribeToLanguage(notify: () => void) {
 }
 
 function getStoredLanguage(): AcademyLanguage {
-  return window.localStorage.getItem("xzone-academy-language") === "en" ? "en" : "pl";
+  const stored = window.localStorage.getItem("xzone-academy-language");
+  return isAcademyLanguage(stored) ? stored : "pl";
 }
 
 function getServerLanguage(): AcademyLanguage {
@@ -704,6 +714,20 @@ export function AcademyProvider({ children }: { children: ReactNode }) {
   const router = useRouter();
   const language = useSyncExternalStore(subscribeToLanguage, getStoredLanguage, getServerLanguage);
   const [completedLessons, setCompletedLessons] = useState<CopyKey[]>([]);
+  const didChangeLanguage = useRef(false);
+
+  useEffect(() => {
+    let active = true;
+    void readPreferredLanguageAction().then((preferredLanguage) => {
+      if (!active || didChangeLanguage.current || !isAcademyLanguage(preferredLanguage)) return;
+      window.localStorage.setItem("xzone-academy-language", preferredLanguage);
+      window.dispatchEvent(new Event(LANGUAGE_EVENT));
+    }).catch(() => {});
+
+    return () => {
+      active = false;
+    };
+  }, []);
 
   useEffect(() => {
     const syncCompletedLessons = () => setCompletedLessons(readCompletedLessons());
@@ -718,6 +742,7 @@ export function AcademyProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const setLanguage = useCallback((nextLanguage: AcademyLanguage) => {
+    didChangeLanguage.current = true;
     void updatePreferredLanguageAction(nextLanguage).then((saved) => {
       if (!saved) return;
       window.localStorage.setItem("xzone-academy-language", nextLanguage);
@@ -737,10 +762,10 @@ export function AcademyProvider({ children }: { children: ReactNode }) {
     }
     setCompletedLessons(next);
   }, [completedLessons]);
-  const t = useCallback((key: CopyKey) => COPY[language][key], [language]);
+  const t = useCallback((key: CopyKey) => (language === "pl" ? COPY.pl : COPY.en)[key], [language]);
 
   useEffect(() => {
-    document.documentElement.lang = language === "pl" ? "pl" : "en";
+    document.documentElement.lang = language;
   }, [language]);
 
   const value = useMemo(
@@ -749,7 +774,7 @@ export function AcademyProvider({ children }: { children: ReactNode }) {
   );
 
   return (
-    <DirectionProvider locale={language === "pl" ? "pl-PL" : "en-US"}>
+    <DirectionProvider locale={{ pl: "pl-PL", en: "en-US", de: "de-DE", cs: "cs-CZ" }[language]}>
       <AcademyContext.Provider value={value}>{children}</AcademyContext.Provider>
     </DirectionProvider>
   );
