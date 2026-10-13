@@ -3,9 +3,9 @@ import { readFile } from "node:fs/promises";
 import { after, before, describe, it } from "node:test";
 import { PGlite } from "@electric-sql/pglite";
 
-const foundationMigration = new URL("../supabase/migrations/20261012090000_academy_foundation.sql", import.meta.url);
-const contentMigration = new URL("../supabase/migrations/20261012100000_academy_training_content.sql", import.meta.url);
-const orderingMigration = new URL("../supabase/migrations/20261012110000_academy_content_ordering.sql", import.meta.url);
+const foundationMigration = new URL("../supabase/migrations/20261013080542_academy_foundation.sql", import.meta.url);
+const contentMigration = new URL("../supabase/migrations/20261013080612_academy_training_content.sql", import.meta.url);
+const orderingMigration = new URL("../supabase/migrations/20261013080624_academy_content_ordering.sql", import.meta.url);
 const assignmentsMigration = new URL("../supabase/migrations/20261012120000_academy_course_assignments.sql", import.meta.url);
 const progressMigration = new URL("../supabase/migrations/20261012130000_academy_lesson_progress.sql", import.meta.url);
 const quizMigration = new URL("../supabase/migrations/20261012140000_academy_quizzes.sql", import.meta.url);

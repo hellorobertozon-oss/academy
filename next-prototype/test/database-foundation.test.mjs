@@ -3,7 +3,7 @@ import { readFile } from "node:fs/promises";
 import { after, before, describe, it } from "node:test";
 import { PGlite } from "@electric-sql/pglite";
 
-const migrationPath = new URL("../supabase/migrations/20261012090000_academy_foundation.sql", import.meta.url);
+const migrationPath = new URL("../supabase/migrations/20261013080542_academy_foundation.sql", import.meta.url);
 const storeDirectoryMigrationPath = new URL("../supabase/migrations/20261012170000_academy_store_directory.sql", import.meta.url);
 const adminId = "00000000-0000-4000-8000-000000000001";
 const employeeId = "00000000-0000-4000-8000-000000000002";
@@ -335,4 +335,3 @@ describe("Academy foundation migration", { concurrency: false }, () => {
     );
   });
 });
-

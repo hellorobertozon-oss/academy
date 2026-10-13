@@ -1,18 +1,18 @@
 # Academy Supabase setup
 
-This project is scoped to the Supabase project ref `aslzogstpyppmbdhvuss` (Academy). The separate `supabase` project is Magazyn. Check the root `AGENTS.md` before any database command.
+This project is scoped to the Supabase project ref `aslzogstpyppmbdhvuss` (Academy). The separate `supabase-magazyn` project is Magazyn. Check the root `AGENTS.md` before any database command.
 
-The SQL migrations in `migrations/` are versioned source code. They have **not** been applied to a remote database. The app validates the configured Supabase hostname and refuses to connect if it points at Magazyn or another project.
+The SQL migrations in `migrations/` are versioned source code. The first three migrations (`academy_foundation`, `academy_training_content`, and `academy_content_ordering`) have been applied to the Academy project. The remaining six have not yet been applied. The app validates the configured Supabase hostname and refuses to connect if it points at Magazyn or another project.
 
 ## Training content model
 
-`20261012100000_academy_training_content.sql` adds the initial content CMS schema:
+`20261013080612_academy_training_content.sql` adds the initial content CMS schema:
 
 - `academy_languages` is an editable list seeded with Polish, English, German and Czech.
 - A course has immutable published versions and at most one editable draft. Modules, lessons and their translations belong to a version.
 - Lesson translations store Tiptap-compatible JSON, a validated YouTube video ID and optional short product bullet points.
 - Publishing checks that each module and lesson has a title in the course's default language. Creating the next draft copies the published translations and content.
-- `20261012110000_academy_content_ordering.sql` adds atomic module and lesson ordering functions. They accept only the complete ID list for a draft, so an employee or partial reorder cannot change published order.
+- `20261013080624_academy_content_ordering.sql` adds atomic module and lesson ordering functions. They accept only the complete ID list for a draft, so an employee or partial reorder cannot change published order.
 - `20261012120000_academy_course_assignments.sql` adds course assignments for stores and individual employees. Employees can read only assigned, published courses and content translated into their preferred language. Untranslated modules and lessons stay hidden, and assignment records are admin-only.
 - The employee learning pages read the course list, outline and lesson from these RLS-protected tables. Changing Polish/English in the app updates the profile language used by those read policies.
 - `20261012130000_academy_lesson_progress.sql` records one completion per employee and lesson, awards 10 points once, and exposes completion rows only to that employee and admins. Employees must complete an assigned, published lesson available in their language; writes go through a security-definer function.
@@ -50,4 +50,3 @@ Add the local app URL and the production callback URL to Academy Auth's allowed 
 ## Local checks
 
 `npm test` runs the migrations against an isolated PGlite database and tests invitation enforcement, row-level access, lesson completion, quiz scoring, leaderboard access, admin progress reporting and store-directory access. These tests do not connect to either Supabase project.
-
