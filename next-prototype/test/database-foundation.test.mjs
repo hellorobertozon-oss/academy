@@ -25,6 +25,7 @@ describe("Academy foundation migration", { concurrency: false }, () => {
       create table auth.users (
         id uuid primary key,
         email text,
+        email_confirmed_at timestamptz,
         raw_user_meta_data jsonb not null default '{}'::jsonb
       );
       create function auth.uid()
@@ -56,7 +57,7 @@ describe("Academy foundation migration", { concurrency: false }, () => {
       ["admin@academy.test"],
     );
     await db.query(
-      "insert into auth.users (id, email, raw_user_meta_data) values ($1, $2, $3::jsonb)",
+      "insert into auth.users (id, email, email_confirmed_at, raw_user_meta_data) values ($1, $2, now(), $3::jsonb)",
       [adminId, "admin@academy.test", JSON.stringify({ first_name: "Anna", last_name: "Admin" })],
     );
 
@@ -65,7 +66,7 @@ describe("Academy foundation migration", { concurrency: false }, () => {
       ["employee@academy.test", storeId, adminId],
     );
     await db.query(
-      "insert into auth.users (id, email, raw_user_meta_data) values ($1, $2, $3::jsonb)",
+      "insert into auth.users (id, email, email_confirmed_at, raw_user_meta_data) values ($1, $2, now(), $3::jsonb)",
       [
         employeeId,
         "employee@academy.test",
@@ -84,7 +85,7 @@ describe("Academy foundation migration", { concurrency: false }, () => {
       ["other@academy.test", secondStoreId, adminId],
     );
     await db.query(
-      "insert into auth.users (id, email, raw_user_meta_data) values ($1, $2, $3::jsonb)",
+      "insert into auth.users (id, email, email_confirmed_at, raw_user_meta_data) values ($1, $2, now(), $3::jsonb)",
       [secondEmployeeId, "other@academy.test", JSON.stringify({ first_name: "Olek" })],
     );
 
@@ -93,7 +94,7 @@ describe("Academy foundation migration", { concurrency: false }, () => {
       ["coworker@academy.test", storeId, adminId],
     );
     await db.query(
-      "insert into auth.users (id, email, raw_user_meta_data) values ($1, $2, $3::jsonb)",
+      "insert into auth.users (id, email, email_confirmed_at, raw_user_meta_data) values ($1, $2, now(), $3::jsonb)",
       [coworkerId, "coworker@academy.test", JSON.stringify({ first_name: "Ola", last_name: "Koleżanka" })],
     );
 
@@ -140,6 +141,53 @@ describe("Academy foundation migration", { concurrency: false }, () => {
       ["employee@academy.test"],
     );
     assert.equal(invite.rows[0].accepted, true);
+  });
+
+  it("keeps an invitation pending until its email is confirmed", async () => {
+    const pendingId = "00000000-0000-4000-8000-000000000006";
+    await db.query(
+      "insert into public.user_invites (email, role) values ('pending@academy.test', 'admin')",
+    );
+    await db.query(
+      "insert into auth.users (id, email, raw_user_meta_data) values ($1, 'pending@academy.test', '{}'::jsonb)",
+      [pendingId],
+    );
+
+    const beforeConfirmation = await db.query(
+      "select accepted_at from public.user_invites where email = 'pending@academy.test'",
+    );
+    assert.equal(beforeConfirmation.rows[0].accepted_at, null);
+
+    await db.query(
+      "update auth.users set email_confirmed_at = now() where id = $1",
+      [pendingId],
+    );
+    const afterConfirmation = await db.query(
+      "select accepted_at is not null as accepted from public.user_invites where email = 'pending@academy.test'",
+    );
+    assert.equal(afterConfirmation.rows[0].accepted, true);
+  });
+
+  it("does not accept a revoked invitation", async () => {
+    const revokedId = "00000000-0000-4000-8000-000000000007";
+    await db.query(
+      "insert into public.user_invites (email, role) values ('revoked@academy.test', 'admin')",
+    );
+    await db.query(
+      "insert into auth.users (id, email, raw_user_meta_data) values ($1, 'revoked@academy.test', '{}'::jsonb)",
+      [revokedId],
+    );
+    await db.query(
+      "update public.user_invites set revoked_at = now() where email = 'revoked@academy.test'",
+    );
+
+    await assert.rejects(
+      db.query(
+        "update auth.users set email_confirmed_at = now() where id = $1",
+        [revokedId],
+      ),
+      /active Academy invitation/,
+    );
   });
 
   it("limits employees to their own profile and assigned store", async () => {
@@ -258,7 +306,7 @@ describe("Academy foundation migration", { concurrency: false }, () => {
       const profiles = await db.query("select email from public.profiles order by email");
       const stores = await db.query("select name from public.stores order by name");
 
-      assert.equal(profiles.rows.length, 4);
+      assert.equal(profiles.rows.length, 6);
       assert.equal(stores.rows.length, 2);
 
       const created = await db.query(

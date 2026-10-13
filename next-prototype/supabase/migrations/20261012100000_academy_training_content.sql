@@ -59,10 +59,6 @@ begin
     requested_language := 'pl';
   end if;
 
-  update public.user_invites
-  set accepted_at = now()
-  where id = invitation.id;
-
   insert into public.profiles (
     id, email, first_name, last_name, role, store_id, preferred_language
   ) values (
@@ -74,6 +70,12 @@ begin
     invitation.store_id,
     coalesce(requested_language, 'pl')
   );
+
+  if new.email_confirmed_at is not null then
+    update public.user_invites
+    set accepted_at = now()
+    where id = invitation.id;
+  end if;
 
   return new;
 end;

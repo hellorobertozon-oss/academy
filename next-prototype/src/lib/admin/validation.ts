@@ -1,9 +1,12 @@
 export type AdminRole = "admin" | "employee";
+export const INVITE_LANGUAGES = ["pl", "en", "de", "cs"] as const;
+export type InviteLanguage = (typeof INVITE_LANGUAGES)[number];
 
 export type InviteInput = {
   email: string;
   role: AdminRole;
   store_id: number | null;
+  preferred_language: InviteLanguage;
 };
 
 export type StoreInput = {
@@ -28,6 +31,7 @@ export function parseInviteInput(input: {
   email: unknown;
   role: unknown;
   storeId: unknown;
+  preferredLanguage: unknown;
 }): ValidationResult<InviteInput> {
   const email = text(input.email).toLowerCase();
   if (
@@ -41,8 +45,21 @@ export function parseInviteInput(input: {
     return { ok: false, error: "Wybierz prawidłową rolę." };
   }
 
+  const preferredLanguage = text(input.preferredLanguage || "pl");
+  if (!INVITE_LANGUAGES.includes(preferredLanguage as InviteLanguage)) {
+    return { ok: false, error: "Wybierz prawidłowy język zaproszenia." };
+  }
+
   if (input.role === "admin") {
-    return { ok: true, value: { email, role: "admin", store_id: null } };
+    return {
+      ok: true,
+      value: {
+        email,
+        role: "admin",
+        store_id: null,
+        preferred_language: preferredLanguage as InviteLanguage,
+      },
+    };
   }
 
   const storeId = Number(input.storeId);
@@ -52,7 +69,12 @@ export function parseInviteInput(input: {
 
   return {
     ok: true,
-    value: { email, role: "employee", store_id: storeId },
+    value: {
+      email,
+      role: "employee",
+      store_id: storeId,
+      preferred_language: preferredLanguage as InviteLanguage,
+    },
   };
 }
 

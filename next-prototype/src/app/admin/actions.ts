@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import { getCurrentAcademyProfile } from "@/lib/auth/profile";
 import type { AdminActionState } from "@/lib/admin/action-state";
 import { parseInviteInput, parseStoreInput } from "@/lib/admin/validation";
+import { isAcademyEmailConfigured, sendAcademyInvitationEmail } from "@/lib/email/send-invitation";
 import { createAcademyAdminClient } from "@/lib/supabase/admin";
 import { createAcademyServerClient } from "@/lib/supabase/server";
 
@@ -36,6 +37,39 @@ async function getAdminContext() {
   const profile = await getCurrentAcademyProfile();
   if (!profile || profile.role !== "admin") return null;
   return { profile, supabase: await createAcademyServerClient() };
+}
+
+async function revokePendingInvite(
+  supabase: Awaited<ReturnType<typeof createAcademyServerClient>>,
+  inviteId: number,
+) {
+  try {
+    const { data, error: revokeError } = await supabase
+      .from("user_invites")
+      .update({ revoked_at: new Date().toISOString() })
+      .eq("id", inviteId)
+      .is("accepted_at", null)
+      .select("id");
+
+    return !revokeError && data?.length === 1;
+  } catch {
+    return false;
+  }
+}
+
+async function deleteUnconfirmedAuthUser(
+  admin: ReturnType<typeof createAcademyAdminClient>,
+  userId: string | null,
+  emailConfirmedAt: string | null,
+) {
+  if (!userId || emailConfirmedAt) return true;
+
+  try {
+    const { error: deleteError } = await admin.auth.admin.deleteUser(userId);
+    return !deleteError;
+  } catch {
+    return false;
+  }
 }
 
 export async function createStoreAction(
@@ -82,8 +116,12 @@ export async function createUserInviteAction(
     email: formData.get("email"),
     role: formData.get("role"),
     storeId: formData.get("store_id"),
+    preferredLanguage: formData.get("preferred_language"),
   });
   if (!parsed.ok) return error(parsed.error);
+  if (!isAcademyEmailConfigured()) {
+    return error("Uzupełnij konfigurację Resend, aby wysyłać zaproszenia.");
+  }
 
   let siteUrl: string;
   try {
@@ -92,10 +130,20 @@ export async function createUserInviteAction(
     return error("Ustaw adres aplikacji w NEXT_PUBLIC_SITE_URL.");
   }
 
+  let admin: ReturnType<typeof createAcademyAdminClient>;
+  try {
+    admin = createAcademyAdminClient();
+  } catch {
+    return error("Sprawdź serwerową konfigurację Supabase Admin API.");
+  }
+
+  const { email, role, store_id, preferred_language } = parsed.value;
   const { data: invite, error: insertError } = await access.supabase
     .from("user_invites")
     .insert({
-      ...parsed.value,
+      email,
+      role,
+      store_id,
       created_by: access.profile.id,
     })
     .select("id")
@@ -112,28 +160,70 @@ export async function createUserInviteAction(
   const redirectTo = new URL("/auth/confirm", siteUrl);
   redirectTo.searchParams.set("next", "/change-password");
 
+  let actionLink: string | null = null;
+  let generatedUserId: string | null = null;
+  let generatedUserEmailConfirmed: string | null = null;
   try {
-    const admin = createAcademyAdminClient();
-    const { error: authError } = await admin.auth.admin.inviteUserByEmail(
-      parsed.value.email,
-      { redirectTo: redirectTo.toString() },
-    );
+    const { data: generatedInvite, error: linkError } = await admin.auth.admin.generateLink({
+      type: "invite",
+      email,
+      options: {
+        redirectTo: redirectTo.toString(),
+        data: { preferred_language },
+      },
+    });
 
-    if (authError) {
-      await access.supabase
-        .from("user_invites")
-        .update({ revoked_at: new Date().toISOString() })
-        .eq("id", invite.id)
-        .is("accepted_at", null);
-      return error("Nie udało się wysłać zaproszenia. Sprawdź konfigurację SMTP Resend w Supabase Auth.");
+    if (generatedInvite?.user) {
+      generatedUserId = generatedInvite.user.id;
+      generatedUserEmailConfirmed = generatedInvite.user.email_confirmed_at ?? null;
+    }
+    if (!linkError && generatedInvite?.properties?.action_link) {
+      actionLink = generatedInvite.properties.action_link;
     }
   } catch {
-    await access.supabase
-      .from("user_invites")
-      .update({ revoked_at: new Date().toISOString() })
-      .eq("id", invite.id)
-      .is("accepted_at", null);
-    return error("Nie udało się wysłać zaproszenia. Sprawdź konfigurację Supabase Auth.");
+    actionLink = null;
+  }
+
+  if (!actionLink || !generatedUserId) {
+    const userDeleted = await deleteUnconfirmedAuthUser(
+      admin,
+      generatedUserId,
+      generatedUserEmailConfirmed,
+    );
+    const inviteRevoked = await revokePendingInvite(access.supabase, invite.id);
+    revalidatePath("/admin");
+
+    if (!userDeleted || !inviteRevoked) {
+      return error("Nie udało się przygotować zaproszenia. Sprawdź status konta i zaproszenia w panelu.");
+    }
+
+    return error("Nie udało się przygotować zaproszenia. Sprawdź konfigurację Supabase Auth.");
+  }
+
+  const emailResult = await sendAcademyInvitationEmail({
+    to: email,
+    actionLink,
+    language: preferred_language,
+  });
+
+  if (!emailResult.ok) {
+    const userDeleted = await deleteUnconfirmedAuthUser(
+      admin,
+      generatedUserId,
+      generatedUserEmailConfirmed,
+    );
+    const inviteRevoked = await revokePendingInvite(access.supabase, invite.id);
+    revalidatePath("/admin");
+
+    if (!userDeleted || !inviteRevoked) {
+      return error("Wysyłka nie powiodła się. Sprawdź status konta i zaproszenia w panelu.");
+    }
+
+    return error(
+      emailResult.reason === "configuration"
+        ? "Uzupełnij konfigurację Resend, aby wysyłać zaproszenia."
+        : "Resend nie wysłał zaproszenia. Sprawdź konfigurację adresu nadawcy.",
+    );
   }
 
   revalidatePath("/admin");

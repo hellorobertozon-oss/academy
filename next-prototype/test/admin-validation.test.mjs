@@ -11,6 +11,7 @@ describe("admin invite validation", () => {
       email: "  KASIA@EXAMPLE.COM ",
       role: "employee",
       storeId: "12",
+      preferredLanguage: "de",
     });
 
     assert.deepEqual(result, {
@@ -19,6 +20,7 @@ describe("admin invite validation", () => {
         email: "kasia@example.com",
         role: "employee",
         store_id: 12,
+        preferred_language: "de",
       },
     });
   });
@@ -28,6 +30,7 @@ describe("admin invite validation", () => {
       email: "kasia@example.com",
       role: "employee",
       storeId: "",
+      preferredLanguage: "pl",
     });
 
     assert.equal(result.ok, false);
@@ -38,12 +41,29 @@ describe("admin invite validation", () => {
       email: "admin@example.com",
       role: "admin",
       storeId: "12",
+      preferredLanguage: "cs",
     });
 
     assert.deepEqual(result, {
       ok: true,
-      value: { email: "admin@example.com", role: "admin", store_id: null },
+      value: {
+        email: "admin@example.com",
+        role: "admin",
+        store_id: null,
+        preferred_language: "cs",
+      },
     });
+  });
+
+  it("rejects unsupported invitation languages", () => {
+    const result = parseInviteInput({
+      email: "kasia@example.com",
+      role: "admin",
+      storeId: "",
+      preferredLanguage: "fr",
+    });
+
+    assert.equal(result.ok, false);
   });
 });
 

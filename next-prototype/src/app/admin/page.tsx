@@ -146,6 +146,7 @@ async function AdminDashboard() {
                 name: store.name,
                 city: store.city,
               }))}
+              defaultLanguage={profile.preferred_language}
             />
           </div>
         </section>

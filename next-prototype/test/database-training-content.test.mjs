@@ -35,6 +35,7 @@ describe("Academy course content migration", { concurrency: false }, () => {
       create table auth.users (
         id uuid primary key,
         email text,
+        email_confirmed_at timestamptz,
         raw_user_meta_data jsonb not null default '{}'::jsonb
       );
       create function auth.uid()
@@ -59,7 +60,7 @@ describe("Academy course content migration", { concurrency: false }, () => {
     otherStoreId = otherStore.rows[0].id;
     await db.query("insert into public.user_invites (email, role) values ('admin@academy.test', 'admin')");
     await db.query(
-      "insert into auth.users (id, email, raw_user_meta_data) values ($1, $2, $3::jsonb)",
+      "insert into auth.users (id, email, email_confirmed_at, raw_user_meta_data) values ($1, $2, now(), $3::jsonb)",
       [adminId, "admin@academy.test", JSON.stringify({ first_name: "Anna" })],
     );
     await db.query(
@@ -67,7 +68,7 @@ describe("Academy course content migration", { concurrency: false }, () => {
       [storeId, adminId],
     );
     await db.query(
-      "insert into auth.users (id, email, raw_user_meta_data) values ($1, $2, $3::jsonb)",
+      "insert into auth.users (id, email, email_confirmed_at, raw_user_meta_data) values ($1, $2, now(), $3::jsonb)",
       [employeeId, "employee@academy.test", JSON.stringify({ first_name: "Emilia" })],
     );
 
@@ -76,7 +77,7 @@ describe("Academy course content migration", { concurrency: false }, () => {
       [otherStoreId, adminId],
     );
     await db.query(
-      "insert into auth.users (id, email, raw_user_meta_data) values ($1, $2, $3::jsonb)",
+      "insert into auth.users (id, email, email_confirmed_at, raw_user_meta_data) values ($1, $2, now(), $3::jsonb)",
       [otherStoreEmployeeId, "other@academy.test", JSON.stringify({ first_name: "Olek" })],
     );
 
@@ -91,6 +92,31 @@ describe("Academy course content migration", { concurrency: false }, () => {
 
   after(async () => {
     await db?.close();
+  });
+
+  it("marks an invitation accepted only after the invited account confirms its email", async () => {
+    const pendingId = "00000000-0000-4000-8000-000000000099";
+    await db.query(
+      "insert into public.user_invites (email, role) values ('pending-content@academy.test', 'admin')",
+    );
+    await db.query(
+      "insert into auth.users (id, email, raw_user_meta_data) values ($1, 'pending-content@academy.test', '{}'::jsonb)",
+      [pendingId],
+    );
+
+    const pending = await db.query(
+      "select accepted_at from public.user_invites where email = 'pending-content@academy.test'",
+    );
+    assert.equal(pending.rows[0].accepted_at, null);
+
+    await db.query(
+      "update auth.users set email_confirmed_at = now() where id = $1",
+      [pendingId],
+    );
+    const accepted = await db.query(
+      "select accepted_at is not null as accepted from public.user_invites where email = 'pending-content@academy.test'",
+    );
+    assert.equal(accepted.rows[0].accepted, true);
   });
 
   async function asUser(userId, callback) {
@@ -126,7 +152,7 @@ describe("Academy course content migration", { concurrency: false }, () => {
       [otherStoreId, adminId],
     );
     await db.query(
-      "insert into auth.users (id, email, raw_user_meta_data) values ($1, $2, $3::jsonb)",
+      "insert into auth.users (id, email, email_confirmed_at, raw_user_meta_data) values ($1, $2, now(), $3::jsonb)",
       [frenchEmployeeId, "fr@academy.test", JSON.stringify({ preferred_language: "fr" })],
     );
 
@@ -1065,7 +1091,7 @@ describe("Academy course content migration", { concurrency: false }, () => {
         [email, storeId, adminId],
       );
       await db.query(
-        "insert into auth.users (id, email, raw_user_meta_data) values ($1, $2, $3::jsonb)",
+        "insert into auth.users (id, email, email_confirmed_at, raw_user_meta_data) values ($1, $2, now(), $3::jsonb)",
         [profileId, email, JSON.stringify({ first_name: `Leader${index + 1}`, last_name: `Employee${index + 1}` })],
       );
       for (let attemptIndex = 0; attemptIndex < 4; attemptIndex += 1) {

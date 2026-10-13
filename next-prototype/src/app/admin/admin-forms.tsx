@@ -5,7 +5,7 @@ import { Button } from "@/components/base/buttons/button";
 import { Input } from "@/components/base/input/input";
 import { Select, SelectItem } from "@/components/base/select/select";
 import { INITIAL_ADMIN_ACTION_STATE, type AdminActionState } from "@/lib/admin/action-state";
-import type { AdminRole } from "@/lib/admin/validation";
+import type { AdminRole, InviteLanguage } from "@/lib/admin/validation";
 import { createStoreAction, createUserInviteAction } from "@/app/admin/actions";
 
 type StoreOption = {
@@ -58,12 +58,20 @@ export function StoreForm() {
   );
 }
 
-export function InviteForm({ stores }: { stores: StoreOption[] }) {
+export function InviteForm({
+  stores,
+  defaultLanguage,
+}: {
+  stores: StoreOption[];
+  defaultLanguage: InviteLanguage;
+}) {
   const [state, action, isPending] = useActionState(
     createUserInviteAction,
     INITIAL_ADMIN_ACTION_STATE,
   );
   const [role, setRole] = useState<AdminRole>("employee");
+  const [preferredLanguage, setPreferredLanguage] =
+    useState<InviteLanguage>(defaultLanguage);
   const [storeId, setStoreId] = useState<string>(
     stores.length ? String(stores[0].id) : "",
   );
@@ -71,6 +79,23 @@ export function InviteForm({ stores }: { stores: StoreOption[] }) {
   return (
     <form action={action} className="flex flex-col gap-4">
       <Input name="email" type="email" label="Adres e-mail" autoComplete="email" isRequired />
+      <div className="flex flex-col gap-1">
+        <label className="text-body-medium text-text-primary" id="invite-language-label">
+          Język zaproszenia
+        </label>
+        <Select
+          name="preferred_language"
+          aria-labelledby="invite-language-label"
+          selectedKey={preferredLanguage}
+          onSelectionChange={(key) => setPreferredLanguage(String(key) as InviteLanguage)}
+          triggerClassName="min-h-12"
+        >
+          <SelectItem id="pl">Polski</SelectItem>
+          <SelectItem id="en">English</SelectItem>
+          <SelectItem id="de">Deutsch</SelectItem>
+          <SelectItem id="cs">Čeština</SelectItem>
+        </Select>
+      </div>
       <div className="flex flex-col gap-1">
         <label className="text-body-medium text-text-primary" id="invite-role-label">
           Rola
@@ -114,7 +139,7 @@ export function InviteForm({ stores }: { stores: StoreOption[] }) {
         </div>
       ) : null}
       <p className="text-body-2-regular text-text-secondary">
-        Osoba otrzyma wiadomość z linkiem do potwierdzenia adresu i ustawienia hasła.
+        Wiadomość i język konta będą zgodne z wybraną wersją językową.
       </p>
       <ActionMessage state={state} />
       <Button

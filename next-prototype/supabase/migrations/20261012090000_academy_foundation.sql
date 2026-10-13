@@ -130,10 +130,6 @@ begin
     requested_language := 'pl';
   end if;
 
-  update public.user_invites
-  set accepted_at = now()
-  where id = invitation.id;
-
   insert into public.profiles (
     id,
     email,
@@ -152,6 +148,36 @@ begin
     coalesce(requested_language, 'pl')
   );
 
+  if new.email_confirmed_at is not null then
+    update public.user_invites
+    set accepted_at = now()
+    where id = invitation.id;
+  end if;
+
+  return new;
+end;
+$$;
+
+create or replace function private.mark_academy_invite_accepted()
+returns trigger
+language plpgsql
+security definer
+set search_path = ''
+as $$
+declare
+  accepted_invite_id bigint;
+begin
+  update public.user_invites
+  set accepted_at = now()
+  where email = lower(btrim(new.email))
+    and accepted_at is null
+    and revoked_at is null
+  returning id into accepted_invite_id;
+
+  if accepted_invite_id is null then
+    raise exception 'An active Academy invitation is required';
+  end if;
+
   return new;
 end;
 $$;
@@ -160,10 +186,12 @@ revoke all on function private.is_admin() from public, anon;
 revoke all on function private.current_store_id() from public, anon;
 revoke all on function private.set_updated_at() from public, anon, authenticated;
 revoke all on function private.handle_new_academy_user() from public, anon, authenticated;
+revoke all on function private.mark_academy_invite_accepted() from public, anon, authenticated;
 grant execute on function private.is_admin() to authenticated;
 grant execute on function private.current_store_id() to authenticated;
 grant usage on schema private to supabase_auth_admin;
 grant execute on function private.handle_new_academy_user() to supabase_auth_admin;
+grant execute on function private.mark_academy_invite_accepted() to supabase_auth_admin;
 
 create trigger stores_set_updated_at
 before update on public.stores
@@ -176,6 +204,12 @@ for each row execute function private.set_updated_at();
 create trigger on_academy_auth_user_created
 after insert on auth.users
 for each row execute function private.handle_new_academy_user();
+
+create trigger on_academy_auth_user_confirmed
+after update of email_confirmed_at on auth.users
+for each row
+when (old.email_confirmed_at is null and new.email_confirmed_at is not null)
+execute function private.mark_academy_invite_accepted();
 
 alter table public.stores enable row level security;
 alter table public.profiles enable row level security;
