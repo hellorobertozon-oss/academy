@@ -9,7 +9,7 @@ import { useAcademy } from "@/components/academy-provider";
 import { learningModules } from "@/components/pages/learning-data";
 import { cx } from "@/utils/cx";
 
-export function LearningPage() {
+export function LearningPage({ previewMode = false }: { previewMode?: boolean }) {
   const { t, completedLessons } = useAcademy();
 
   return (
@@ -28,7 +28,7 @@ export function LearningPage() {
       </div>
 
       <main className="relative z-10 mx-auto w-full max-w-6xl px-4 pb-16 pt-10 sm:px-8 sm:pt-14">
-        <RouteButton href="/dashboard" size="large" variant="secondary" leadingIcon={RiArrowLeftLine} className={cx(backActionClassName, "mb-8")}>
+        <RouteButton href={previewMode ? "/admin/user-preview" : "/dashboard"} size="large" variant="secondary" leadingIcon={RiArrowLeftLine} className={cx(backActionClassName, "mb-8")}>
           {t("backToDashboard")}
         </RouteButton>
 
@@ -39,7 +39,7 @@ export function LearningPage() {
 
         <section aria-label={t("learning")} className="grid gap-4">
           {learningModules.map((module) => {
-            const completedCount = module.lessons.filter((lesson) => completedLessons.includes(lesson)).length;
+            const completedCount = previewMode ? 0 : module.lessons.filter((lesson) => completedLessons.includes(lesson)).length;
             const isModuleCompleted = completedCount === module.lessons.length;
             const moduleStatus = isModuleCompleted
               ? t("moduleCompleted")
@@ -54,7 +54,7 @@ export function LearningPage() {
             return (
             <article key={module.id} className="rounded-3xl border border-border-button-default bg-background-primary-default p-3">
               <Link
-                href={`/learning/${module.id}`}
+                href={previewMode ? `/admin/user-preview/learning/${module.id}` : `/learning/${module.id}`}
                 className={cx(
                   "group grid w-full grid-cols-1 gap-3 rounded-2xl bg-background-primary-default p-0 text-start transition-colors duration-150 hover:bg-background-primary-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-border-focus-ring",
                   "sm:grid-cols-[minmax(260px,38%)_minmax(0,1fr)] sm:items-center sm:gap-6",
@@ -107,7 +107,7 @@ export function LearningPage() {
             <p className="text-body-medium text-text-primary">{t("finalTest")}</p>
             <p className="mt-1 text-body-2-regular text-text-secondary">{t("quizDescription")}</p>
           </div>
-          <RouteButton href="/quiz" trailingIcon={RiArrowRightLine}>{t("openQuiz")}</RouteButton>
+          <RouteButton href={previewMode ? "/admin/user-preview/quiz" : "/quiz"} trailingIcon={RiArrowRightLine}>{t("openQuiz")}</RouteButton>
         </div>
       </main>
     </div>

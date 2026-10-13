@@ -10,16 +10,18 @@ import { useAcademy, type AcademyLanguage, type CopyKey } from "@/components/aca
 import { learningModules, lessonTakeaways } from "@/components/pages/learning-data";
 import { cx } from "@/utils/cx";
 
-export function ModulePage({ moduleId }: { moduleId: string }) {
+export function ModulePage({ moduleId, previewMode = false }: { moduleId: string; previewMode?: boolean }) {
   const { t, language, completedLessons, completeLesson } = useAcademy();
   const [selectedLesson, setSelectedLesson] = useState<CopyKey | null>(null);
   const [isVideoLoaded, setIsVideoLoaded] = useState(false);
+  const [previewCompletedLessons, setPreviewCompletedLessons] = useState<CopyKey[]>([]);
   const currentModule = learningModules.find((item) => item.id === moduleId);
 
   if (!currentModule) return null;
 
   const lessons = currentModule.lessons;
-  const completedLessonCount = lessons.filter((lesson) => completedLessons.includes(lesson)).length;
+  const userCompletedLessons = previewMode ? previewCompletedLessons : completedLessons;
+  const completedLessonCount = lessons.filter((lesson) => userCompletedLessons.includes(lesson)).length;
   const isModuleCompleted = completedLessonCount === lessons.length;
   const moduleStatus = isModuleCompleted
     ? t("moduleCompleted")
@@ -32,7 +34,7 @@ export function ModulePage({ moduleId }: { moduleId: string }) {
     .replace("{total}", String(lessons.length));
   const selectedLessonIndex = selectedLesson ? lessons.indexOf(selectedLesson) : -1;
   const isTextOnlyLesson = selectedLesson === "helmetTextLesson";
-  const isSelectedLessonCompleted = selectedLesson ? completedLessons.includes(selectedLesson) : false;
+  const isSelectedLessonCompleted = selectedLesson ? userCompletedLessons.includes(selectedLesson) : false;
 
   function navigateLesson(direction: -1 | 1) {
     const nextLesson = lessons[selectedLessonIndex + direction];
@@ -61,7 +63,7 @@ export function ModulePage({ moduleId }: { moduleId: string }) {
 
       <main className="relative z-10 mx-auto w-full max-w-6xl px-4 pb-16 pt-10 sm:px-8 sm:pt-14">
         {!selectedLesson ? (
-          <RouteButton href="/learning" size="large" variant="secondary" leadingIcon={RiArrowLeftLine} className={cx(backActionClassName, "mb-8")}>
+          <RouteButton href={previewMode ? "/admin/user-preview/learning" : "/learning"} size="large" variant="secondary" leadingIcon={RiArrowLeftLine} className={cx(backActionClassName, "mb-8")}>
             {t("backToModules")}
           </RouteButton>
         ) : null}
@@ -149,7 +151,10 @@ export function ModulePage({ moduleId }: { moduleId: string }) {
                         size="medium"
                         className="min-h-12 rounded-full border-accent-300 px-6 text-body-semibold text-accent-300 shadow-none transition-colors duration-150 hover:border-accent-300 hover:bg-accent-300/10 active:border-accent-300 active:bg-accent-300/15"
                         leadingIcon={RiCheckLine}
-                        onClick={() => completeLesson(selectedLesson)}
+                        onClick={() => {
+                          if (previewMode) setPreviewCompletedLessons((current) => [...current, selectedLesson]);
+                          else completeLesson(selectedLesson);
+                        }}
                       >
                         {t("markLessonComplete")}
                       </Button>
@@ -255,7 +260,7 @@ export function ModulePage({ moduleId }: { moduleId: string }) {
                   <p className="text-body-medium text-text-primary">{t("finalTest")}</p>
                   <p className="mt-1 text-body-2-regular text-text-secondary">{t("quizDescription")}</p>
                 </div>
-                <RouteButton href="/quiz" trailingIcon={RiArrowRightLine}>{t("openQuiz")}</RouteButton>
+                <RouteButton href={previewMode ? "/admin/user-preview/quiz" : "/quiz"} trailingIcon={RiArrowRightLine}>{t("openQuiz")}</RouteButton>
               </div>
             ) : null}
           </>

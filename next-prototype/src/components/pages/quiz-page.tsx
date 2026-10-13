@@ -17,7 +17,7 @@ const questions: { prompt: CopyKey; options: CopyKey[]; correct: number }[] = [
   { prompt: "quizPromptFour", options: ["quizOptionFourA", "quizOptionFourB", "quizOptionFourC"], correct: 1 },
 ];
 
-export function QuizPage() {
+export function QuizPage({ previewMode = false }: { previewMode?: boolean }) {
   const { t } = useAcademy();
   const [current, setCurrent] = useState(0);
   const [answers, setAnswers] = useState<(number | null)[]>(Array(questions.length).fill(null));
@@ -40,7 +40,7 @@ export function QuizPage() {
     <div className="min-h-screen bg-background-full">
       <AcademyHeader mode="app" />
       <main className="mx-auto w-full max-w-4xl px-4 pb-16 pt-8 sm:px-8 sm:pt-12">
-        <RouteButton href="/learning" size="large" variant="secondary" leadingIcon={RiArrowLeftLine} className={backActionClassName}>
+        <RouteButton href={previewMode ? "/admin/user-preview/learning" : "/learning"} size="large" variant="secondary" leadingIcon={RiArrowLeftLine} className={backActionClassName}>
           {t("backToDashboard")}
         </RouteButton>
         <div className="mt-8 text-center">
@@ -58,7 +58,7 @@ export function QuizPage() {
               <p className="mt-3 max-w-lg text-headline-regular text-text-secondary">{didPass ? t("quizPassedDescription") : t("quizRetryDescription")}</p>
               <div className="mt-6 flex flex-wrap justify-center gap-3">
                 <Button size="large" variant="secondary" onClick={startOver}>{t("quizTitle")}</Button>
-                <RouteButton href="/dashboard" size="large" variant="secondary" className={backActionClassName}>{t("backToDashboard")}</RouteButton>
+                <RouteButton href={previewMode ? "/admin/user-preview" : "/dashboard"} size="large" variant="secondary" className={backActionClassName}>{t("backToDashboard")}</RouteButton>
               </div>
             </div>
           ) : (

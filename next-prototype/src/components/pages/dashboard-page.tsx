@@ -9,9 +9,9 @@ import { RouteButton } from "@/components/route-button";
 import { LinkButton } from "@/components/base/buttons/link-button";
 import { cx } from "@/utils/cx";
 
-const sections: { href: string; title: "learning" | "questions"; description: "learningDescription" | "questionsDescription"; image: string }[] = [
-  { href: "/learning", title: "learning", description: "learningDescription", image: "/assets/main-learning-v3.png" },
-  { href: "/faq", title: "questions", description: "questionsDescription", image: "/assets/main-faq-v3.png" },
+const sections: { href: string; previewHref: string; title: "learning" | "questions"; description: "learningDescription" | "questionsDescription"; image: string }[] = [
+  { href: "/learning", previewHref: "/admin/user-preview/learning", title: "learning", description: "learningDescription", image: "/assets/main-learning-v3.png" },
+  { href: "/faq", previewHref: "/admin/user-preview/faq", title: "questions", description: "questionsDescription", image: "/assets/main-faq-v3.png" },
 ];
 
 export function DashboardPage({ isAdmin, previewMode = false }: { isAdmin: boolean; previewMode?: boolean }) {
@@ -34,7 +34,7 @@ export function DashboardPage({ isAdmin, previewMode = false }: { isAdmin: boole
       <main className="relative z-10 mx-auto w-full max-w-6xl px-4 pb-16 pt-12 sm:px-8 sm:pt-16">
         {previewMode ? (
           <p className="mb-6 rounded-2xl border border-accent-400/40 bg-background-secondary-default px-5 py-4 text-body-medium text-text-primary">
-            {t("employeePreviewNotice")}
+            {t("userPreviewNotice")}
           </p>
         ) : null}
         <section className="grid gap-8" aria-labelledby="dashboard-heading">
@@ -52,10 +52,10 @@ export function DashboardPage({ isAdmin, previewMode = false }: { isAdmin: boole
         </section>
 
         <section className="mt-10 grid gap-5" aria-label={t("mainMenu")}>
-          {sections.map(({ href, title, description, image }) => {
+          {sections.map(({ href, previewHref, title, description, image }) => {
             const cardClassName = cx(
               "relative grid grid-cols-1 gap-3 rounded-3xl border border-border-button-default bg-background-primary-default p-3 sm:grid-cols-[minmax(260px,38%)_minmax(0,1fr)] sm:items-center sm:gap-6 sm:p-4",
-              !previewMode && "group transition-colors duration-150 hover:border-border-button-hover hover:bg-background-primary-hover active:bg-background-primary-active focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-border-focus-ring",
+              "group transition-colors duration-150 hover:border-border-button-hover hover:bg-background-primary-hover active:bg-background-primary-active focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-border-focus-ring",
             );
             const card = (
               <>
@@ -75,18 +75,14 @@ export function DashboardPage({ isAdmin, previewMode = false }: { isAdmin: boole
                   <span className="text-caption-1-semibold uppercase tracking-[0.14em] text-accent-300">{t(title)}</span>
                   <span className="mt-2 text-title-1-medium text-text-primary">{t(description)}</span>
                   <span className="mt-5 flex items-center gap-2 text-title-3-semibold text-accent-300">
-                    {previewMode ? t("previewOnly") : t("openSection")}
-                    {previewMode ? null : <RiArrowRightLine className="size-5" aria-hidden="true" />}
+                    {t("openSection")}
+                    <RiArrowRightLine className="size-5" aria-hidden="true" />
                   </span>
                 </span>
               </>
             );
 
-            return previewMode ? (
-              <div key={href} aria-disabled="true" className={cardClassName}>{card}</div>
-            ) : (
-              <Link key={href} href={href} className={cardClassName}>{card}</Link>
-            );
+            return <Link key={href} href={previewMode ? previewHref : href} className={cardClassName}>{card}</Link>;
           })}
         </section>
 
@@ -107,8 +103,8 @@ export function DashboardPage({ isAdmin, previewMode = false }: { isAdmin: boole
             <p className="text-body-medium text-text-primary">{t("finalTest")}</p>
             <p className="mt-1 text-body-2-regular text-text-secondary">{t("quizDescription")}</p>
           </div>
-          <RouteButton href="/quiz" size="large" trailingIcon={previewMode ? undefined : RiArrowRightLine} disabled={previewMode}>
-            {previewMode ? t("previewOnly") : t("openQuiz")}
+          <RouteButton href={previewMode ? "/admin/user-preview/quiz" : "/quiz"} size="large" trailingIcon={RiArrowRightLine}>
+            {t("openQuiz")}
           </RouteButton>
         </section>
 
@@ -117,7 +113,7 @@ export function DashboardPage({ isAdmin, previewMode = false }: { isAdmin: boole
             <p className="text-body-medium text-text-primary">{t("storeMapTitle")}</p>
             <p className="mt-1 text-body-2-regular text-text-secondary">{t("storeMapDescription")}</p>
           </div>
-          <RouteButton href="/stores" size="large" leadingIcon={RiMapPin2Line} trailingIcon={previewMode ? undefined : RiArrowRightLine} disabled={previewMode}>
+          <RouteButton href="/stores" size="large" leadingIcon={RiMapPin2Line} trailingIcon={RiArrowRightLine} disabled={previewMode}>
             {previewMode ? t("previewOnly") : t("storeMapButton")}
           </RouteButton>
         </section>

@@ -23,11 +23,11 @@ import { createAcademyBrowserClient } from "@/lib/supabase/browser";
 type HeaderMode = "landing" | "login" | "app";
 
 export function AcademyHeader({ mode }: { mode: HeaderMode }) {
-  const { language, setLanguage, t, isAdmin } = useAcademy();
+  const { language, setLanguage, setPreviewLanguage, t, isAdmin } = useAcademy();
   const router = useRouter();
   const pathname = usePathname();
   const appMode = mode === "app";
-  const isEmployeePreview = pathname === "/admin/employee-preview";
+  const isUserPreview = pathname.startsWith("/admin/user-preview");
 
   async function signOut() {
     try {
@@ -55,7 +55,7 @@ export function AcademyHeader({ mode }: { mode: HeaderMode }) {
         {appMode ? <span className="min-w-0 flex-1" aria-hidden="true" /> : null}
 
         <Link
-          href={appMode ? "/dashboard" : "/"}
+          href={isUserPreview ? "/admin/user-preview" : appMode ? "/dashboard" : "/"}
           aria-label={t("brand")}
           className={cx(
             "absolute left-1/2 -translate-x-1/2",
@@ -85,7 +85,7 @@ export function AcademyHeader({ mode }: { mode: HeaderMode }) {
             <Select
               aria-label={t("language")}
               selectedKey={language}
-              onSelectionChange={(key) => setLanguage(String(key) as AcademyLanguage)}
+              onSelectionChange={(key) => (isUserPreview ? setPreviewLanguage : setLanguage)(String(key) as AcademyLanguage)}
               triggerClassName="min-h-10 border-0 bg-transparent px-1.5 py-2 text-text-primary shadow-none hover:border-transparent hover:bg-transparent"
               popoverClassName="z-50"
             >
@@ -138,8 +138,8 @@ export function AcademyHeader({ mode }: { mode: HeaderMode }) {
                     {t("profileDetails")}
                   </DropdownItem>
                   {isAdmin ? (
-                    <DropdownItem onSelect={() => router.push(isEmployeePreview ? "/admin" : "/admin/employee-preview")}>
-                      {t(isEmployeePreview ? "exitEmployeePreview" : "previewAsEmployee")}
+                    <DropdownItem onSelect={() => router.push(isUserPreview ? "/admin" : "/admin/user-preview")}>
+                      {t(isUserPreview ? "exitUserPreview" : "previewAsUser")}
                     </DropdownItem>
                   ) : null}
                   <DropdownItem onSelect={() => router.push("/change-password")}>

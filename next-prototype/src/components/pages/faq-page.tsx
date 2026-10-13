@@ -103,7 +103,7 @@ const initialQuestions: Question[] = [
   },
 ];
 
-export function FAQPage() {
+export function FAQPage({ previewMode = false }: { previewMode?: boolean }) {
   const { t } = useAcademy();
   const [questions, setQuestions] = useState(initialQuestions);
   const [likedQuestions, setLikedQuestions] = useState<Set<number>>(() => new Set());
@@ -178,7 +178,7 @@ export function FAQPage() {
       </div>
 
       <main className="relative z-10 mx-auto w-full max-w-6xl px-4 pb-16 pt-10 sm:px-8 sm:pt-14">
-        <RouteButton href="/dashboard" size="large" variant="secondary" leadingIcon={RiArrowLeftLine} className={cx(backActionClassName, "mb-8")}>
+        <RouteButton href={previewMode ? "/admin/user-preview" : "/dashboard"} size="large" variant="secondary" leadingIcon={RiArrowLeftLine} className={cx(backActionClassName, "mb-8")}>
           {t("backToDashboard")}
         </RouteButton>
 

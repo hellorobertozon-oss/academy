@@ -56,9 +56,9 @@ const COPY = {
     adminPanelTitle: "Panel administratora",
     adminPanelDescription: "Zarządzaj sklepami, kontami, szkoleniami i postępami pracowników.",
     adminPanelOpen: "Otwórz panel",
-    previewAsEmployee: "Podgląd jako pracownik",
-    exitEmployeePreview: "Zakończ podgląd",
-    employeePreviewNotice: "Wizualny podgląd dashboardu pracownika. Działania są wyłączone.",
+    previewAsUser: "Podgląd użytkownika",
+    exitUserPreview: "Zakończ podgląd",
+    userPreviewNotice: "Podgląd widoku użytkownika na przykładowych modułach i lekcjach. Postępy nie są zapisywane.",
     previewOnly: "Podgląd",
     storeMapTitle: "Sklepy Xzone",
     storeMapDescription: "Sprawdź lokalizację swojego sklepu i zobacz przypisany zespół.",
@@ -386,9 +386,9 @@ const COPY = {
     adminPanelTitle: "Admin panel",
     adminPanelDescription: "Manage stores, accounts, training and employee progress.",
     adminPanelOpen: "Open admin panel",
-    previewAsEmployee: "Preview as employee",
-    exitEmployeePreview: "Exit preview",
-    employeePreviewNotice: "Visual preview of the employee dashboard. Actions are disabled.",
+    previewAsUser: "Preview as user",
+    exitUserPreview: "Exit preview",
+    userPreviewNotice: "Preview of the user experience with sample modules and lessons. Progress is not saved.",
     previewOnly: "Preview",
     storeMapTitle: "Xzone stores",
     storeMapDescription: "Check your store location and see the team assigned to it.",
@@ -720,9 +720,9 @@ const LOCALIZED_COPY: Record<"de" | "cs", Partial<Record<CopyKey, string>>> = {
     adminPanelTitle: "Administrationsbereich",
     adminPanelDescription: "Verwalte Stores, Konten, Schulungen und den Fortschritt der Mitarbeitenden.",
     adminPanelOpen: "Administration öffnen",
-    previewAsEmployee: "Mitarbeitendenansicht öffnen",
-    exitEmployeePreview: "Vorschau beenden",
-    employeePreviewNotice: "Visuelle Vorschau des Mitarbeitenden-Dashboards. Aktionen sind deaktiviert.",
+    previewAsUser: "Benutzeransicht öffnen",
+    exitUserPreview: "Vorschau beenden",
+    userPreviewNotice: "Vorschau der Benutzeransicht mit Beispielmodulen und Lektionen. Fortschritte werden nicht gespeichert.",
     previewOnly: "Vorschau",
     inactiveStore: "Inaktiv",
     language: "Sprache ändern",
@@ -915,9 +915,9 @@ const LOCALIZED_COPY: Record<"de" | "cs", Partial<Record<CopyKey, string>>> = {
     adminPanelTitle: "Administrace",
     adminPanelDescription: "Spravujte prodejny, účty, školení a pokrok zaměstnanců.",
     adminPanelOpen: "Otevřít administraci",
-    previewAsEmployee: "Zobrazit náhled zaměstnance",
-    exitEmployeePreview: "Ukončit náhled",
-    employeePreviewNotice: "Vizuální náhled zaměstnaneckého dashboardu. Akce jsou vypnuté.",
+    previewAsUser: "Zobrazit náhled uživatele",
+    exitUserPreview: "Ukončit náhled",
+    userPreviewNotice: "Náhled uživatelského zobrazení s ukázkovými moduly a lekcemi. Pokrok se neukládá.",
     previewOnly: "Náhled",
     inactiveStore: "Neaktivní",
     language: "Změnit jazyk",
@@ -1074,6 +1074,7 @@ type AcademyContextValue = {
   language: AcademyLanguage;
   isAdmin: boolean;
   setLanguage: (language: AcademyLanguage) => void;
+  setPreviewLanguage: (language: AcademyLanguage) => void;
   t: (key: CopyKey) => string;
   completedLessons: CopyKey[];
   completeLesson: (lesson: CopyKey) => void;
@@ -1162,6 +1163,16 @@ export function AcademyProvider({ children }: { children: ReactNode }) {
       router.refresh();
     }).catch(() => {});
   }, [router]);
+  const setPreviewLanguage = useCallback((nextLanguage: AcademyLanguage) => {
+    didChangeLanguage.current = true;
+    try {
+      window.localStorage.setItem("xzone-academy-language", nextLanguage);
+    } catch {
+      // Keep the current language for this session when browser storage is unavailable.
+    }
+    window.dispatchEvent(new Event(LANGUAGE_EVENT));
+    router.refresh();
+  }, [router]);
   const completeLesson = useCallback((lesson: CopyKey) => {
     if (completedLessons.includes(lesson)) return;
 
@@ -1186,8 +1197,8 @@ export function AcademyProvider({ children }: { children: ReactNode }) {
   }, [language]);
 
   const value = useMemo(
-    () => ({ language, isAdmin, setLanguage, t, completedLessons, completeLesson }),
-    [language, isAdmin, setLanguage, t, completedLessons, completeLesson],
+    () => ({ language, isAdmin, setLanguage, setPreviewLanguage, t, completedLessons, completeLesson }),
+    [language, isAdmin, setLanguage, setPreviewLanguage, t, completedLessons, completeLesson],
   );
 
   return (
