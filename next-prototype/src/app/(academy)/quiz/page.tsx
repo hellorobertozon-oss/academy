@@ -1,7 +1,9 @@
+import { Suspense } from "react";
 import Image from "next/image";
 import { redirect } from "next/navigation";
 import { RiArrowLeftLine, RiArrowRightLine } from "@remixicon/react";
 import { AcademyHeader } from "@/components/academy-header";
+import { AcademyLoading } from "@/components/academy-loading";
 import { Badge } from "@/components/base/badges/badge";
 import { LinkButton } from "@/components/base/buttons/link-button";
 import { readAssignedQuizzes } from "@/lib/academy/quizzes";
@@ -11,7 +13,7 @@ function fill(template: string, values: Record<string, string | number>) {
   return Object.entries(values).reduce((result, [key, value]) => result.replace(`{${key}}`, String(value)), template);
 }
 
-export default async function Page() {
+async function QuizListContent() {
   const result = await readAssignedQuizzes();
   if (result.status === "forbidden") redirect("/admin/courses");
   const copy = getLearningCopy(result.status === "ok" ? result.languageCode : "pl");
@@ -66,5 +68,13 @@ export default async function Page() {
         )}
       </main>
     </div>
+  );
+}
+
+export default function Page() {
+  return (
+    <Suspense fallback={<AcademyLoading label="Wczytywanie quizów" />}>
+      <QuizListContent />
+    </Suspense>
   );
 }

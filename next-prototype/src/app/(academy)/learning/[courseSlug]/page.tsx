@@ -1,12 +1,14 @@
+import { Suspense } from "react";
 import { notFound, redirect } from "next/navigation";
 import { RiArrowLeftLine, RiArrowRightLine, RiCheckLine } from "@remixicon/react";
 import { AcademyHeader } from "@/components/academy-header";
+import { AcademyLoading } from "@/components/academy-loading";
 import { Badge } from "@/components/base/badges/badge";
 import { LinkButton } from "@/components/base/buttons/link-button";
 import { readCourseOutline } from "@/lib/academy/learning";
 import { getLearningCopy } from "@/lib/academy/learning-copy";
 
-export default async function Page({ params }: { params: Promise<{ courseSlug: string }> }) {
+async function CourseContent({ params }: { params: Promise<{ courseSlug: string }> }) {
   const { courseSlug } = await params;
   const result = await readCourseOutline(courseSlug);
   if (result.status === "not-found") notFound();
@@ -92,5 +94,13 @@ export default async function Page({ params }: { params: Promise<{ courseSlug: s
         )}
       </main>
     </div>
+  );
+}
+
+export default function Page({ params }: { params: Promise<{ courseSlug: string }> }) {
+  return (
+    <Suspense fallback={<AcademyLoading label="Wczytywanie kursu" />}>
+      <CourseContent params={params} />
+    </Suspense>
   );
 }

@@ -1,13 +1,15 @@
+import { Suspense } from "react";
 import Image from "next/image";
 import { notFound, redirect } from "next/navigation";
 import { RiArrowLeftLine } from "@remixicon/react";
 import { AcademyHeader } from "@/components/academy-header";
+import { AcademyLoading } from "@/components/academy-loading";
 import { LinkButton } from "@/components/base/buttons/link-button";
 import { LearningQuizPage } from "@/components/pages/learning-quiz";
 import { readLearningQuiz } from "@/lib/academy/quizzes";
 import { getLearningCopy } from "@/lib/academy/learning-copy";
 
-export default async function Page({ params }: { params: Promise<{ quizId: string }> }) {
+async function QuizContent({ params }: { params: Promise<{ quizId: string }> }) {
   const { quizId: rawQuizId } = await params;
   const quizId = Number(rawQuizId);
   const result = await readLearningQuiz(quizId);
@@ -44,5 +46,13 @@ export default async function Page({ params }: { params: Promise<{ quizId: strin
         )}
       </main>
     </div>
+  );
+}
+
+export default function Page({ params }: { params: Promise<{ quizId: string }> }) {
+  return (
+    <Suspense fallback={<AcademyLoading label="Wczytywanie quizu" />}>
+      <QuizContent params={params} />
+    </Suspense>
   );
 }

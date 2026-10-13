@@ -187,7 +187,7 @@ export function StoreDirectory({
               {filteredStores.length ? (
                 <Table aria-label={t("storesListTitle")} size="sm">
                   <TableHeader>
-                    <TableColumn id="store">{t("storeColumn")}</TableColumn>
+                    <TableColumn id="store" isRowHeader>{t("storeColumn")}</TableColumn>
                     <TableColumn id="address">{t("addressColumn")}</TableColumn>
                     <TableColumn id="employees">{t("employeesColumn")}</TableColumn>
                     <TableColumn id="status">{t("storeStatusColumn")}</TableColumn>

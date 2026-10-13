@@ -1,4 +1,6 @@
+import { Suspense } from "react";
 import { AcademyHeader } from "@/components/academy-header";
+import { AcademyLoading } from "@/components/academy-loading";
 import { LinkButton } from "@/components/base/buttons/link-button";
 import {
   Table,
@@ -156,7 +158,7 @@ async function AdminDashboard() {
           {stores.length ? (
             <Table aria-label="Sklepy" size="sm">
               <TableHeader>
-                <TableColumn id="store">Sklep</TableColumn>
+                <TableColumn id="store" isRowHeader>Sklep</TableColumn>
                 <TableColumn id="address">Adres</TableColumn>
                 <TableColumn id="status">Status</TableColumn>
               </TableHeader>
@@ -182,7 +184,7 @@ async function AdminDashboard() {
           {profiles.length ? (
             <Table aria-label="Konta" size="sm">
               <TableHeader>
-                <TableColumn id="name">Imię i nazwisko</TableColumn>
+                <TableColumn id="name" isRowHeader>Imię i nazwisko</TableColumn>
                 <TableColumn id="email">E-mail</TableColumn>
                 <TableColumn id="role">Rola</TableColumn>
                 <TableColumn id="store">Sklep</TableColumn>
@@ -211,7 +213,7 @@ async function AdminDashboard() {
           {invites.length ? (
             <Table aria-label="Zaproszenia" size="sm">
               <TableHeader>
-                <TableColumn id="email">E-mail</TableColumn>
+                <TableColumn id="email" isRowHeader>E-mail</TableColumn>
                 <TableColumn id="role">Rola</TableColumn>
                 <TableColumn id="store">Sklep</TableColumn>
                 <TableColumn id="status">Stan</TableColumn>
@@ -250,6 +252,8 @@ async function AdminDashboard() {
 
 export default function AdminPage() {
   return (
-    <AdminDashboard />
+    <Suspense fallback={<AcademyLoading label="Wczytywanie panelu" />}>
+      <AdminDashboard />
+    </Suspense>
   );
 }

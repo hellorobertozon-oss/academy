@@ -107,7 +107,7 @@ export function ProgressReport({ rows }: { rows: AdminProgressRow[] }) {
         {filteredRows.length ? (
           <Table aria-label="Postępy pracowników według modułu" size="sm">
             <TableHeader>
-              <TableColumn id="employee">Pracownik</TableColumn>
+              <TableColumn id="employee" isRowHeader>Pracownik</TableColumn>
               <TableColumn id="store">Sklep</TableColumn>
               <TableColumn id="module">Szkolenie i moduł</TableColumn>
               <TableColumn id="lessons">Lekcje</TableColumn>

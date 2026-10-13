@@ -1,3 +1,5 @@
+import { Suspense } from "react";
+import { AcademyLoading } from "@/components/academy-loading";
 import { AcademyHeader } from "@/components/academy-header";
 import {
   Table,
@@ -137,7 +139,7 @@ async function CourseManagement() {
           {courses.length ? (
             <Table aria-label="Szkolenia" size="sm">
               <TableHeader>
-                <TableColumn id="title">Szkolenie</TableColumn>
+                <TableColumn id="title" isRowHeader>Szkolenie</TableColumn>
                 <TableColumn id="language">Język</TableColumn>
                 <TableColumn id="status">Wersja</TableColumn>
                 <TableColumn id="edit">Edytuj</TableColumn>
@@ -181,5 +183,9 @@ async function CourseManagement() {
 }
 
 export default function AdminCoursesPage() {
-  return <CourseManagement />;
+  return (
+    <Suspense fallback={<AcademyLoading label="Wczytywanie szkoleń" />}>
+      <CourseManagement />
+    </Suspense>
+  );
 }

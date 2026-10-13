@@ -1,7 +1,9 @@
+import { Suspense } from "react";
+import { AcademyLoading } from "@/components/academy-loading";
 import { StoreDirectory } from "@/app/(academy)/stores/store-directory";
 import { readAcademyStoreDirectory } from "@/lib/academy/store-directory";
 
-export default async function StoresPage() {
+async function StoresContent() {
   const directory = await readAcademyStoreDirectory();
 
   return (
@@ -10,5 +12,13 @@ export default async function StoresPage() {
       viewerRole={directory.viewerRole}
       hasError={directory.status === "error"}
     />
+  );
+}
+
+export default function StoresPage() {
+  return (
+    <Suspense fallback={<AcademyLoading label="Wczytywanie sklepów" />}>
+      <StoresContent />
+    </Suspense>
   );
 }

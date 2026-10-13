@@ -1,9 +1,11 @@
+import { Suspense } from "react";
 import { redirect } from "next/navigation";
+import { AcademyLoading } from "@/components/academy-loading";
 import { RewardsPage } from "@/components/pages/rewards-page";
 import { getLearningCopy } from "@/lib/academy/learning-copy";
 import { readEmployeeLeaderboard, readEmployeePoints } from "@/lib/academy/learning";
 
-export default async function Page() {
+async function RewardsContent() {
   const [pointsResult, leaderboardResult] = await Promise.all([
     readEmployeePoints(),
     readEmployeeLeaderboard(),
@@ -30,5 +32,13 @@ export default async function Page() {
         points: copy.leaderboardPoints,
       }}
     />
+  );
+}
+
+export default function Page() {
+  return (
+    <Suspense fallback={<AcademyLoading label="Wczytywanie wyników" />}>
+      <RewardsContent />
+    </Suspense>
   );
 }

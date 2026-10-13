@@ -1,6 +1,7 @@
 import "server-only";
 
 import { cache } from "react";
+import { connection } from "next/server";
 import { redirect } from "next/navigation";
 import { createAcademyServerClient } from "@/lib/supabase/server";
 
@@ -36,8 +37,8 @@ export const getCurrentAcademyProfile = cache(async (): Promise<AcademyProfile |
 });
 
 export async function requireAcademyProfile(): Promise<AcademyProfile> {
+  await connection();
   const profile = await getCurrentAcademyProfile();
   if (!profile) redirect("/login?reason=profile");
   return profile;
 }
-

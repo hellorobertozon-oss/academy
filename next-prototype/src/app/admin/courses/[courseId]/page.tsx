@@ -1,4 +1,6 @@
+import { Suspense } from "react";
 import { notFound } from "next/navigation";
+import { AcademyLoading } from "@/components/academy-loading";
 import { AcademyHeader } from "@/components/academy-header";
 import { LinkButton } from "@/components/base/buttons/link-button";
 import { Badge } from "@/components/base/badges/badge";
@@ -461,9 +463,17 @@ async function CourseEditor({ courseId }: { courseId: number }) {
   );
 }
 
-export default async function AdminCoursePage({ params }: { params: Promise<{ courseId: string }> }) {
+async function AdminCourseContent({ params }: { params: Promise<{ courseId: string }> }) {
   const { courseId: rawCourseId } = await params;
   const courseId = Number(rawCourseId);
   if (!Number.isSafeInteger(courseId) || courseId <= 0) notFound();
   return <CourseEditor courseId={courseId} />;
+}
+
+export default function AdminCoursePage({ params }: { params: Promise<{ courseId: string }> }) {
+  return (
+    <Suspense fallback={<AcademyLoading label="Wczytywanie edytora szkolenia" />}>
+      <AdminCourseContent params={params} />
+    </Suspense>
+  );
 }

@@ -1,13 +1,15 @@
+import { Suspense } from "react";
 import Image from "next/image";
 import { redirect } from "next/navigation";
 import { RiArrowLeftLine, RiArrowRightLine } from "@remixicon/react";
 import { AcademyHeader } from "@/components/academy-header";
+import { AcademyLoading } from "@/components/academy-loading";
 import { Badge } from "@/components/base/badges/badge";
 import { LinkButton } from "@/components/base/buttons/link-button";
 import { readAssignedCourses } from "@/lib/academy/learning";
 import { getLearningCopy } from "@/lib/academy/learning-copy";
 
-export default async function Page() {
+async function LearningContent() {
   const result = await readAssignedCourses();
   if (result.status === "forbidden") redirect("/admin/courses");
   const copy = getLearningCopy(result.status === "ok" ? result.languageCode : "pl");
@@ -95,5 +97,13 @@ export default async function Page() {
         )}
       </main>
     </div>
+  );
+}
+
+export default function Page() {
+  return (
+    <Suspense fallback={<AcademyLoading label="Wczytywanie szkoleń" />}>
+      <LearningContent />
+    </Suspense>
   );
 }

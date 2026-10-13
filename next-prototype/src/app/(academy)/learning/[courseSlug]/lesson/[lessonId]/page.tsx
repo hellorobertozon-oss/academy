@@ -1,13 +1,15 @@
+import { Suspense } from "react";
 import { notFound, redirect } from "next/navigation";
 import { RiArrowLeftLine, RiArrowRightLine } from "@remixicon/react";
 import { AcademyHeader } from "@/components/academy-header";
+import { AcademyLoading } from "@/components/academy-loading";
 import { LinkButton } from "@/components/base/buttons/link-button";
 import { LessonCompletion } from "@/components/pages/lesson-completion";
 import { RichContent } from "@/components/pages/rich-content";
 import { readCourseLesson } from "@/lib/academy/learning";
 import { getLearningCopy } from "@/lib/academy/learning-copy";
 
-export default async function Page({
+async function LessonContent({
   params,
 }: {
   params: Promise<{ courseSlug: string; lessonId: string }>;
@@ -128,5 +130,17 @@ export default async function Page({
         </nav>
       </main>
     </div>
+  );
+}
+
+export default function Page({
+  params,
+}: {
+  params: Promise<{ courseSlug: string; lessonId: string }>;
+}) {
+  return (
+    <Suspense fallback={<AcademyLoading label="Wczytywanie lekcji" />}>
+      <LessonContent params={params} />
+    </Suspense>
   );
 }

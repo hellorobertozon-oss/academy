@@ -1,10 +1,12 @@
+import { Suspense } from "react";
 import { redirect } from "next/navigation";
+import { AcademyLoading } from "@/components/academy-loading";
 import { AcademyHeader } from "@/components/academy-header";
 import { LinkButton } from "@/components/base/buttons/link-button";
 import { ProgressReport } from "@/app/admin/progress/progress-report";
 import { readAdminProgress } from "@/lib/admin/progress-report";
 
-export default async function AdminProgressPage() {
+async function AdminProgressContent() {
   const report = await readAdminProgress();
   if (report.status === "forbidden") redirect("/dashboard");
 
@@ -38,5 +40,13 @@ export default async function AdminProgressPage() {
         )}
       </main>
     </div>
+  );
+}
+
+export default function AdminProgressPage() {
+  return (
+    <Suspense fallback={<AcademyLoading label="Wczytywanie raportu" />}>
+      <AdminProgressContent />
+    </Suspense>
   );
 }
