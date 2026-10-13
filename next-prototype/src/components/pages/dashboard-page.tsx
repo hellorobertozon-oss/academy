@@ -7,13 +7,14 @@ import { AcademyHeader } from "@/components/academy-header";
 import { useAcademy } from "@/components/academy-provider";
 import { RouteButton } from "@/components/route-button";
 import { LinkButton } from "@/components/base/buttons/link-button";
+import { cx } from "@/utils/cx";
 
 const sections: { href: string; title: "learning" | "questions"; description: "learningDescription" | "questionsDescription"; image: string }[] = [
   { href: "/learning", title: "learning", description: "learningDescription", image: "/assets/main-learning-v3.png" },
   { href: "/faq", title: "questions", description: "questionsDescription", image: "/assets/main-faq-v3.png" },
 ];
 
-export function DashboardPage({ isAdmin }: { isAdmin: boolean }) {
+export function DashboardPage({ isAdmin, previewMode = false }: { isAdmin: boolean; previewMode?: boolean }) {
   const { t } = useAcademy();
 
   return (
@@ -31,6 +32,11 @@ export function DashboardPage({ isAdmin }: { isAdmin: boolean }) {
         <div className="absolute inset-0 bg-gradient-to-b from-background-full/20 via-background-full/60 to-background-full" />
       </div>
       <main className="relative z-10 mx-auto w-full max-w-6xl px-4 pb-16 pt-12 sm:px-8 sm:pt-16">
+        {previewMode ? (
+          <p className="mb-6 rounded-2xl border border-accent-400/40 bg-background-secondary-default px-5 py-4 text-body-medium text-text-primary">
+            {t("employeePreviewNotice")}
+          </p>
+        ) : null}
         <section className="grid gap-8" aria-labelledby="dashboard-heading">
           <div>
             <p className="mb-2 text-body-semibold uppercase tracking-[0.16em] text-accent-300 sm:text-title-3-semibold">
@@ -46,34 +52,42 @@ export function DashboardPage({ isAdmin }: { isAdmin: boolean }) {
         </section>
 
         <section className="mt-10 grid gap-5" aria-label={t("mainMenu")}>
-          {sections.map(({ href, title, description, image }) => (
-            <Link
-              key={href}
-              href={href}
-              className="group relative grid grid-cols-1 gap-3 rounded-3xl border border-border-button-default bg-background-primary-default p-3 transition-colors duration-150 hover:border-border-button-hover hover:bg-background-primary-hover active:bg-background-primary-active focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-border-focus-ring sm:grid-cols-[minmax(260px,38%)_minmax(0,1fr)] sm:items-center sm:gap-6 sm:p-4"
-            >
-              <span className="relative block aspect-video overflow-hidden rounded-2xl bg-background-secondary-default">
-                <Image
-                  src={image}
-                  alt=""
-                  fill
-                  sizes="(max-width: 640px) 100vw, 38vw"
-                  className="image-outline object-cover motion-safe:transition-transform motion-safe:duration-150 motion-safe:ease-[cubic-bezier(0.23,1,0.32,1)] motion-safe:group-hover:scale-[1.015]"
-                />
-              </span>
-              <span className="absolute right-4 top-4 z-10 sm:right-6 sm:top-6" aria-hidden="true">
-                <Image src="/assets/xzone-brand-logo.png" alt="" width={64} height={64} className="size-12 object-contain sm:size-14" />
-              </span>
-              <span className="flex min-w-0 flex-col py-3 sm:py-6 sm:pr-24">
-                <span className="text-caption-1-semibold uppercase tracking-[0.14em] text-accent-300">{t(title)}</span>
-                <span className="mt-2 text-title-1-medium text-text-primary">{t(description)}</span>
-                <span className="mt-5 flex items-center gap-2 text-title-3-semibold text-accent-300">
-                  {t("openSection")}
-                  <RiArrowRightLine className="size-5" aria-hidden="true" />
+          {sections.map(({ href, title, description, image }) => {
+            const cardClassName = cx(
+              "relative grid grid-cols-1 gap-3 rounded-3xl border border-border-button-default bg-background-primary-default p-3 sm:grid-cols-[minmax(260px,38%)_minmax(0,1fr)] sm:items-center sm:gap-6 sm:p-4",
+              !previewMode && "group transition-colors duration-150 hover:border-border-button-hover hover:bg-background-primary-hover active:bg-background-primary-active focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-border-focus-ring",
+            );
+            const card = (
+              <>
+                <span className="relative block aspect-video overflow-hidden rounded-2xl bg-background-secondary-default">
+                  <Image
+                    src={image}
+                    alt=""
+                    fill
+                    sizes="(max-width: 640px) 100vw, 38vw"
+                    className="image-outline object-cover motion-safe:transition-transform motion-safe:duration-150 motion-safe:ease-[cubic-bezier(0.23,1,0.32,1)] motion-safe:group-hover:scale-[1.015]"
+                  />
                 </span>
-              </span>
-            </Link>
-          ))}
+                <span className="absolute right-4 top-4 z-10 sm:right-6 sm:top-6" aria-hidden="true">
+                  <Image src="/assets/xzone-brand-logo.png" alt="" width={64} height={64} className="size-12 object-contain sm:size-14" />
+                </span>
+                <span className="flex min-w-0 flex-col py-3 sm:py-6 sm:pr-24">
+                  <span className="text-caption-1-semibold uppercase tracking-[0.14em] text-accent-300">{t(title)}</span>
+                  <span className="mt-2 text-title-1-medium text-text-primary">{t(description)}</span>
+                  <span className="mt-5 flex items-center gap-2 text-title-3-semibold text-accent-300">
+                    {previewMode ? t("previewOnly") : t("openSection")}
+                    {previewMode ? null : <RiArrowRightLine className="size-5" aria-hidden="true" />}
+                  </span>
+                </span>
+              </>
+            );
+
+            return previewMode ? (
+              <div key={href} aria-disabled="true" className={cardClassName}>{card}</div>
+            ) : (
+              <Link key={href} href={href} className={cardClassName}>{card}</Link>
+            );
+          })}
         </section>
 
         {isAdmin ? (
@@ -93,8 +107,8 @@ export function DashboardPage({ isAdmin }: { isAdmin: boolean }) {
             <p className="text-body-medium text-text-primary">{t("finalTest")}</p>
             <p className="mt-1 text-body-2-regular text-text-secondary">{t("quizDescription")}</p>
           </div>
-          <RouteButton href="/quiz" size="large" trailingIcon={RiArrowRightLine}>
-            {t("openQuiz")}
+          <RouteButton href="/quiz" size="large" trailingIcon={previewMode ? undefined : RiArrowRightLine} disabled={previewMode}>
+            {previewMode ? t("previewOnly") : t("openQuiz")}
           </RouteButton>
         </section>
 
@@ -103,8 +117,8 @@ export function DashboardPage({ isAdmin }: { isAdmin: boolean }) {
             <p className="text-body-medium text-text-primary">{t("storeMapTitle")}</p>
             <p className="mt-1 text-body-2-regular text-text-secondary">{t("storeMapDescription")}</p>
           </div>
-          <RouteButton href="/stores" size="large" leadingIcon={RiMapPin2Line} trailingIcon={RiArrowRightLine}>
-            {t("storeMapButton")}
+          <RouteButton href="/stores" size="large" leadingIcon={RiMapPin2Line} trailingIcon={previewMode ? undefined : RiArrowRightLine} disabled={previewMode}>
+            {previewMode ? t("previewOnly") : t("storeMapButton")}
           </RouteButton>
         </section>
       </main>

@@ -3,7 +3,7 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState, useSyncExternalStore, type ReactNode } from "react";
 import { useRouter } from "next/navigation";
 import { DirectionProvider } from "@/components/foundations/direction/direction";
-import { readPreferredLanguageAction, updatePreferredLanguageAction } from "@/app/language-actions";
+import { readAcademyViewerContextAction, updatePreferredLanguageAction } from "@/app/language-actions";
 
 export const ACADEMY_LANGUAGES = ["pl", "en", "de", "cs"] as const;
 export type AcademyLanguage = (typeof ACADEMY_LANGUAGES)[number];
@@ -56,6 +56,10 @@ const COPY = {
     adminPanelTitle: "Panel administratora",
     adminPanelDescription: "Zarządzaj sklepami, kontami, szkoleniami i postępami pracowników.",
     adminPanelOpen: "Otwórz panel",
+    previewAsEmployee: "Podgląd jako pracownik",
+    exitEmployeePreview: "Zakończ podgląd",
+    employeePreviewNotice: "Wizualny podgląd dashboardu pracownika. Działania są wyłączone.",
+    previewOnly: "Podgląd",
     storeMapTitle: "Sklepy Xzone",
     storeMapDescription: "Sprawdź lokalizację swojego sklepu i zobacz przypisany zespół.",
     storeMapButton: "Zobacz sklep na mapie",
@@ -382,6 +386,10 @@ const COPY = {
     adminPanelTitle: "Admin panel",
     adminPanelDescription: "Manage stores, accounts, training and employee progress.",
     adminPanelOpen: "Open admin panel",
+    previewAsEmployee: "Preview as employee",
+    exitEmployeePreview: "Exit preview",
+    employeePreviewNotice: "Visual preview of the employee dashboard. Actions are disabled.",
+    previewOnly: "Preview",
     storeMapTitle: "Xzone stores",
     storeMapDescription: "Check your store location and see the team assigned to it.",
     storeMapButton: "View store map",
@@ -712,6 +720,10 @@ const LOCALIZED_COPY: Record<"de" | "cs", Partial<Record<CopyKey, string>>> = {
     adminPanelTitle: "Administrationsbereich",
     adminPanelDescription: "Verwalte Stores, Konten, Schulungen und den Fortschritt der Mitarbeitenden.",
     adminPanelOpen: "Administration öffnen",
+    previewAsEmployee: "Mitarbeitendenansicht öffnen",
+    exitEmployeePreview: "Vorschau beenden",
+    employeePreviewNotice: "Visuelle Vorschau des Mitarbeitenden-Dashboards. Aktionen sind deaktiviert.",
+    previewOnly: "Vorschau",
     inactiveStore: "Inaktiv",
     language: "Sprache ändern",
     lastName: "Nachname",
@@ -903,6 +915,10 @@ const LOCALIZED_COPY: Record<"de" | "cs", Partial<Record<CopyKey, string>>> = {
     adminPanelTitle: "Administrace",
     adminPanelDescription: "Spravujte prodejny, účty, školení a pokrok zaměstnanců.",
     adminPanelOpen: "Otevřít administraci",
+    previewAsEmployee: "Zobrazit náhled zaměstnance",
+    exitEmployeePreview: "Ukončit náhled",
+    employeePreviewNotice: "Vizuální náhled zaměstnaneckého dashboardu. Akce jsou vypnuté.",
+    previewOnly: "Náhled",
     inactiveStore: "Neaktivní",
     language: "Změnit jazyk",
     lastName: "Příjmení",
@@ -1056,6 +1072,7 @@ const LOCALIZED_COPY: Record<"de" | "cs", Partial<Record<CopyKey, string>>> = {
 
 type AcademyContextValue = {
   language: AcademyLanguage;
+  isAdmin: boolean;
   setLanguage: (language: AcademyLanguage) => void;
   t: (key: CopyKey) => string;
   completedLessons: CopyKey[];
@@ -1105,13 +1122,16 @@ function getServerLanguage(): AcademyLanguage {
 export function AcademyProvider({ children }: { children: ReactNode }) {
   const router = useRouter();
   const language = useSyncExternalStore(subscribeToLanguage, getStoredLanguage, getServerLanguage);
+  const [role, setRole] = useState<"admin" | "employee" | null>(null);
   const [completedLessons, setCompletedLessons] = useState<CopyKey[]>([]);
   const didChangeLanguage = useRef(false);
 
   useEffect(() => {
     let active = true;
-    void readPreferredLanguageAction().then((preferredLanguage) => {
-      if (!active || didChangeLanguage.current || !isAcademyLanguage(preferredLanguage)) return;
+    void readAcademyViewerContextAction().then(({ preferredLanguage, role: currentRole }) => {
+      if (!active) return;
+      setRole(currentRole);
+      if (didChangeLanguage.current || !isAcademyLanguage(preferredLanguage)) return;
       window.localStorage.setItem("xzone-academy-language", preferredLanguage);
       window.dispatchEvent(new Event(LANGUAGE_EVENT));
     }).catch(() => {});
@@ -1154,6 +1174,7 @@ export function AcademyProvider({ children }: { children: ReactNode }) {
     }
     setCompletedLessons(next);
   }, [completedLessons]);
+  const isAdmin = role === "admin";
   const t = useCallback((key: CopyKey) => {
     if (language === "pl") return COPY.pl[key];
     if (language === "en") return COPY.en[key];
@@ -1165,8 +1186,8 @@ export function AcademyProvider({ children }: { children: ReactNode }) {
   }, [language]);
 
   const value = useMemo(
-    () => ({ language, setLanguage, t, completedLessons, completeLesson }),
-    [language, setLanguage, t, completedLessons, completeLesson],
+    () => ({ language, isAdmin, setLanguage, t, completedLessons, completeLesson }),
+    [language, isAdmin, setLanguage, t, completedLessons, completeLesson],
   );
 
   return (

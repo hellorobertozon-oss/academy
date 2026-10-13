@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { RiArrowDownSLine } from "@remixicon/react";
 import { Avatar } from "@/components/base/avatar/avatar";
 import { Button } from "@/components/base/buttons/button";
@@ -23,9 +23,11 @@ import { createAcademyBrowserClient } from "@/lib/supabase/browser";
 type HeaderMode = "landing" | "login" | "app";
 
 export function AcademyHeader({ mode }: { mode: HeaderMode }) {
-  const { language, setLanguage, t } = useAcademy();
+  const { language, setLanguage, t, isAdmin } = useAcademy();
   const router = useRouter();
+  const pathname = usePathname();
   const appMode = mode === "app";
+  const isEmployeePreview = pathname === "/admin/employee-preview";
 
   async function signOut() {
     try {
@@ -135,6 +137,11 @@ export function AcademyHeader({ mode }: { mode: HeaderMode }) {
                   <DropdownItem onSelect={() => router.push("/profile")}>
                     {t("profileDetails")}
                   </DropdownItem>
+                  {isAdmin ? (
+                    <DropdownItem onSelect={() => router.push(isEmployeePreview ? "/admin" : "/admin/employee-preview")}>
+                      {t(isEmployeePreview ? "exitEmployeePreview" : "previewAsEmployee")}
+                    </DropdownItem>
+                  ) : null}
                   <DropdownItem onSelect={() => router.push("/change-password")}>
                     {t("changePassword")}
                   </DropdownItem>

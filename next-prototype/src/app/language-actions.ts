@@ -5,12 +5,18 @@ import { createAcademyServerClient } from "@/lib/supabase/server";
 
 const STANDARD_LANGUAGES = ["pl", "en", "de", "cs"];
 
-export async function readPreferredLanguageAction(): Promise<string | null> {
+export async function readAcademyViewerContextAction(): Promise<{
+  preferredLanguage: string | null;
+  role: "admin" | "employee" | null;
+}> {
   try {
     const profile = await getCurrentAcademyProfile();
-    return profile?.preferred_language ?? null;
+    return {
+      preferredLanguage: profile?.preferred_language ?? null,
+      role: profile?.role ?? null,
+    };
   } catch {
-    return null;
+    return { preferredLanguage: null, role: null };
   }
 }
 
