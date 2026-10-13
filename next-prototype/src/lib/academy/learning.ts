@@ -109,7 +109,8 @@ export async function readAssignedCourses(): Promise<LearningRead<LearningCourse
       client
         .from("course_translations")
         .select("course_version_id, title, description")
-        .in("course_version_id", versionIds),
+        .in("course_version_id", versionIds)
+        .eq("language_code", languageCode),
       client
         .from("course_modules")
         .select("id, course_version_id, sort_order")
@@ -120,40 +121,61 @@ export async function readAssignedCourses(): Promise<LearningRead<LearningCourse
     const translations = (translationsResult.data ?? []) as CourseTranslationRow[];
     const modules = (modulesResult.data ?? []) as ModuleRow[];
     const moduleIds = modules.map((courseModule) => courseModule.id);
-    const lessonsResult = moduleIds.length
-      ? await client.from("course_lessons").select("id, module_id, sort_order").in("module_id", moduleIds)
-      : { data: [], error: null };
-    if (lessonsResult.error) return { status: "error" };
+    const [moduleTranslationsResult, lessonsResult] = moduleIds.length
+      ? await Promise.all([
+          client
+            .from("module_translations")
+            .select("module_id")
+            .in("module_id", moduleIds)
+            .eq("language_code", languageCode),
+          client.from("course_lessons").select("id, module_id, sort_order").in("module_id", moduleIds),
+        ])
+      : [{ data: [], error: null }, { data: [], error: null }];
+    if (moduleTranslationsResult.error || lessonsResult.error) return { status: "error" };
 
     const lessonRows = (lessonsResult.data ?? []) as LessonRow[];
     const lessonIds = lessonRows.map((lesson) => lesson.id);
-    const completionsResult = lessonIds.length
-      ? await client.from("lesson_completions").select("lesson_id").in("lesson_id", lessonIds)
-      : { data: [], error: null };
-    if (completionsResult.error) return { status: "error" };
+    const [lessonTranslationsResult, completionsResult] = lessonIds.length
+      ? await Promise.all([
+          client
+            .from("lesson_translations")
+            .select("lesson_id")
+            .in("lesson_id", lessonIds)
+            .eq("language_code", languageCode),
+          client.from("lesson_completions").select("lesson_id").in("lesson_id", lessonIds),
+        ])
+      : [{ data: [], error: null }, { data: [], error: null }];
+    if (lessonTranslationsResult.error || completionsResult.error) return { status: "error" };
 
+    const translatedModuleIds = new Set(
+      ((moduleTranslationsResult.data ?? []) as Array<{ module_id: number }>).map((translation) => translation.module_id),
+    );
+    const translatedLessonIds = new Set(
+      ((lessonTranslationsResult.data ?? []) as Array<{ lesson_id: number }>).map((translation) => translation.lesson_id),
+    );
     const modulesByVersion = new Map<number, number>();
     for (const courseModule of modules) {
+      if (!translatedModuleIds.has(courseModule.id)) continue;
       modulesByVersion.set(courseModule.course_version_id, (modulesByVersion.get(courseModule.course_version_id) ?? 0) + 1);
-    }
-    const lessonCountsByModule = new Map<number, number>();
-    for (const lesson of lessonRows) {
-      lessonCountsByModule.set(lesson.module_id, (lessonCountsByModule.get(lesson.module_id) ?? 0) + 1);
-    }
-    const lessonsByVersion = new Map<number, number>();
-    for (const courseModule of modules) {
-      lessonsByVersion.set(
-        courseModule.course_version_id,
-        (lessonsByVersion.get(courseModule.course_version_id) ?? 0) + (lessonCountsByModule.get(courseModule.id) ?? 0),
-      );
     }
     const moduleById = new Map(modules.map((courseModule) => [courseModule.id, courseModule]));
     const lessonById = new Map(lessonRows.map((lesson) => [lesson.id, lesson]));
+    const lessonsByVersion = new Map<number, number>();
+    for (const lessonId of translatedLessonIds) {
+      const lesson = lessonById.get(lessonId);
+      const courseModule = lesson ? moduleById.get(lesson.module_id) : undefined;
+      if (!courseModule || !translatedModuleIds.has(courseModule.id)) continue;
+      lessonsByVersion.set(
+        courseModule.course_version_id,
+        (lessonsByVersion.get(courseModule.course_version_id) ?? 0) + 1,
+      );
+    }
     const completedCountsByVersion = new Map<number, number>();
     for (const completion of (completionsResult.data ?? []) as Array<Pick<LessonCompletionRow, "lesson_id">>) {
+      if (!translatedLessonIds.has(completion.lesson_id)) continue;
       const lesson = lessonById.get(completion.lesson_id);
       const courseModule = lesson ? moduleById.get(lesson.module_id) : undefined;
-      if (courseModule) {
+      if (courseModule && translatedModuleIds.has(courseModule.id)) {
         completedCountsByVersion.set(
           courseModule.course_version_id,
           (completedCountsByVersion.get(courseModule.course_version_id) ?? 0) + 1,
@@ -204,6 +226,7 @@ async function readCourseOutlineWithClient(
       .from("course_translations")
       .select("course_version_id, title, description")
       .eq("course_version_id", courseRow.published_version_id)
+      .eq("language_code", languageCode)
       .maybeSingle(),
     client
       .from("course_modules")
@@ -221,7 +244,8 @@ async function readCourseOutlineWithClient(
         client
           .from("module_translations")
           .select("module_id, title, summary")
-          .in("module_id", moduleIds),
+          .in("module_id", moduleIds)
+          .eq("language_code", languageCode),
         client
           .from("course_lessons")
           .select("id, module_id, sort_order")
@@ -238,7 +262,8 @@ async function readCourseOutlineWithClient(
         client
           .from("lesson_translations")
           .select("lesson_id, title, summary")
-          .in("lesson_id", lessonIds),
+          .in("lesson_id", lessonIds)
+          .eq("language_code", languageCode),
         client
           .from("lesson_completions")
           .select("lesson_id")
@@ -319,6 +344,7 @@ export async function readCourseLesson(
       .from("lesson_translations")
       .select("lesson_id, title, summary, youtube_video_id, content, product_bullets")
       .eq("lesson_id", lessonId)
+      .eq("language_code", languageCode)
       .maybeSingle();
     if (translationError) return { status: "error" };
     if (!translation) return { status: "not-found" };

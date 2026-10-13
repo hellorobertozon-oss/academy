@@ -90,7 +90,11 @@ export async function readAssignedQuizzes(): Promise<LearningRead<LearningQuizCa
     const versionIds = [...new Set(quizRows.map((quiz) => quiz.course_version_id))];
     const lessonIds = quizRows.flatMap((quiz) => quiz.lesson_id === null ? [] : [quiz.lesson_id]);
     const [quizTranslationsResult, questionsResult, versionsResult, lessonTargetsResult] = await Promise.all([
-      client.from("quiz_translations").select("quiz_id, title, instructions").in("quiz_id", quizIds),
+      client
+        .from("quiz_translations")
+        .select("quiz_id, title, instructions")
+        .in("quiz_id", quizIds)
+        .eq("language_code", languageCode),
       client.from("quiz_questions").select("id, quiz_id, sort_order").in("quiz_id", quizIds),
       client.from("course_versions").select("id, course_id").in("id", versionIds),
       lessonIds.length
@@ -99,6 +103,52 @@ export async function readAssignedQuizzes(): Promise<LearningRead<LearningQuizCa
     ]);
     if (quizTranslationsResult.error || questionsResult.error || versionsResult.error || lessonTargetsResult.error) {
       return { status: "error" };
+    }
+
+    const questions = (questionsResult.data ?? []) as QuestionRow[];
+    const questionIds = questions.map((question) => question.id);
+    const [questionTranslationsResult, optionsResult] = questionIds.length
+      ? await Promise.all([
+          client
+            .from("quiz_question_translations")
+            .select("question_id, prompt")
+            .in("question_id", questionIds)
+            .eq("language_code", languageCode),
+          client
+            .from("quiz_options")
+            .select("id, question_id, sort_order")
+            .in("question_id", questionIds),
+        ])
+      : [{ data: [], error: null }, { data: [], error: null }];
+    if (questionTranslationsResult.error || optionsResult.error) return { status: "error" };
+
+    const options = (optionsResult.data ?? []) as OptionRow[];
+    const optionIds = options.map((option) => option.id);
+    const optionTranslationsResult = optionIds.length
+      ? await client
+          .from("quiz_option_translations")
+          .select("option_id, label")
+          .in("option_id", optionIds)
+          .eq("language_code", languageCode)
+      : { data: [], error: null };
+    if (optionTranslationsResult.error) return { status: "error" };
+
+    const questionTranslations = (questionTranslationsResult.data ?? []) as QuestionTranslationRow[];
+    const optionTranslations = (optionTranslationsResult.data ?? []) as OptionTranslationRow[];
+    const completeQuizIds = new Set<number>();
+    for (const quiz of quizRows) {
+      const quizQuestions = questions.filter((question) => question.quiz_id === quiz.id);
+      if (!quizQuestions.length || quizQuestions.some((question) =>
+        !questionTranslations.some((translation) => translation.question_id === question.id),
+      )) continue;
+
+      const quizQuestionIds = new Set(quizQuestions.map((question) => question.id));
+      const quizOptions = options.filter((option) => quizQuestionIds.has(option.question_id));
+      if (quizQuestions.some((question) => !quizOptions.some((option) => option.question_id === question.id))) continue;
+      if (quizOptions.some((option) =>
+        !optionTranslations.some((translation) => translation.option_id === option.id),
+      )) continue;
+      completeQuizIds.add(quiz.id);
     }
 
     const versions = (versionsResult.data ?? []) as CourseVersionRow[];
@@ -115,9 +165,14 @@ export async function readAssignedQuizzes(): Promise<LearningRead<LearningQuizCa
       client
         .from("course_translations")
         .select("course_version_id, title")
-        .in("course_version_id", versionIds),
+        .in("course_version_id", versionIds)
+        .eq("language_code", languageCode),
       lessonIds.length
-        ? client.from("lesson_translations").select("lesson_id, title").in("lesson_id", lessonIds)
+        ? client
+            .from("lesson_translations")
+            .select("lesson_id, title")
+            .in("lesson_id", lessonIds)
+            .eq("language_code", languageCode)
         : Promise.resolve({ data: [], error: null }),
     ]);
     if (coursesResult.error || courseTranslationsResult.error || lessonsTranslationsResult.error) {
@@ -130,6 +185,7 @@ export async function readAssignedQuizzes(): Promise<LearningRead<LearningQuizCa
             .from("module_translations")
             .select("module_id, title")
             .in("module_id", moduleIds)
+            .eq("language_code", languageCode)
         : Promise.resolve({ data: [], error: null }),
     ]);
     if (moduleTranslationsResult.error) return { status: "error" };
@@ -145,7 +201,6 @@ export async function readAssignedQuizzes(): Promise<LearningRead<LearningQuizCa
     const moduleTranslationById = new Map(moduleTranslations.map((translation) => [translation.module_id, translation]));
     const lessonTranslationById = new Map(lessons.map((translation) => [translation.lesson_id, translation]));
     const quizTranslations = (quizTranslationsResult.data ?? []) as QuizTranslationRow[];
-    const questions = (questionsResult.data ?? []) as QuestionRow[];
 
     return {
       status: "ok",
@@ -158,7 +213,7 @@ export async function readAssignedQuizzes(): Promise<LearningRead<LearningQuizCa
         const targetModuleId = quiz.module_id ?? (quiz.lesson_id === null ? null : lessonById.get(quiz.lesson_id)?.module_id ?? null);
         const moduleTranslation = targetModuleId === null ? undefined : moduleTranslationById.get(targetModuleId);
         const lessonTranslation = quiz.lesson_id === null ? undefined : lessonTranslationById.get(quiz.lesson_id);
-        if (!quizTranslation || !course || !courseTranslation || !moduleTranslation) return [];
+        if (!completeQuizIds.has(quiz.id) || !quizTranslation || !course || !courseTranslation || !moduleTranslation) return [];
         return [{
           id: quiz.id,
           title: quizTranslation.title,
@@ -189,7 +244,12 @@ export async function readLearningQuiz(quizId: number): Promise<LearningRead<Lea
 
     const quiz = quizData as QuizRow;
     const [translationResult, questionsResult, versionResult, attemptsResult, attemptCountResult] = await Promise.all([
-      client.from("quiz_translations").select("quiz_id, title, instructions").eq("quiz_id", quizId).maybeSingle(),
+      client
+        .from("quiz_translations")
+        .select("quiz_id, title, instructions")
+        .eq("quiz_id", quizId)
+        .eq("language_code", languageCode)
+        .maybeSingle(),
       client.from("quiz_questions").select("id, quiz_id, sort_order").eq("quiz_id", quizId).order("sort_order"),
       client.from("course_versions").select("id, course_id").eq("id", quiz.course_version_id).maybeSingle(),
       client
@@ -212,7 +272,8 @@ export async function readLearningQuiz(quizId: number): Promise<LearningRead<Lea
       client
         .from("quiz_question_translations")
         .select("question_id, prompt")
-        .in("question_id", questionIds),
+        .in("question_id", questionIds)
+        .eq("language_code", languageCode),
       client
         .from("quiz_options")
         .select("id, question_id, sort_order")
@@ -224,7 +285,11 @@ export async function readLearningQuiz(quizId: number): Promise<LearningRead<Lea
     const options = (optionsResult.data ?? []) as OptionRow[];
     const optionIds = options.map((option) => option.id);
     const optionTranslationsResult = optionIds.length
-      ? await client.from("quiz_option_translations").select("option_id, label").in("option_id", optionIds)
+      ? await client
+          .from("quiz_option_translations")
+          .select("option_id, label")
+          .in("option_id", optionIds)
+          .eq("language_code", languageCode)
       : { data: [], error: null };
     if (optionTranslationsResult.error) return { status: "error" };
 
@@ -244,10 +309,25 @@ export async function readLearningQuiz(quizId: number): Promise<LearningRead<Lea
     const targetModuleId = quiz.module_id ?? (lessonTargetResult.data as LessonRow | null)?.module_id;
     if (!targetModuleId) return { status: "not-found" };
     const [courseTranslationResult, moduleTranslationResult, lessonTranslationResult] = await Promise.all([
-      client.from("course_translations").select("course_version_id, title").eq("course_version_id", quiz.course_version_id).maybeSingle(),
-      client.from("module_translations").select("module_id, title").eq("module_id", targetModuleId).maybeSingle(),
+      client
+        .from("course_translations")
+        .select("course_version_id, title")
+        .eq("course_version_id", quiz.course_version_id)
+        .eq("language_code", languageCode)
+        .maybeSingle(),
+      client
+        .from("module_translations")
+        .select("module_id, title")
+        .eq("module_id", targetModuleId)
+        .eq("language_code", languageCode)
+        .maybeSingle(),
       quiz.lesson_id
-        ? client.from("lesson_translations").select("lesson_id, title").eq("lesson_id", quiz.lesson_id).maybeSingle()
+        ? client
+            .from("lesson_translations")
+            .select("lesson_id, title")
+            .eq("lesson_id", quiz.lesson_id)
+            .eq("language_code", languageCode)
+            .maybeSingle()
         : Promise.resolve({ data: null, error: null }),
     ]);
     if (courseTranslationResult.error || moduleTranslationResult.error || lessonTranslationResult.error) return { status: "error" };
@@ -255,6 +335,10 @@ export async function readLearningQuiz(quizId: number): Promise<LearningRead<Lea
 
     const questionTranslations = (questionTranslationsResult.data ?? []) as QuestionTranslationRow[];
     const optionTranslations = (optionTranslationsResult.data ?? []) as OptionTranslationRow[];
+    if (questionTranslations.length !== questions.length) return { status: "not-found" };
+    if (options.some((option) => !optionTranslations.some((translation) => translation.option_id === option.id))) {
+      return { status: "not-found" };
+    }
     const translation = translationResult.data as QuizTranslationRow;
     const attemptCount = attemptCountResult.count ?? 0;
     const attempts = ((attemptsResult.data ?? []) as AttemptRow[]).map((attempt, index) => ({
