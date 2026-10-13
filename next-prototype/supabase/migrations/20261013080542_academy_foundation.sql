@@ -1,5 +1,4 @@
 -- Academy project only: aslzogstpyppmbdhvuss.
--- This source migration has not been applied to any remote Supabase project.
 
 create schema if not exists private;
 revoke all on schema private from public, anon, authenticated;
@@ -258,4 +257,3 @@ grant update (first_name, last_name, preferred_language) on table public.profile
 grant select, insert, update, delete on table public.user_invites to authenticated;
 grant usage, select on sequence public.stores_id_seq to authenticated;
 grant usage, select on sequence public.user_invites_id_seq to authenticated;
-

@@ -10,6 +10,7 @@ const assignmentsMigration = new URL("../supabase/migrations/20261013080846_acad
 const progressMigration = new URL("../supabase/migrations/20261013080904_academy_lesson_progress.sql", import.meta.url);
 const quizMigration = new URL("../supabase/migrations/20261013081002_academy_quizzes.sql", import.meta.url);
 const leaderboardMigration = new URL("../supabase/migrations/20261013081014_academy_leaderboard.sql", import.meta.url);
+const leaderboardVisibilityMigration = new URL("../supabase/migrations/20261013093057_academy_leaderboard_visibility.sql", import.meta.url);
 const adminProgressMigration = new URL("../supabase/migrations/20261013081038_academy_admin_progress.sql", import.meta.url);
 const adminId = "10000000-0000-4000-8000-000000000001";
 const employeeId = "10000000-0000-4000-8000-000000000002";
@@ -88,6 +89,7 @@ describe("Academy course content migration", { concurrency: false }, () => {
     await db.exec(await readFile(quizMigration, "utf8"));
     await db.exec(await readFile(leaderboardMigration, "utf8"));
     await db.exec(await readFile(adminProgressMigration, "utf8"));
+    await db.exec(await readFile(leaderboardVisibilityMigration, "utf8"));
   });
 
   after(async () => {
@@ -1125,5 +1127,36 @@ describe("Academy course content migration", { concurrency: false }, () => {
       db.query("select * from public.read_academy_leaderboard()"),
       /Authentication is required/,
     );
+  });
+
+  it("lets admins hide the leaderboard while employees can only read its setting", async () => {
+    const initialSetting = await asUser(employeeId, () =>
+      db.query("select leaderboard_enabled from public.academy_settings where id = true"),
+    );
+    assert.equal(initialSetting.rows[0].leaderboard_enabled, true);
+
+    const employeeUpdate = await asUser(employeeId, () =>
+      db.query(
+        "update public.academy_settings set leaderboard_enabled = false where id = true returning leaderboard_enabled",
+      ),
+    );
+    assert.equal(employeeUpdate.rows.length, 0);
+
+    const hiddenLeaderboard = await asUser(adminId, async () => {
+      const update = await db.query(
+        "update public.academy_settings set leaderboard_enabled = false where id = true returning leaderboard_enabled",
+      );
+      assert.equal(update.rows[0].leaderboard_enabled, false);
+      await db.query("select set_config('request.jwt.claim.sub', $1, true)", [employeeId]);
+      return db.query("select * from public.read_academy_leaderboard()");
+    });
+    assert.equal(hiddenLeaderboard.rows.length, 0);
+
+    const restoredLeaderboard = await asUser(adminId, async () => {
+      await db.query("update public.academy_settings set leaderboard_enabled = true where id = true");
+      await db.query("select set_config('request.jwt.claim.sub', $1, true)", [employeeId]);
+      return db.query("select * from public.read_academy_leaderboard()");
+    });
+    assert.ok(restoredLeaderboard.rows.length > 0);
   });
 });

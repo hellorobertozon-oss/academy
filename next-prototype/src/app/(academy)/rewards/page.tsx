@@ -22,6 +22,7 @@ async function RewardsContent() {
     <RewardsPage
       currentPoints={pointsResult.status === "ok" ? pointsResult.data : null}
       leaderboard={leaderboardResult.status === "ok" ? leaderboardResult.data : null}
+      leaderboardEnabled={leaderboardResult.status === "ok" ? leaderboardResult.enabled : null}
       leaderboardCopy={{
         title: copy.leaderboardTitle,
         description: copy.leaderboardDescription,

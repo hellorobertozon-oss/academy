@@ -19,10 +19,12 @@ const pointRules = [
 export function RewardsPage({
   currentPoints,
   leaderboard,
+  leaderboardEnabled,
   leaderboardCopy,
 }: {
   currentPoints: number | null;
   leaderboard: LearningLeaderboardEntry[] | null;
+  leaderboardEnabled: boolean | null;
   leaderboardCopy: {
     title: string;
     description: string;
@@ -153,6 +155,8 @@ export function RewardsPage({
           </div>
           {leaderboard === null ? (
             <p role="alert" className="px-5 py-5 text-body-regular text-text-error-primary sm:px-7">{leaderboardCopy.loadError}</p>
+          ) : !leaderboardEnabled ? (
+            <p className="px-5 py-5 text-body-regular text-text-secondary sm:px-7">{t("leaderboardHidden")}</p>
           ) : leaderboard.length ? (
             <ol className="grid gap-2 p-4 sm:p-6" aria-label={leaderboardCopy.title}>
               {leaderboard.map((entry) => (

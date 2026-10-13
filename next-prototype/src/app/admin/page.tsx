@@ -11,6 +11,7 @@ import {
   TableRow,
 } from "@/components/base/table/table";
 import { InviteForm, StoreForm } from "@/app/admin/admin-forms";
+import { LeaderboardVisibilityForm } from "@/app/admin/leaderboard-form";
 import { requireAcademyProfile } from "@/lib/auth/profile";
 import { createAcademyServerClient } from "@/lib/supabase/server";
 
@@ -64,7 +65,7 @@ function SectionHeading({ title, description }: { title: string; description: st
 async function AdminDashboard() {
   const profile = await requireAcademyProfile();
   const supabase = await createAcademyServerClient();
-  const [storesResult, profilesResult, invitesResult] = await Promise.all([
+  const [storesResult, profilesResult, invitesResult, settingsResult] = await Promise.all([
     supabase
       .from("stores")
       .select("id, name, street_address, city, postal_code, country_code, is_active")
@@ -77,6 +78,11 @@ async function AdminDashboard() {
       .from("user_invites")
       .select("id, email, role, store_id, created_at, accepted_at, revoked_at")
       .order("created_at", { ascending: false }),
+    supabase
+      .from("academy_settings")
+      .select("leaderboard_enabled")
+      .eq("id", true)
+      .maybeSingle(),
   ]);
 
   const loadError = Boolean(storesResult.error || profilesResult.error || invitesResult.error);
@@ -85,6 +91,9 @@ async function AdminDashboard() {
   const invites = (invitesResult.data ?? []) as InviteRow[];
   const storesById = new Map(stores.map((store) => [store.id, store]));
   const pendingInvites = invites.filter((invite) => !invite.accepted_at && !invite.revoked_at);
+  const leaderboardEnabled = settingsResult.error
+    ? null
+    : settingsResult.data?.leaderboard_enabled ?? null;
 
   return (
     <div className="min-h-screen bg-background-full">
@@ -128,6 +137,8 @@ async function AdminDashboard() {
             </div>
           ))}
         </section>
+
+        <LeaderboardVisibilityForm enabled={leaderboardEnabled} />
 
         <section className="grid gap-6 xl:grid-cols-2">
           <div className="flex flex-col gap-5 rounded-3xl border border-border-button-default bg-background-primary-default p-6">

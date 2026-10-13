@@ -60,6 +60,11 @@ export type LearningLeaderboardEntry = {
   isCurrentUser: boolean;
 };
 
+export type LearningLeaderboardRead =
+  | { status: "ok"; data: LearningLeaderboardEntry[]; languageCode: string; enabled: boolean }
+  | { status: "error" }
+  | { status: "forbidden" };
+
 type CourseRow = { id: number; slug: string; published_version_id: number | null };
 type CourseTranslationRow = { course_version_id: number; title: string; description: string };
 type ModuleRow = { id: number; course_version_id: number; sort_order: number };
@@ -368,8 +373,25 @@ export async function readEmployeePoints(): Promise<LearningRead<number>> {
   });
 }
 
-export async function readEmployeeLeaderboard(): Promise<LearningRead<LearningLeaderboardEntry[]>> {
-  return withEmployeeClient<LearningLeaderboardEntry[]>(async (client, languageCode) => {
+export async function readEmployeeLeaderboard(): Promise<LearningLeaderboardRead> {
+  const profile = await requireAcademyProfile();
+  if (profile.role !== "employee") return { status: "forbidden" };
+
+  try {
+    const client = await createAcademyServerClient();
+    const { data: settings, error: settingsError } = await client
+      .from("academy_settings")
+      .select("leaderboard_enabled")
+      .eq("id", true)
+      .maybeSingle();
+
+    if (settingsError || typeof settings?.leaderboard_enabled !== "boolean") {
+      return { status: "error" };
+    }
+    if (!settings.leaderboard_enabled) {
+      return { status: "ok", data: [], languageCode: profile.preferred_language, enabled: false };
+    }
+
     const { data, error } = await client.rpc("read_academy_leaderboard");
     if (error || !Array.isArray(data)) return { status: "error" };
 
@@ -397,6 +419,13 @@ export async function readEmployeeLeaderboard(): Promise<LearningRead<LearningLe
       });
     }
 
-    return { status: "ok", data: entries, languageCode };
-  });
+    return {
+      status: "ok",
+      data: entries,
+      languageCode: profile.preferred_language,
+      enabled: true,
+    };
+  } catch {
+    return { status: "error" };
+  }
 }
