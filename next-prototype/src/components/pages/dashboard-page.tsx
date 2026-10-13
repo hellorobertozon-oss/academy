@@ -6,13 +6,14 @@ import { RiArrowRightLine, RiMapPin2Line } from "@remixicon/react";
 import { AcademyHeader } from "@/components/academy-header";
 import { useAcademy } from "@/components/academy-provider";
 import { RouteButton } from "@/components/route-button";
+import { LinkButton } from "@/components/base/buttons/link-button";
 
 const sections: { href: string; title: "learning" | "questions"; description: "learningDescription" | "questionsDescription"; image: string }[] = [
   { href: "/learning", title: "learning", description: "learningDescription", image: "/assets/main-learning-v3.png" },
   { href: "/faq", title: "questions", description: "questionsDescription", image: "/assets/main-faq-v3.png" },
 ];
 
-export function DashboardPage() {
+export function DashboardPage({ isAdmin }: { isAdmin: boolean }) {
   const { t } = useAcademy();
 
   return (
@@ -74,6 +75,18 @@ export function DashboardPage() {
             </Link>
           ))}
         </section>
+
+        {isAdmin ? (
+          <section className="mt-5 flex flex-col items-start justify-between gap-4 rounded-3xl border border-border-button-default bg-background-primary-default p-5 sm:flex-row sm:items-center sm:px-6">
+            <div>
+              <p className="text-body-medium text-text-primary">{t("adminPanelTitle")}</p>
+              <p className="mt-1 text-body-2-regular text-text-secondary">{t("adminPanelDescription")}</p>
+            </div>
+            <LinkButton href="/admin" size="medium" trailingIcon={RiArrowRightLine}>
+              {t("adminPanelOpen")}
+            </LinkButton>
+          </section>
+        ) : null}
 
         <section className="mt-5 flex flex-col items-start justify-between gap-4 rounded-3xl border border-border-button-default bg-background-primary-default p-5 sm:flex-row sm:items-center sm:px-6">
           <div>
