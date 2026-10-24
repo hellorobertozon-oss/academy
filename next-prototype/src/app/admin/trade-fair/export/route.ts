@@ -26,7 +26,7 @@ export async function GET() {
     return new Response(csv, {
       headers: {
         "Content-Type": "text/csv; charset=utf-8",
-        "Content-Disposition": 'attachment; filename="xzone-trade-fair-memory-entries.csv"',
+        "Content-Disposition": 'attachment; filename="xzone-trade-fair-entries.csv"',
         "Cache-Control": "private, no-store, max-age=0",
       },
     });

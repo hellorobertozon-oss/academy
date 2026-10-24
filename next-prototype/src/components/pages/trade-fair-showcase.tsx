@@ -13,8 +13,6 @@ import { Button } from "@/components/base/buttons/button";
 import { LinkButton } from "@/components/base/buttons/link-button";
 import { Switch } from "@/components/base/switch/switch";
 import type { TradeFairProduct } from "@/lib/trade-fair-products";
-import { TradeFairMemory } from "@/components/pages/trade-fair-memory";
-import type { TradeFairMemorySettings } from "@/lib/trade-fair-memory";
 import { cx } from "@/utils/cx";
 import "./trade-fair-showcase-motion.module.css";
 
@@ -22,13 +20,7 @@ const AUTO_ADVANCE_PRESETS = [5, 10, 15, 30, 60] as const;
 const IDLE_RESET_DELAY_MS = 60_000;
 const STAFF_PASSWORD = "kiosk";
 
-export function TradeFairShowcase({
-  products,
-  memorySettings,
-}: {
-  products: TradeFairProduct[];
-  memorySettings: TradeFairMemorySettings;
-}) {
+export function TradeFairShowcase({ products }: { products: TradeFairProduct[] }) {
   const [selectedId, setSelectedId] = useState(products[0].id);
   const [selectedImageIndex, setSelectedImageIndex] = useState(0);
   const [canScrollProductsLeft, setCanScrollProductsLeft] = useState(false);
@@ -41,7 +33,6 @@ export function TradeFairShowcase({
   const [staffPassword, setStaffPassword] = useState("");
   const [staffPasswordError, setStaffPasswordError] = useState(false);
   const [activityVersion, setActivityVersion] = useState(0);
-  const [memoryMode, setMemoryMode] = useState(false);
   const productCarouselRef = useRef<HTMLDivElement>(null);
   const settingsRef = useRef<HTMLDivElement>(null);
   const settingsTriggerRef = useRef<HTMLButtonElement>(null);
@@ -222,63 +213,42 @@ export function TradeFairShowcase({
               {staffUnlocked ? (
                 <>
                   <h3 className="text-body-1-semibold text-text-primary">Ustawienia kiosku</h3>
-                  {!memoryMode ? (
-                    <>
-                      <p id="trade-fair-interval-label" className="mb-2 mt-4 text-body-2-regular text-text-secondary">
-                        Zmieniaj produkt co
-                      </p>
-                      <div role="group" aria-labelledby="trade-fair-interval-label" className="grid grid-cols-5 gap-2">
-                        {AUTO_ADVANCE_PRESETS.map((seconds) => (
-                          <Button
-                            key={seconds}
-                            type="button"
-                            variant={autoAdvanceSeconds === seconds ? "primary" : "secondary"}
-                            size="small"
-                            aria-pressed={autoAdvanceSeconds === seconds}
-                            onClick={() => setAutoAdvanceSeconds(seconds)}
-                            className="min-h-11 rounded-xl px-2"
-                          >
-                            {seconds} s
-                          </Button>
-                        ))}
-                      </div>
-                      <Switch
-                        isSelected={loopProducts}
-                        onChange={setLoopProducts}
-                        className="mt-3 min-h-11 w-full justify-between rounded-xl border border-border-button-default px-3 py-2"
-                      >
-                        {loopProducts ? "Pętla włączona" : "Pętla wyłączona"}
-                      </Switch>
+                  <p id="trade-fair-interval-label" className="mb-2 mt-4 text-body-2-regular text-text-secondary">
+                    Zmieniaj produkt co
+                  </p>
+                  <div role="group" aria-labelledby="trade-fair-interval-label" className="grid grid-cols-5 gap-2">
+                    {AUTO_ADVANCE_PRESETS.map((seconds) => (
                       <Button
+                        key={seconds}
                         type="button"
-                        variant={autoAdvanceEnabled ? "secondary" : "primary"}
-                        size="large"
-                        leadingIcon={autoAdvanceEnabled ? RiPauseLine : RiPlayLine}
-                        aria-pressed={autoAdvanceEnabled}
-                        onClick={() => setAutoAdvanceEnabled((enabled) => !enabled)}
-                        className="mt-3 w-full justify-center"
+                        variant={autoAdvanceSeconds === seconds ? "primary" : "secondary"}
+                        size="small"
+                        aria-pressed={autoAdvanceSeconds === seconds}
+                        onClick={() => setAutoAdvanceSeconds(seconds)}
+                        className="min-h-11 rounded-xl px-2"
                       >
-                        {autoAdvanceEnabled ? "Zatrzymaj pokaz" : "Uruchom pokaz"}
+                        {seconds} s
                       </Button>
-                    </>
-                  ) : null}
-                  <div className="mt-4 border-t border-separator-border pt-4">
-                    <p className="mb-2 text-body-2-regular text-text-secondary">Przełącz widok kiosku</p>
-                    <Switch
-                      isSelected={memoryMode}
-                      onChange={(enabled) => {
-                        setMemoryMode(enabled);
-                        setAutoAdvanceEnabled(false);
-                        closeSettings();
-                      }}
-                      className="min-h-14 w-full justify-between rounded-xl border border-border-button-default px-3 py-2"
-                    >
-                      <span className="flex flex-col text-start">
-                        <span className="text-body-medium text-text-primary">{memoryMode ? "Tryb Memory aktywny" : "Uruchom tryb Memory"}</span>
-                        <span className="text-caption-1-regular text-text-secondary">{memoryMode ? "Przełącz na katalog produktów" : "Otwórz grę na tym kiosku"}</span>
-                      </span>
-                    </Switch>
+                    ))}
                   </div>
+                  <Switch
+                    isSelected={loopProducts}
+                    onChange={setLoopProducts}
+                    className="mt-3 min-h-11 w-full justify-between rounded-xl border border-border-button-default px-3 py-2"
+                  >
+                    {loopProducts ? "Pętla włączona" : "Pętla wyłączona"}
+                  </Switch>
+                  <Button
+                    type="button"
+                    variant={autoAdvanceEnabled ? "secondary" : "primary"}
+                    size="large"
+                    leadingIcon={autoAdvanceEnabled ? RiPauseLine : RiPlayLine}
+                    aria-pressed={autoAdvanceEnabled}
+                    onClick={() => setAutoAdvanceEnabled((enabled) => !enabled)}
+                    className="mt-3 w-full justify-center"
+                  >
+                    {autoAdvanceEnabled ? "Zatrzymaj pokaz" : "Uruchom pokaz"}
+                  </Button>
                 </>
               ) : (
                 <form
@@ -335,10 +305,6 @@ export function TradeFairShowcase({
         ) : null}
       </header>
 
-      {memoryMode ? (
-        <TradeFairMemory products={products} settings={memorySettings} />
-      ) : (
-      <>
       <main className="mx-auto flex w-full max-w-7xl flex-1 flex-col px-4 sm:px-8 2xl:max-w-[1600px]">
         <div className="flex min-h-[min(37vh,20rem)] flex-1 flex-col items-center justify-center gap-2 py-2 sm:min-h-[min(30vh,20rem)]">
           <div
@@ -419,22 +385,6 @@ export function TradeFairShowcase({
           </h2>
           <span className="text-body-2-regular text-text-tertiary">Tap a product to explore <span aria-hidden="true">·</span> Tocca un prodotto per scoprirlo</span>
         </div>
-        {memorySettings.enabled ? (
-          <div className="mx-auto max-w-7xl px-4 pb-2 sm:px-8 2xl:max-w-[1600px]">
-            <Button
-              type="button"
-              variant="primary"
-              size="large"
-              onClick={() => {
-                setAutoAdvanceEnabled(false);
-                setMemoryMode(true);
-              }}
-              className="min-h-12 w-full justify-center sm:w-auto"
-            >
-              Play Xzone Memory <span aria-hidden="true">·</span> Gioca a Xzone Memory
-            </Button>
-          </div>
-        ) : null}
         <div className="mx-auto flex w-full max-w-7xl items-center gap-2 px-2 pb-4 pt-1 sm:gap-3 sm:px-8 2xl:max-w-[1600px]">
           <Button
             type="button"
@@ -503,8 +453,6 @@ export function TradeFairShowcase({
           />
         </div>
       </nav>
-      </>
-      )}
     </div>
   );
 }

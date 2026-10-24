@@ -9,7 +9,7 @@ import {
   RiBarChartBoxLine,
   RiBookOpenLine,
   RiGroupLine,
-  RiGamepadLine,
+  RiDownloadLine,
   RiHomeLine,
 } from "@remixicon/react";
 import type { ReactNode } from "react";
@@ -28,7 +28,7 @@ const adminNavigation: DashboardNavItem[] = [
   { key: "users", label: "Użytkownicy", icon: RiGroupLine, href: "/admin/users" },
   { key: "training", label: "Szkolenia", icon: RiBookOpenLine, href: "/admin/courses" },
   { key: "progress", label: "Postępy", icon: RiBarChartBoxLine, href: "/admin/progress" },
-  { key: "trade-fair", label: "Targi", icon: RiGamepadLine, href: "/admin/trade-fair" },
+  { key: "trade-fair", label: "Leady targowe", icon: RiDownloadLine, href: "/admin/trade-fair" },
 ];
 
 function selectedNavigation(pathname: string) {
