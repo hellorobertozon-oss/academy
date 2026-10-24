@@ -2,19 +2,19 @@
 
 This project is scoped to the Supabase project ref `aslzogstpyppmbdhvuss` (Academy). The separate `supabase-magazyn` project is Magazyn. Check the root `AGENTS.md` before any database command.
 
-The SQL migrations in `migrations/` are versioned source code. All ten migrations have been applied to the Academy project, and their filenames match the versions recorded by Supabase. The app validates the configured Supabase hostname and refuses to connect if it points at Magazyn or another project.
+The SQL migrations in `migrations/` are versioned source code. All sixteen migrations have been applied to the Academy project, and their filenames match the versions recorded by Supabase. The app validates the configured Supabase hostname and refuses to connect if it points at Magazyn or another project.
 
 ## Training content model
 
 `20261013080612_academy_training_content.sql` adds the initial content CMS schema:
 
-- `academy_languages` is an editable list seeded with Polish, English, German and Czech.
+- `academy_languages` is an editable list seeded with Polish, English, German, Czech and French.
 - A course has immutable published versions and at most one editable draft. Modules, lessons and their translations belong to a version.
-- Lesson translations store Tiptap-compatible JSON, a validated YouTube video ID and optional short product bullet points.
+- Lesson translations store Tiptap-compatible JSON, a validated YouTube video ID, titled key points and an optional client/seller conversation. Draft copies preserve these lesson sections and their translations.
 - Publishing checks that each module and lesson has a title in the course's default language. Creating the next draft copies the published translations and content.
 - `20261013080624_academy_content_ordering.sql` adds atomic module and lesson ordering functions. They accept only the complete ID list for a draft, so an employee or partial reorder cannot change published order.
 - `20261013080846_academy_course_assignments.sql` adds course assignments for stores and individual employees. Employees can read only assigned, published courses and content translated into their preferred language. Untranslated modules and lessons stay hidden, and assignment records are admin-only.
-- The employee learning pages read the course list, outline and lesson from these RLS-protected tables. Changing Polish/English in the app updates the profile language used by those read policies.
+- The employee learning pages read the course list, outline and lesson from these RLS-protected tables. Changing the app language updates the profile language used by those read policies.
 - `20261013080904_academy_lesson_progress.sql` records one completion per employee and lesson, awards 10 points once, and exposes completion rows only to that employee and admins. Employees must complete an assigned, published lesson available in their language; writes go through a security-definer function.
 - `20261013081002_academy_quizzes.sql` adds quizzes to lessons or modules, translated questions and answers, and an admin-only correct-answer key. Publishing requires complete quiz content in the course's default language. Employees see quizzes only when the course is assigned and the full quiz is translated into their preferred language. Attempts are unlimited, an 80% score passes, and the first pass awards 20 points.
 - Admins create and translate quizzes in the course draft. The employee quiz list and quiz runner use the same RLS-protected content; scores and answer submissions are written through a server-validated database function. Correct answers are never returned to employee sessions.

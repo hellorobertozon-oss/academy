@@ -6,8 +6,8 @@ import {
 } from "../src/lib/email/invitation-copy.ts";
 
 describe("Academy invitation email copy", () => {
-  it("provides complete invitation copy for the four initial languages", () => {
-    assert.deepEqual(Object.keys(INVITATION_EMAIL_COPY).sort(), ["cs", "de", "en", "pl"]);
+  it("provides complete invitation copy for the five initial languages", () => {
+    assert.deepEqual(Object.keys(INVITATION_EMAIL_COPY).sort(), ["cs", "de", "en", "fr", "pl"]);
 
     for (const copy of Object.values(INVITATION_EMAIL_COPY)) {
       assert.ok(copy.subject);
@@ -22,5 +22,6 @@ describe("Academy invitation email copy", () => {
   it("returns the selected language copy", () => {
     assert.equal(getInvitationEmailCopy("de").button, "Konto aktivieren");
     assert.equal(getInvitationEmailCopy("cs").button, "Aktivovat účet");
+    assert.equal(getInvitationEmailCopy("fr").button, "Activer le compte");
   });
 });

@@ -14,6 +14,6 @@ Use only the Academy Supabase project for this app. Keep the service role key se
 
 Admin invitations use a React Email template and the Resend API. Set RESEND_API_KEY and RESEND_FROM_EMAIL in the local or deployment environment. The sender address must belong to a verified Resend domain.
 
-Run npm run email:preview and open http://localhost:3001 to preview the Polish, English, German and Czech invitation versions.
+Run npm run email:preview and open http://localhost:3001 to preview the Polish, English, German, Czech and French invitation versions.
 
 Password-reset messages still use Supabase Auth's email provider and need its SMTP configuration.

@@ -4,6 +4,7 @@ import { getAcademySupabaseConfig } from "@/lib/supabase/config";
 
 const PROTECTED_PREFIXES = [
   "/dashboard",
+  "/games",
   "/learning",
   "/quiz",
   "/rewards",
@@ -65,6 +66,7 @@ export async function proxy(request: NextRequest) {
 export const config = {
   matcher: [
     "/dashboard/:path*",
+    "/games/:path*",
     "/learning/:path*",
     "/quiz/:path*",
     "/rewards/:path*",

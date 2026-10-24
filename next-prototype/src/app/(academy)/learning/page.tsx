@@ -1,11 +1,12 @@
 import { Suspense } from "react";
 import Image from "next/image";
+import Link from "next/link";
 import { redirect } from "next/navigation";
 import { RiArrowLeftLine, RiArrowRightLine } from "@remixicon/react";
 import { AcademyHeader } from "@/components/academy-header";
-import { AcademyLoading } from "@/components/academy-loading";
-import { Badge } from "@/components/base/badges/badge";
-import { LinkButton } from "@/components/base/buttons/link-button";
+import { AcademyContentImage } from "@/components/academy-content-image";
+import { ButtonLink } from "@/components/base/buttons/button";
+import { AssignedCoursesLoading } from "@/components/pages/learning-loading";
 import { readAssignedCourses } from "@/lib/academy/learning";
 import { getLearningCopy } from "@/lib/academy/learning-copy";
 
@@ -31,9 +32,9 @@ async function LearningContent() {
       </div>
 
       <main className="relative z-10 mx-auto w-full max-w-6xl px-4 pb-16 pt-10 sm:px-8 sm:pt-14">
-        <LinkButton href="/dashboard" size="medium" variant="secondary" leadingIcon={RiArrowLeftLine} className="mb-8">
+        <ButtonLink href="/dashboard" size="large" variant="secondary" leadingIcon={RiArrowLeftLine} className="mb-8 self-start border-accent-400/50 text-accent-300 hover:border-accent-300 hover:bg-accent-950 active:bg-accent-900">
           {copy.backToDashboard}
-        </LinkButton>
+        </ButtonLink>
 
         <header className="mb-8">
           <p className="mb-2 text-caption-1-semibold uppercase tracking-[0.16em] text-accent-300">Xzone Academy</p>
@@ -46,26 +47,32 @@ async function LearningContent() {
             {copy.loadError}
           </div>
         ) : result.status === "ok" && result.data.length ? (
-          <section aria-label={copy.pageTitle} className="grid gap-4">
+          <section aria-label={copy.pageTitle} className="grid gap-5">
             {result.data.map((course) => (
-              <article key={course.id} className="flex flex-col gap-5 rounded-3xl border border-border-button-default bg-background-primary-default p-6 sm:flex-row sm:items-center sm:justify-between sm:gap-8">
-                <div className="flex min-w-0 flex-col gap-3">
-                  <p className="text-caption-1-semibold uppercase tracking-[0.14em] text-accent-300">Xzone Academy</p>
-                  <h2 className="text-title-1-medium text-text-primary">{course.title}</h2>
-                  {course.description ? <p className="max-w-3xl text-body-regular text-text-secondary">{course.description}</p> : null}
-                  <div role="group" className="flex flex-wrap gap-2" aria-label={`${copy.modules}: ${course.moduleCount}; ${copy.lessons}: ${course.lessonCount}`}>
-                    <Badge color="neutral">{course.moduleCount} {copy.modules}</Badge>
-                    <Badge color="neutral">{course.lessonCount} {copy.lessons}</Badge>
-                  </div>
+              <Link
+                key={course.id}
+                href={`/learning/${course.slug}`}
+                className="group relative grid w-full grid-cols-1 gap-3 rounded-3xl border border-border-button-default bg-background-primary-default p-3 transition-colors duration-150 hover:border-border-button-hover hover:bg-background-primary-hover active:bg-background-primary-active focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-border-focus-ring sm:grid-cols-[minmax(260px,38%)_minmax(0,1fr)] sm:items-center sm:gap-6 sm:p-4"
+              >
+                <span className="relative block aspect-video overflow-hidden rounded-2xl bg-background-secondary-default">
+                  <AcademyContentImage imageUrl={course.imageUrl} alt={course.title} placeholder="Grafika szkolenia" className="size-full image-outline motion-safe:transition-transform motion-safe:duration-150 motion-safe:ease-[cubic-bezier(0.23,1,0.32,1)] motion-safe:group-hover:scale-[1.015]" />
+                </span>
+                <span className="absolute right-4 top-4 z-10 sm:right-6 sm:top-6" aria-hidden="true">
+                  <Image src="/assets/xzone-brand-logo.png" alt="" width={64} height={64} className="size-12 object-contain sm:size-14" />
+                </span>
+                <span className="flex min-w-0 flex-col py-3 sm:py-6 sm:pr-24">
+                  <span className="text-caption-1-semibold uppercase tracking-[0.14em] text-accent-300">Xzone Academy</span>
+                  <span className="mt-2 text-title-1-medium text-text-primary">{course.title}</span>
+                  {course.description ? <span className="mt-2 max-w-3xl text-body-regular text-text-secondary">{course.description}</span> : null}
                   {course.lessonCount > 0 ? (
-                    <div className="flex w-full max-w-xl flex-col gap-2">
-                      <div className="flex items-center justify-between gap-4">
+                    <span className="mt-4 flex w-full max-w-xl flex-col gap-2">
+                      <span className="flex items-center justify-between gap-4">
                         <span className="text-body-2-medium text-text-secondary">{copy.progressLabel}</span>
                         <span className="text-body-2-medium tabular-nums text-text-secondary">
                           {course.completedLessonCount}/{course.lessonCount}
                         </span>
-                      </div>
-                      <div
+                      </span>
+                      <span
                         role="progressbar"
                         aria-label={copy.courseProgress
                           .replace("{completed}", String(course.completedLessonCount))
@@ -75,18 +82,19 @@ async function LearningContent() {
                         aria-valuenow={course.completedLessonCount}
                         className="h-2 overflow-hidden rounded-full bg-background-secondary-default"
                       >
-                        <div
-                          className="h-full rounded-full bg-accent-300 transition-[width] duration-300"
+                        <span
+                          className="block h-full rounded-full bg-accent-300 transition-[width] duration-300"
                           style={{ width: `${Math.round((course.completedLessonCount / course.lessonCount) * 100)}%` }}
                         />
-                      </div>
-                    </div>
+                      </span>
+                    </span>
                   ) : null}
-                </div>
-                <LinkButton href={`/learning/${course.slug}`} trailingIcon={RiArrowRightLine} className="self-start sm:self-center">
-                  {copy.openCourse}
-                </LinkButton>
-              </article>
+                  <span className="mt-5 flex items-center gap-2 text-title-3-semibold text-accent-300">
+                    {copy.openCourse}
+                    <RiArrowRightLine className="size-5" aria-hidden="true" />
+                  </span>
+                </span>
+              </Link>
             ))}
           </section>
         ) : (
@@ -102,7 +110,7 @@ async function LearningContent() {
 
 export default function Page() {
   return (
-    <Suspense fallback={<AcademyLoading label="Wczytywanie szkoleń" />}>
+    <Suspense fallback={<AssignedCoursesLoading />}>
       <LearningContent />
     </Suspense>
   );

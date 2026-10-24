@@ -1,6 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { redirect } from "next/navigation";
 import { getCurrentAcademyProfile } from "@/lib/auth/profile";
 import type { AdminActionState } from "@/lib/admin/action-state";
 import {
@@ -27,6 +28,16 @@ async function getAdminAccess() {
 function positiveInteger(value: FormDataEntryValue | null) {
   const parsed = Number(value);
   return Number.isSafeInteger(parsed) && parsed > 0 ? parsed : null;
+}
+
+function readSubmittedImagePath(formData: FormData, expectedPrefix: string, existingPath?: string | null) {
+  const rawPath = formData.get("image_path");
+  const imagePath = typeof rawPath === "string" ? rawPath.trim() : "";
+  if (!imagePath) return { ok: true as const, imagePath: null };
+  if (existingPath && imagePath === existingPath) return { ok: true as const, imagePath };
+  const filename = imagePath.startsWith(`${expectedPrefix}/`) ? imagePath.slice(expectedPrefix.length + 1) : "";
+  if (!/^[0-9a-f-]{36}\.(jpg|png|webp)$/.test(filename)) return { ok: false as const, imagePath: null };
+  return { ok: true as const, imagePath };
 }
 
 export async function addLanguageAction(
@@ -69,7 +80,7 @@ export async function createCourseAction(
   });
   if (!parsed.ok) return error(parsed.error);
 
-  const { error: createError } = await access.supabase.rpc("create_academy_course", {
+  const { data, error: createError } = await access.supabase.rpc("create_academy_course", {
     p_slug: parsed.value.slug,
     p_language_code: parsed.value.languageCode,
     p_title: parsed.value.title,
@@ -79,29 +90,64 @@ export async function createCourseAction(
     return error(createError.code === "23505" ? "Szkolenie o takim adresie już istnieje." : "Nie udało się utworzyć szkolenia.");
   }
 
+  const createdCourseId = Number(Array.isArray(data) ? data[0]?.course_id : null);
+  if (!Number.isSafeInteger(createdCourseId) || createdCourseId <= 0) {
+    return error("Szkolenie powstało, ale nie udało się otworzyć jego programu. Wróć do biblioteki i otwórz je z listy.");
+  }
+
   revalidatePath("/admin/courses");
-  return success("Szkolenie zostało utworzone jako szkic.");
+  redirect(`/admin/courses/${createdCourseId}`);
 }
 
-export async function createCourseDraftAction(
-  _previousState: AdminActionState,
-  formData: FormData,
-): Promise<AdminActionState> {
+export async function ensureCourseDraftAction(courseId: number): Promise<AdminActionState> {
   const access = await getAdminAccess();
   if (!access) return error("Ta operacja wymaga uprawnień administratora.");
-  const courseId = positiveInteger(formData.get("course_id"));
-  if (!courseId) return error("Nieprawidłowe szkolenie.");
+  if (!Number.isSafeInteger(courseId) || courseId <= 0) return error("Nieprawidłowe szkolenie.");
+
+  const { data: course, error: courseError } = await access.supabase
+    .from("courses")
+    .select("id, published_version_id")
+    .eq("id", courseId)
+    .maybeSingle();
+  if (courseError || !course) return error("Nie znaleziono szkolenia.");
+
+  const { data: existingDraft, error: lookupError } = await access.supabase
+    .from("course_versions")
+    .select("id")
+    .eq("course_id", courseId)
+    .eq("status", "draft")
+    .maybeSingle();
+  if (lookupError) return error("Nie udało się sprawdzić wersji szkolenia.");
+  if (existingDraft) {
+    revalidatePath("/admin/courses");
+    revalidatePath(`/admin/courses/${courseId}`);
+    return success("Szkic jest gotowy do edycji.");
+  }
+  if (!course.published_version_id) return error("Najpierw opublikuj szkolenie, aby przygotować jego szkic.");
 
   const { error: draftError } = await access.supabase.rpc("create_academy_course_draft", {
     p_course_id: courseId,
   });
   if (draftError) {
-    return error(draftError.code === "23505" ? "To szkolenie ma już aktywny szkic." : "Nie udało się utworzyć szkicu.");
+    if (draftError.code === "23505") {
+      const { data: concurrentDraft } = await access.supabase
+        .from("course_versions")
+        .select("id")
+        .eq("course_id", courseId)
+        .eq("status", "draft")
+        .maybeSingle();
+      if (concurrentDraft) {
+        revalidatePath("/admin/courses");
+        revalidatePath(`/admin/courses/${courseId}`);
+        return success("Szkic jest gotowy do edycji.");
+      }
+    }
+    return error("Nie udało się przygotować szkicu. Spróbuj ponownie.");
   }
 
   revalidatePath("/admin/courses");
   revalidatePath(`/admin/courses/${courseId}`);
-  return success("Nowy szkic skopiowany z opublikowanej wersji.");
+  return success("Szkic jest gotowy do edycji.");
 }
 
 export async function publishCourseAction(
@@ -132,6 +178,32 @@ export async function publishCourseAction(
   revalidatePath("/admin/courses");
   revalidatePath(`/admin/courses/${courseId}`);
   return success("Opublikowano szkolenie. Poprzednia wersja została zachowana w archiwum.");
+}
+
+export async function setCourseVisibilityAction(
+  courseId: number,
+  isActive: boolean,
+): Promise<AdminActionState> {
+  const access = await getAdminAccess();
+  if (!access) return error("Ta operacja wymaga uprawnień administratora.");
+  if (!Number.isSafeInteger(courseId) || courseId <= 0 || typeof isActive !== "boolean") {
+    return error("Nieprawidłowe ustawienie widoczności szkolenia.");
+  }
+
+  const { error: updateError } = await access.supabase.rpc("set_academy_course_active", {
+    p_course_id: courseId,
+    p_is_active: isActive,
+  });
+  if (updateError) {
+    return error(updateError.message.includes("must be published")
+      ? "Najpierw opublikuj szkolenie."
+      : "Nie udało się zmienić widoczności szkolenia.");
+  }
+
+  revalidatePath("/admin/courses");
+  revalidatePath("/learning");
+  revalidatePath("/admin/user-preview/learning");
+  return success(isActive ? "Szkolenie jest teraz aktywne." : "Szkolenie zostało ukryte przed użytkownikami.");
 }
 
 export async function createModuleAction(
@@ -178,7 +250,7 @@ export async function createModuleAction(
   }
 
   revalidatePath(`/admin/courses/${version.course_id}`);
-  return success("Moduł został dodany.");
+  return { status: "success", message: "Moduł został dodany.", entityId: module.id };
 }
 
 export async function saveCourseTranslationAction(
@@ -187,23 +259,45 @@ export async function saveCourseTranslationAction(
 ): Promise<AdminActionState> {
   const access = await getAdminAccess();
   if (!access) return error("Ta operacja wymaga uprawnień administratora.");
+  const courseId = positiveInteger(formData.get("course_id"));
   const versionId = positiveInteger(formData.get("version_id"));
   const languageCode = String(formData.get("language_code") ?? "").trim();
   const title = String(formData.get("title") ?? "").trim();
   const description = String(formData.get("description") ?? "").trim();
-  if (!versionId || !languageCode || !title || title.length > 160 || description.length > 2000) {
+  if (!courseId || !versionId || !languageCode || !title || title.length > 160 || description.length > 2000) {
     return error("Podaj tytuł do 160 znaków i opis do 2000 znaków.");
   }
+
+  const { data: version } = await access.supabase
+    .from("course_versions")
+    .select("course_id, status")
+    .eq("id", versionId)
+    .maybeSingle();
+  if (!version || version.course_id !== courseId || version.status !== "draft") {
+    return error("Tłumaczenie można zmieniać tylko w szkicu tego szkolenia.");
+  }
+  const { data: currentTranslation } = await access.supabase
+    .from("course_translations")
+    .select("image_path")
+    .eq("course_version_id", versionId)
+    .eq("language_code", languageCode)
+    .maybeSingle();
+  const submittedImage = readSubmittedImagePath(
+    formData,
+    `courses/${courseId}/versions/${versionId}/translations/course/${courseId}/${languageCode}`,
+    currentTranslation?.image_path,
+  );
+  if (!submittedImage.ok) return error("Wybierz grafikę ponownie przed zapisaniem.");
 
   const { error: saveError } = await access.supabase
     .from("course_translations")
     .upsert(
-      { course_version_id: versionId, language_code: languageCode, title, description },
+      { course_version_id: versionId, language_code: languageCode, title, description, image_path: submittedImage.imagePath },
       { onConflict: "course_version_id,language_code" },
     );
   if (saveError) return error("Nie udało się zapisać tłumaczenia szkolenia.");
 
-  revalidatePath(`/admin/courses/${formData.get("course_id")}`);
+  revalidatePath(`/admin/courses/${courseId}`);
   return success("Tłumaczenie szkolenia zostało zapisane.");
 }
 
@@ -234,9 +328,22 @@ export async function saveModuleTranslationAction(
     .maybeSingle();
   if (!version || version.status !== "draft") return error("Moduły można zmieniać tylko w szkicu.");
 
+  const { data: currentTranslation } = await access.supabase
+    .from("module_translations")
+    .select("image_path")
+    .eq("module_id", moduleId)
+    .eq("language_code", languageCode)
+    .maybeSingle();
+  const submittedImage = readSubmittedImagePath(
+    formData,
+    `courses/${version.course_id}/versions/${module.course_version_id}/translations/module/${moduleId}/${languageCode}`,
+    currentTranslation?.image_path,
+  );
+  if (!submittedImage.ok) return error("Wybierz grafikę ponownie przed zapisaniem.");
+
   const { error: saveError } = await access.supabase
     .from("module_translations")
-    .upsert({ module_id: moduleId, language_code: languageCode, title, summary }, { onConflict: "module_id,language_code" });
+    .upsert({ module_id: moduleId, language_code: languageCode, title, summary, image_path: submittedImage.imagePath }, { onConflict: "module_id,language_code" });
   if (saveError) return error("Nie udało się zapisać tłumaczenia modułu.");
 
   revalidatePath(`/admin/courses/${version.course_id}`);
@@ -256,9 +363,12 @@ export async function createLessonAction(
     languageCode: formData.get("language_code"),
     title: formData.get("title"),
     summary: formData.get("summary"),
-    youtubeUrl: formData.get("youtube_url"),
+    youtubeUrls: formData.get("youtube_urls") ?? formData.get("youtube_url"),
     contentJson: formData.get("content_json"),
     productBullets: formData.get("product_bullets"),
+    keyPointsTitle: formData.get("key_points_title"),
+    conversationTitle: formData.get("conversation_title"),
+    conversationJson: formData.get("conversation_json"),
   });
   if (!parsed.ok) return error(parsed.error);
 
@@ -274,6 +384,12 @@ export async function createLessonAction(
     .eq("id", module.course_version_id)
     .maybeSingle();
   if (!version || version.status !== "draft") return error("Lekcje można zmieniać tylko w szkicu.");
+
+  const submittedImage = readSubmittedImagePath(
+    formData,
+    `courses/${version.course_id}/versions/${module.course_version_id}/translations/lesson/${moduleId}/${parsed.value.languageCode}`,
+  );
+  if (!submittedImage.ok) return error("Wybierz grafikę ponownie przed zapisaniem.");
 
   const { data: existing } = await access.supabase
     .from("course_lessons")
@@ -297,8 +413,13 @@ export async function createLessonAction(
       title: parsed.value.title,
       summary: parsed.value.summary,
       youtube_video_id: parsed.value.youtubeVideoId,
+      youtube_video_ids: parsed.value.youtubeVideoIds,
       content: parsed.value.content,
       product_bullets: parsed.value.productBullets,
+      key_points_title: parsed.value.keyPointsTitle,
+      conversation_title: parsed.value.conversationTitle,
+      conversation: parsed.value.conversation,
+      image_path: submittedImage.imagePath,
     });
   if (translationError) {
     await access.supabase.from("course_lessons").delete().eq("id", lesson.id);
@@ -306,7 +427,7 @@ export async function createLessonAction(
   }
 
   revalidatePath(`/admin/courses/${version.course_id}`);
-  return success("Lekcja została dodana.");
+  return { status: "success", message: "Lekcja została dodana.", entityId: lesson.id };
 }
 
 export async function saveLessonTranslationAction(
@@ -322,9 +443,12 @@ export async function saveLessonTranslationAction(
     languageCode: formData.get("language_code"),
     title: formData.get("title"),
     summary: formData.get("summary"),
-    youtubeUrl: formData.get("youtube_url"),
+    youtubeUrls: formData.get("youtube_urls") ?? formData.get("youtube_url"),
     contentJson: formData.get("content_json"),
     productBullets: formData.get("product_bullets"),
+    keyPointsTitle: formData.get("key_points_title"),
+    conversationTitle: formData.get("conversation_title"),
+    conversationJson: formData.get("conversation_json"),
   });
   if (!parsed.ok) return error(parsed.error);
 
@@ -342,7 +466,20 @@ export async function saveLessonTranslationAction(
   const { data: version } = module
     ? await access.supabase.from("course_versions").select("course_id, status").eq("id", module.course_version_id).maybeSingle()
     : { data: null };
-  if (!version || version.status !== "draft") return error("Lekcje można zmieniać tylko w szkicu.");
+  if (!module || !version || version.status !== "draft") return error("Lekcje można zmieniać tylko w szkicu.");
+
+  const { data: currentTranslation } = await access.supabase
+    .from("lesson_translations")
+    .select("image_path")
+    .eq("lesson_id", lessonId)
+    .eq("language_code", parsed.value.languageCode)
+    .maybeSingle();
+  const submittedImage = readSubmittedImagePath(
+    formData,
+    `courses/${version.course_id}/versions/${module.course_version_id}/translations/lesson/${lesson.module_id}/${parsed.value.languageCode}`,
+    currentTranslation?.image_path,
+  );
+  if (!submittedImage.ok) return error("Wybierz grafikę ponownie przed zapisaniem.");
 
   const { error: saveError } = await access.supabase
     .from("lesson_translations")
@@ -352,8 +489,13 @@ export async function saveLessonTranslationAction(
       title: parsed.value.title,
       summary: parsed.value.summary,
       youtube_video_id: parsed.value.youtubeVideoId,
+      youtube_video_ids: parsed.value.youtubeVideoIds,
       content: parsed.value.content,
       product_bullets: parsed.value.productBullets,
+      key_points_title: parsed.value.keyPointsTitle,
+      conversation_title: parsed.value.conversationTitle,
+      conversation: parsed.value.conversation,
+      image_path: submittedImage.imagePath,
     }, { onConflict: "lesson_id,language_code" });
   if (saveError) return error("Nie udało się zapisać tłumaczenia lekcji.");
 

@@ -1,0 +1,53 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="19 593 370 176" width="370" height="176"><defs>
+    <linearGradient id="blueTrack" x1="0" x2="0" y1="0" y2="1">
+      <stop offset="0" stop-color="#087dc7"/><stop offset=".19" stop-color="#047cc7"/><stop offset=".68" stop-color="#0070b6"/><stop offset="1" stop-color="#0064a7"/>
+    </linearGradient>
+    <linearGradient id="cyanFill" x1="0" x2="0" y1="0" y2="1">
+      <stop offset="0" stop-color="#56e7ff"/><stop offset=".25" stop-color="#46dcfa"/><stop offset=".64" stop-color="#15bee9"/><stop offset="1" stop-color="#009add"/>
+    </linearGradient>
+    <linearGradient id="cyanPill" x1="0" x2="0" y1="0" y2="1">
+      <stop offset="0" stop-color="#67ecff"/><stop offset=".36" stop-color="#3ed9fb"/><stop offset=".83" stop-color="#2dc8f2"/><stop offset="1" stop-color="#139cdb"/>
+    </linearGradient>
+    <linearGradient id="iconCyan" x1="0" x2=".9" y1="0" y2="1">
+      <stop offset="0" stop-color="#50e4fc"/><stop offset=".36" stop-color="#20bde9"/><stop offset="1" stop-color="#0575d2"/>
+    </linearGradient>
+    <linearGradient id="iconDeep" x1="0" x2=".9" y1="0" y2="1">
+      <stop offset="0" stop-color="#5af0ff"/><stop offset=".58" stop-color="#16b9ef"/><stop offset="1" stop-color="#0863d5"/>
+    </linearGradient>
+    <linearGradient id="medallion" x1="0" x2=".25" y1="0" y2="1">
+      <stop offset="0" stop-color="#60efff"/><stop offset=".5" stop-color="#1bc2e3"/><stop offset="1" stop-color="#0c6bd6"/>
+    </linearGradient>
+    <linearGradient id="starFace" x1="0" x2="1" y1="0" y2="1">
+      <stop offset="0" stop-color="#fff"/><stop offset=".5" stop-color="#c7fff7"/><stop offset="1" stop-color="#69e8ec"/>
+    </linearGradient>
+    <linearGradient id="glass" x1="0" x2="0" y1="0" y2="1">
+      <stop offset="0" stop-color="#fff" stop-opacity=".93"/><stop offset="1" stop-color="#fff" stop-opacity=".02"/>
+    </linearGradient>
+    <clipPath id="topClip"><rect id="topFillClip" x="118" y="65" width="344.52" height="67"/></clipPath>
+    <clipPath id="energyClip"><rect id="energyFillClip" x="110" y="434" width="273" height="69"/></clipPath>
+    <clipPath id="trackTopClip"><path d="M116 64 L722 64 C748 64 757 75 757 98 C757 123 747 133 722 133 L116 133 Z"/></clipPath>
+    <clipPath id="energyTrackClip"><path d="M113 433 H726 C747 433 761 449 761 468 C761 490 749 503 726 503 H113Z"/></clipPath>
+    <clipPath id="heartTrackClip"><path d="M158 239 H727 C747 239 757 255 757 274 C757 296 748 310 729 310 H158Z"/></clipPath>
+    <filter id="barShadow" x="-10%" y="-50%" width="120%" height="220%"><feDropShadow dx="0" dy="10" stdDeviation="1.2" flood-color="#25232a" flood-opacity=".45"/></filter>
+    <filter id="iconShadow" x="-30%" y="-30%" width="170%" height="185%"><feDropShadow dx="4" dy="11" stdDeviation="1.1" flood-color="#2b2931" flood-opacity=".6"/></filter>
+    <filter id="numberShadow" x="-20%" y="-20%" width="140%" height="150%"><feDropShadow dx="2" dy="3" stdDeviation=".55" flood-color="#0987cc" flood-opacity=".9"/></filter>
+  </defs>
+
+  <g id="ui-score" data-component="score">
+    <g filter="url(#barShadow)">
+      <path d="M125 642 H334 Q371 642 371 680 Q371 719 339 721 H125 Z" fill="url(#cyanPill)" stroke="#0a5eac" stroke-width="5"/>
+      <path d="M150 646 H332 Q365 645 365 664 Q352 653 330 654 H149Z" fill="#c8ffff" opacity=".77"/>
+      <path d="M171 715 H341 Q366 715 369 693" fill="none" stroke="#13a8e2" stroke-width="4" opacity=".48"/>
+    </g>
+    <g filter="url(#iconShadow)">
+      <circle cx="103" cy="679" r="64" fill="url(#medallion)" stroke="#045bb6" stroke-width="6"/>
+      <path d="M47 663 A58 58 0 0 1 157 648 Q116 649 79 674 Q61 685 43 681Z" fill="#b1ffff" opacity=".49"/>
+      <path d="M44 692 A61 61 0 0 0 158 702" fill="none" stroke="#006bd2" stroke-width="8" opacity=".66"/>
+      <path d="M101 623 Q103 623 105 630 L120 656 L145 653 Q156 652 151 662 L135 682 L145 709 Q148 718 136 716 L102 701 L77 716 Q65 721 70 707 L78 683 L56 663 Q49 653 62 653 L86 654 L98 627 Q99 623 101 623Z" fill="url(#starFace)" stroke="#0aa7dd" stroke-width="3" stroke-linejoin="round"/>
+      <path d="M101 625 L120 660 L147 658 L130 681 L137 711 L101 696Z" fill="#f9fffb" opacity=".58"/>
+      <path d="M102 699 L76 715 L83 682 L59 660 L90 661Z" fill="#87f3ed" opacity=".7"/>
+    </g>
+    <text id="scoreText" x="192" y="705" font-family="Trebuchet MS, Arial, sans-serif" font-size="54" font-weight="900" font-style="italic" letter-spacing="-2" fill="#ffffff" stroke="#0758b4" stroke-width="3.4" stroke-linejoin="round" paint-order="stroke" filter="url(#numberShadow)">6547</text>
+  </g>
+
+  </svg>

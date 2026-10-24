@@ -29,7 +29,7 @@ function renderText(node: RichNode, key: string): ReactNode {
         content = <u key={markKey}>{content}</u>;
         break;
       case "code":
-        content = <code key={markKey} className="rounded-md bg-background-secondary-default px-1.5 py-0.5 text-body-2-medium">{content}</code>;
+        content = <code key={markKey} className="rounded-md bg-background-secondary-default px-1.5 py-0.5 text-title-3-medium">{content}</code>;
         break;
       case "link": {
         const href = mark.attrs?.href;
@@ -67,17 +67,17 @@ function renderNode(node: RichNode, key: string): ReactNode {
   const children = (node.content ?? []).map((child, index) => renderNode(child, `${key}-${index}`));
   switch (node.type) {
     case "paragraph":
-      return <p key={key} className="whitespace-pre-wrap text-body-regular text-text-primary">{children}</p>;
+      return <p key={key} className="whitespace-pre-wrap text-title-3-regular text-text-primary">{children}</p>;
     case "heading":
       return node.attrs?.level === 3
         ? <h3 key={key} className="text-title-2-semibold text-text-primary">{children}</h3>
         : <h2 key={key} className="text-title-1-medium text-text-primary">{children}</h2>;
     case "blockquote":
-      return <blockquote key={key} className="border-s-2 border-accent-300 ps-4 text-body-regular italic text-text-secondary">{children}</blockquote>;
+      return <blockquote key={key} className="border-s-2 border-accent-300 ps-4 text-title-3-regular italic text-text-secondary">{children}</blockquote>;
     case "bulletList":
-      return <ul key={key} className="list-disc space-y-2 ps-6 text-body-regular text-text-primary">{children}</ul>;
+      return <ul key={key} className="list-disc space-y-2 ps-6 text-title-3-regular text-text-primary">{children}</ul>;
     case "orderedList":
-      return <ol key={key} className="list-decimal space-y-2 ps-6 text-body-regular text-text-primary">{children}</ol>;
+      return <ol key={key} className="list-decimal space-y-2 ps-6 text-title-3-regular text-text-primary">{children}</ol>;
     case "listItem":
       return <li key={key}>{children}</li>;
     default:

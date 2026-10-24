@@ -76,7 +76,7 @@ export async function assignCourseToEmployeeAction(
   const courseId = positiveInteger(formData.get("course_id"));
   const profileId = formData.get("profile_id");
   if (!courseId || typeof profileId !== "string" || !/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(profileId)) {
-    return error("Wybierz pracownika.");
+    return error("Wybierz użytkownika.");
   }
 
   const { data: course } = await access.supabase
@@ -92,19 +92,19 @@ export async function assignCourseToEmployeeAction(
     .eq("id", profileId)
     .eq("role", "employee")
     .maybeSingle();
-  if (!employee) return error("Nie znaleziono pracownika.");
+  if (!employee) return error("Nie znaleziono użytkownika.");
 
   const { error: assignmentError } = await access.supabase
     .from("course_assignments")
     .insert({ course_id: courseId, profile_id: employee.id, assigned_by: access.profile.id });
   if (assignmentError) {
     return error(assignmentError.code === "23505"
-      ? "To szkolenie jest ju\u017C przypisane temu pracownikowi."
+      ? "To szkolenie jest ju\u017C przypisane temu użytkownikowi."
       : "Nie uda\u0142o si\u0119 przypisa\u0107 szkolenia.");
   }
 
   revalidatePath(coursePath(courseId));
-  return success("Szkolenie przypisano pracownikowi.");
+  return success("Szkolenie przypisano użytkownikowi.");
 }
 
 export async function removeCourseAssignmentAction(

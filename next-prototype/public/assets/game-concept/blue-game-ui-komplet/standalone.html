@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Niebieskie UI gry — 5 komponentów</title>
+<style>:root{color-scheme:dark;font-family:Inter,system-ui,-apple-system,Segoe UI,Arial,sans-serif;color:#eff9ff;background:#171c2a}
+*{box-sizing:border-box}
+body{margin:0;min-height:100vh;padding:30px 18px 50px}
+.wrapper{width:min(840px,100%);margin:auto}
+h1{font-size:clamp(1.15rem,2.6vw,1.65rem);line-height:1.3;margin:0 0 5px;font-weight:800}
+.note{font-size:.89rem;color:#aab7ca;margin:0 0 22px}
+.canvas{width:min(800px,100%);aspect-ratio:1;background:#61626d;border-radius:9px;overflow:hidden;box-shadow:0 16px 50px #0004;transition:background .2s}
+.canvas.transparent{background:transparent;background-image:linear-gradient(45deg,#30394a 25%,transparent 25%),linear-gradient(-45deg,#30394a 25%,transparent 25%),linear-gradient(45deg,transparent 75%,#30394a 75%),linear-gradient(-45deg,transparent 75%,#30394a 75%);background-size:30px 30px;background-position:0 0,0 15px,15px -15px,-15px 0}
+.canvas svg{display:block;width:100%;height:100%}
+.tools{margin-top:20px;background:#242c3d;border:1px solid #35405a;border-radius:14px;padding:18px 19px 21px}
+.tools h2{font-size:1rem;margin:0 0 16px}
+.grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:17px 22px}
+.control{min-width:0;display:flex;flex-direction:column;gap:9px}
+.control-head{display:flex;gap:9px;justify-content:space-between;align-items:center;font-size:.85rem;color:#e5f1ff}
+.output{color:#57e4ff;font-weight:800;font-variant-numeric:tabular-nums}
+input[type=range]{width:100%;cursor:pointer;accent-color:#32d3f7;margin:0}
+input[type=number]{width:100%;min-height:38px;border:1px solid #455674;border-radius:8px;background:#161f2f;color:#fff;padding:8px 10px;font:inherit}
+.actions{border-top:1px solid #3c475d;padding-top:16px;margin-top:19px;display:flex;align-items:center;gap:9px;flex-wrap:wrap}
+button{background:#2acbef;border:0;border-radius:8px;color:#053b62;font-size:.85rem;font-weight:800;padding:10px 14px;cursor:pointer;transition:transform .15s,background .15s}
+button:hover{background:#72e8fe;transform:translateY(-1px)}
+button.secondary{background:#34445f;color:#d4e7fc}
+button.secondary:hover{background:#415673}
+.check{display:flex;align-items:center;gap:7px;font-size:.81rem;color:#b6cde3;cursor:pointer}
+.check input{accent-color:#22d4ef;width:16px;height:16px}
+.footer-note{font-size:.77rem;color:#93a1b8;margin-top:14px;line-height:1.5}
+@media(max-width:640px){body{padding:16px 10px 32px}.tools{padding:15px}.grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}.note{margin-bottom:13px}}
+@media(max-width:390px){.grid{grid-template-columns:1fr}}
+</style></head>
+<body>
+<main class="wrapper">
+<h1>Niebieskie elementy UI do gry</h1>
+<p class="note">Pięć odtworzonych komponentów • HTML + CSS + SVG + JavaScript • wektorowe i skalowalne</p>
+<div class="canvas" id="stage"><svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 800 800" aria-label="Pięć niebieskich elementów interfejsu gry" role="img">
+  <defs>
+    <linearGradient id="blueTrack" x1="0" x2="0" y1="0" y2="1">
+      <stop offset="0" stop-color="#087dc7"/><stop offset=".19" stop-color="#047cc7"/><stop offset=".68" stop-color="#0070b6"/><stop offset="1" stop-color="#0064a7"/>
+    </linearGradient>
+    <linearGradient id="cyanFill" x1="0" x2="0" y1="0" y2="1">
+      <stop offset="0" stop-color="#56e7ff"/><stop offset=".25" stop-color="#46dcfa"/><stop offset=".64" stop-color="#15bee9"/><stop offset="1" stop-color="#009add"/>
+    </linearGradient>
+    <linearGradient id="cyanPill" x1="0" x2="0" y1="0" y2="1">
+      <stop offset="0" stop-color="#67ecff"/><stop offset=".36" stop-color="#3ed9fb"/><stop offset=".83" stop-color="#2dc8f2"/><stop offset="1" stop-color="#139cdb"/>
+    </linearGradient>
+    <linearGradient id="iconCyan" x1="0" x2=".9" y1="0" y2="1">
+      <stop offset="0" stop-color="#50e4fc"/><stop offset=".36" stop-color="#20bde9"/><stop offset="1" stop-color="#0575d2"/>
+    </linearGradient>
+    <linearGradient id="iconDeep" x1="0" x2=".9" y1="0" y2="1">
+      <stop offset="0" stop-color="#5af0ff"/><stop offset=".58" stop-color="#16b9ef"/><stop offset="1" stop-color="#0863d5"/>
+    </linearGradient>
+    <linearGradient id="medallion" x1="0" x2=".25" y1="0" y2="1">
+      <stop offset="0" stop-color="#60efff"/><stop offset=".5" stop-color="#1bc2e3"/><stop offset="1" stop-color="#0c6bd6"/>
+    </linearGradient>
+    <linearGradient id="starFace" x1="0" x2="1" y1="0" y2="1">
+      <stop offset="0" stop-color="#fff"/><stop offset=".5" stop-color="#c7fff7"/><stop offset="1" stop-color="#69e8ec"/>
+    </linearGradient>
+    <linearGradient id="glass" x1="0" x2="0" y1="0" y2="1">
+      <stop offset="0" stop-color="#fff" stop-opacity=".93"/><stop offset="1" stop-color="#fff" stop-opacity=".02"/>
+    </linearGradient>
+    <clipPath id="topClip"><rect id="topFillClip" x="118" y="65" width="344.52" height="67"/></clipPath>
+    <clipPath id="energyClip"><rect id="energyFillClip" x="110" y="434" width="273" height="69"/></clipPath>
+    <clipPath id="trackTopClip"><path d="M116 64 L722 64 C748 64 757 75 757 98 C757 123 747 133 722 133 L116 133 Z"/></clipPath>
+    <clipPath id="energyTrackClip"><path d="M113 433 H726 C747 433 761 449 761 468 C761 490 749 503 726 503 H113Z"/></clipPath>
+    <clipPath id="heartTrackClip"><path d="M158 239 H727 C747 239 757 255 757 274 C757 296 748 310 729 310 H158Z"/></clipPath>
+    <filter id="barShadow" x="-10%" y="-50%" width="120%" height="220%"><feDropShadow dx="0" dy="10" stdDeviation="1.2" flood-color="#25232a" flood-opacity=".45"/></filter>
+    <filter id="iconShadow" x="-30%" y="-30%" width="170%" height="185%"><feDropShadow dx="4" dy="11" stdDeviation="1.1" flood-color="#2b2931" flood-opacity=".6"/></filter>
+    <filter id="numberShadow" x="-20%" y="-20%" width="140%" height="150%"><feDropShadow dx="2" dy="3" stdDeviation=".55" flood-color="#0987cc" flood-opacity=".9"/></filter>
+  </defs>
+
+  <!-- 1. Pasek postępu z gwiazdą -->
+  <g id="ui-progress-star" data-component="progress-star">
+    <g filter="url(#barShadow)">
+      <path d="M119 63 H722 C748 63 757 75 757 98 C757 123 747 134 722 134 H119Z" fill="url(#blueTrack)" stroke="#085bab" stroke-width="5"/>
+      <g clip-path="url(#topClip)">
+        <path d="M119 65 H728 V132 H119Z" fill="url(#cyanFill)"/>
+        <path d="M119 68 H725 V84 H119Z" fill="#d1ffff" opacity=".94"/>
+        <path d="M119 84 H725 V111 H119Z" fill="#43dffa" opacity=".65"/>
+        <path d="M119 125 H725 V130 H119Z" fill="#0084cf" opacity=".54"/>
+      </g>
+      <path d="M739 72 Q752 88 747 102" fill="none" stroke="#41afe6" stroke-width="7" stroke-linecap="round" opacity=".7"/>
+      <path d="M725 129 Q740 128 748 114" fill="none" stroke="#08a5dc" stroke-width="5" opacity=".3"/>
+    </g>
+    <g filter="url(#iconShadow)">
+      <path d="M90 36 Q86 34 85 44 L84 79 L57 102 Q49 111 58 117 L89 128 L103 154 Q108 164 116 159 L138 132 L166 132 Q183 131 176 116 L156 88 L169 58 Q172 43 157 48 L124 58 L97 39Z" fill="url(#iconDeep)" stroke="#0352a6" stroke-width="6" stroke-linejoin="round"/>
+      <path d="M94 44 L124 66 L157 56 L148 88 L166 115 L132 120 L113 150 L103 119 L66 110 L94 87Z" fill="#2ac9fa" opacity=".65"/>
+      <path d="M90 44 L98 78 Q99 90 87 98 L63 109 L88 91 Q95 83 93 71Z" fill="#e6ffff" opacity=".83"/>
+      <path d="M121 65 L155 55 L147 87 L158 105 L136 107 L114 140 L107 113 L80 108Z" fill="#61e9ff" opacity=".27"/>
+      <path d="M86 122 L106 147 L115 155 L108 158Z" fill="#006fd2" opacity=".8"/>
+    </g>
+  </g>
+
+  <!-- 2. Pasek serc / segmenty -->
+  <g id="ui-progress-heart" data-component="progress-heart">
+    <g filter="url(#barShadow)">
+      <path d="M156 240 H725 C747 240 757 253 757 275 C757 298 748 311 726 311 H156Z" fill="url(#blueTrack)" stroke="#0959b0" stroke-width="6"/>
+      <g id="heartSegments" clip-path="url(#heartTrackClip)">
+        <rect x="184" y="242" width="30" height="65" fill="url(#cyanFill)"/>
+        <rect x="223" y="242" width="30" height="65" fill="url(#cyanFill)"/>
+        <rect x="263" y="242" width="29" height="65" fill="url(#cyanFill)"/>
+        <rect x="302" y="242" width="30" height="65" fill="url(#cyanFill)"/>
+        <rect x="342" y="242" width="30" height="65" fill="url(#cyanFill)"/>
+        <rect x="381" y="242" width="30" height="65" fill="url(#cyanFill)"/>
+        <rect x="421" y="242" width="29" height="65" fill="url(#cyanFill)"/>
+        <rect x="460" y="242" width="30" height="65" fill="url(#cyanFill)"/>
+        <rect x="500" y="242" width="30" height="65" fill="url(#cyanFill)"/>
+        <rect x="539" y="242" width="30" height="65" fill="#0878bd" opacity=".67"/>
+        <rect x="579" y="242" width="29" height="65" fill="#0878bd" opacity=".67"/>
+        <rect x="618" y="242" width="30" height="65" fill="#0878bd" opacity=".67"/>
+        <rect x="658" y="242" width="30" height="65" fill="#0878bd" opacity=".67"/>
+        <rect x="697" y="242" width="30" height="65" fill="#0878bd" opacity=".67"/>
+      </g>
+      <path d="M743 250 Q752 259 751 277" fill="none" stroke="#41b6e8" stroke-width="6" opacity=".68" stroke-linecap="round"/>
+      <path d="M732 300 Q745 302 752 287" fill="none" stroke="#0cace6" stroke-width="5" opacity=".39"/>
+    </g>
+    <g filter="url(#iconShadow)">
+      <path d="M116 224 C96 201 69 206 57 225 C35 259 57 291 82 314 L126 341 Q140 351 149 334 C165 305 183 280 178 247 C176 207 143 195 116 224Z" fill="url(#iconDeep)" stroke="#0755ac" stroke-width="6"/>
+      <path d="M119 232 C92 207 67 219 59 238 C42 272 73 304 128 331 C146 303 169 273 171 244 C165 214 138 214 119 232Z" fill="#27c7f0" opacity=".71"/>
+      <path d="M55 249 Q61 222 90 225 Q66 235 64 258 Q62 279 71 287 Q53 281 55 249Z" fill="#f7ffff" opacity=".96"/>
+      <path d="M78 216 Q105 209 120 229 Q142 208 165 225 Q151 221 132 239 Q108 263 85 290 Q61 270 78 216Z" fill="#b7fdff" opacity=".45"/>
+      <path d="M82 312 L128 339 Q141 347 145 329 L167 287" fill="none" stroke="#0673d7" stroke-width="6" opacity=".65"/>
+    </g>
+  </g>
+
+  <!-- 3. Pasek energii / błyskawica -->
+  <g id="ui-progress-energy" data-component="progress-energy">
+    <g filter="url(#barShadow)">
+      <path d="M111 433 H726 C748 433 761 445 761 468 C761 490 749 503 726 503 H111Z" fill="url(#blueTrack)" stroke="#0859aa" stroke-width="5"/>
+      <g clip-path="url(#energyClip)">
+        <path d="M109 434 H729 V502 H109Z" fill="url(#cyanFill)"/>
+        <path d="M109 437 H729 V455 H109Z" fill="#d4ffff" opacity=".95"/>
+        <path d="M109 454 H729 V477 H109Z" fill="#38d8f8" opacity=".52"/>
+        <path d="M109 495 H729 V502 H109Z" fill="#078acf" opacity=".57"/>
+      </g>
+      <path d="M741 442 Q755 455 752 475" fill="none" stroke="#28b3e7" stroke-width="6" opacity=".55" stroke-linecap="round"/>
+    </g>
+    <g filter="url(#iconShadow)">
+      <path d="M83 392 Q80 392 78 399 L57 477 Q53 492 64 496 L78 496 L65 546 Q61 563 73 562 Q78 560 84 552 L155 471 Q162 461 151 457 L129 456 L153 404 Q158 393 144 393Z" fill="url(#iconDeep)" stroke="#0056af" stroke-width="7" stroke-linejoin="round"/>
+      <path d="M85 398 L144 399 L111 462 L148 463 L72 549 L91 490 L62 489Z" fill="#1cc4ee" opacity=".8"/>
+      <path d="M88 408 Q103 402 120 404 Q125 405 115 412 L82 438 Q77 440 82 425Z" fill="#e7ffff" opacity=".94"/>
+      <path d="M63 483 L93 481 L81 529 L71 548 L79 494 L61 492Z" fill="#0166c9" opacity=".76"/>
+      <path d="M97 492 L146 464 L74 552Z" fill="#117ad5" opacity=".56"/>
+    </g>
+  </g>
+
+  <!-- 4. Licznik punktów -->
+  <g id="ui-score" data-component="score">
+    <g filter="url(#barShadow)">
+      <path d="M125 642 H334 Q371 642 371 680 Q371 719 339 721 H125 Z" fill="url(#cyanPill)" stroke="#0a5eac" stroke-width="5"/>
+      <path d="M150 646 H332 Q365 645 365 664 Q352 653 330 654 H149Z" fill="#c8ffff" opacity=".77"/>
+      <path d="M171 715 H341 Q366 715 369 693" fill="none" stroke="#13a8e2" stroke-width="4" opacity=".48"/>
+    </g>
+    <g filter="url(#iconShadow)">
+      <circle cx="103" cy="679" r="64" fill="url(#medallion)" stroke="#045bb6" stroke-width="6"/>
+      <path d="M47 663 A58 58 0 0 1 157 648 Q116 649 79 674 Q61 685 43 681Z" fill="#b1ffff" opacity=".49"/>
+      <path d="M44 692 A61 61 0 0 0 158 702" fill="none" stroke="#006bd2" stroke-width="8" opacity=".66"/>
+      <path d="M101 623 Q103 623 105 630 L120 656 L145 653 Q156 652 151 662 L135 682 L145 709 Q148 718 136 716 L102 701 L77 716 Q65 721 70 707 L78 683 L56 663 Q49 653 62 653 L86 654 L98 627 Q99 623 101 623Z" fill="url(#starFace)" stroke="#0aa7dd" stroke-width="3" stroke-linejoin="round"/>
+      <path d="M101 625 L120 660 L147 658 L130 681 L137 711 L101 696Z" fill="#f9fffb" opacity=".58"/>
+      <path d="M102 699 L76 715 L83 682 L59 660 L90 661Z" fill="#87f3ed" opacity=".7"/>
+    </g>
+    <text id="scoreText" x="192" y="705" font-family="Trebuchet MS, Arial, sans-serif" font-size="54" font-weight="900" font-style="italic" letter-spacing="-2" fill="#ffffff" stroke="#0758b4" stroke-width="3.4" stroke-linejoin="round" paint-order="stroke" filter="url(#numberShadow)">6547</text>
+  </g>
+
+  <!-- 5. Licznik czasu -->
+  <g id="ui-timer" data-component="timer">
+    <g filter="url(#barShadow)">
+      <path d="M509 642 H725 Q758 642 758 678 Q760 718 727 721 H511Z" fill="url(#cyanPill)" stroke="#0860b3" stroke-width="5"/>
+      <path d="M524 645 H722 Q749 648 751 661 Q735 651 716 653 H526Z" fill="#b9ffff" opacity=".78"/>
+      <path d="M552 715 H725 Q752 714 757 692" fill="none" stroke="#11a4de" stroke-width="5" opacity=".43"/>
+    </g>
+    <g filter="url(#iconShadow)">
+      <circle cx="483" cy="679" r="65" fill="url(#medallion)" stroke="#065caf" stroke-width="6"/>
+      <circle cx="483" cy="675" r="51.5" fill="#f8fffd" stroke="#61f5f1" stroke-width="5"/>
+      <path d="M437 664 A48 48 0 0 1 523 644" fill="none" stroke="#ffffff" stroke-width="4" opacity=".74"/>
+      <g fill="#12bbd2">
+        <circle cx="482" cy="634" r="4.5"/><circle cx="508" cy="644" r="4.5"/>
+        <circle cx="520" cy="671" r="4.5"/><circle cx="508" cy="699" r="4.5"/>
+        <circle cx="482" cy="710" r="4.5"/><circle cx="455" cy="699" r="4.5"/>
+        <circle cx="445" cy="671" r="4.5"/><circle cx="455" cy="645" r="4.5"/>
+      </g>
+      <path d="M482 634 L477 672 L487 676Z" fill="#14bace"/>
+      <path d="M486 676 L508 696" stroke="#10abc1" stroke-width="7" stroke-linecap="round"/>
+      <circle cx="483" cy="675" r="7.5" fill="#086dca"/>
+      <path d="M481 628 L479 648" stroke="#05a0ba" stroke-width="2.6" stroke-linecap="round"/>
+    </g>
+    <text id="timerText" x="565" y="704" font-family="Trebuchet MS, Arial, sans-serif" font-size="51" font-weight="900" font-style="italic" letter-spacing="-2" fill="#fff" stroke="#0758b4" stroke-width="3.3" stroke-linejoin="round" paint-order="stroke" filter="url(#numberShadow)">00:54</text>
+  </g>
+</svg>
+
+</div>
+<section class="tools" aria-label="Testowanie elementów">
+<h2>Zmień wartości w podglądzie</h2>
+<div class="grid">
+<div class="control"><div class="control-head"><label for="progress">Pasek z gwiazdką</label><span class="output" id="progressLabel">54%</span></div><input id="progress" type="range" min="0" max="100" value="54"></div>
+<div class="control"><div class="control-head"><label for="hearts">Segmenty serca</label><span class="output" id="heartsLabel">9/14</span></div><input id="hearts" type="range" min="0" max="14" value="9"></div>
+<div class="control"><div class="control-head"><label for="energy">Energia</label><span class="output" id="energyLabel">42%</span></div><input id="energy" type="range" min="0" max="100" value="42"></div>
+<div class="control"><div class="control-head"><label for="points">Punkty <span class="output" id="pointsLabel">6 547</span></label></div><input type="number" id="points" min="0" max="99999" value="6547"></div>
+<div class="control"><div class="control-head"><label for="seconds">Pozostały czas</label><span class="output" id="timerLabel">00:54</span></div><input id="seconds" type="range" min="0" max="600" value="54"></div>
+</div>
+<div class="actions"><button id="playPause">▶ Uruchom czas</button><button id="reset" class="secondary">↺ Resetuj</button><button id="saveSvg" class="secondary">↓ Zapisz SVG</button><label class="check"><input id="transparentToggle" type="checkbox"> Podgląd bez szarego tła</label></div>
+<div class="footer-note">Każdy element ma oddzielną grupę SVG i może być eksportowany niezależnie. W pliku ZIP znajdują się również osobne PNG/SVG.</div>
+</section>
+</main>
+<script>// UI łatwo włączyć do gry. Wartości początkowe odpowiadają referencji.
+const state = {progress:54, hearts:9, energy:42, points:6547, seconds:54};
+const $ = id => document.getElementById(id);
+const clamp = (n, a, b) => Math.max(a, Math.min(b, Number.isFinite(+n) ? +n : a));
+const formatTime = s => `${String(Math.floor(s/60)).padStart(2,'0')}:${String(s%60).padStart(2,'0')}`;
+
+function redraw(){
+  $('topFillClip').setAttribute('width', 638 * state.progress / 100);
+  $('energyFillClip').setAttribute('width', 650 * state.energy / 100);
+  // Jeden segment = jeden punkt życia. Pełne serca są turkusowe, puste granatowe.
+  document.querySelectorAll('#heartSegments rect').forEach((rect, i) => {
+    rect.setAttribute('fill', i < state.hearts ? 'url(#cyanFill)' : '#0878bd');
+    rect.setAttribute('opacity', i < state.hearts ? '1' : '.67');
+  });
+  $('scoreText').textContent = String(state.points);
+  $('timerText').textContent = formatTime(state.seconds);
+  $('progressLabel').textContent = `${state.progress}%`;
+  $('heartsLabel').textContent = `${state.hearts}/14`;
+  $('energyLabel').textContent = `${state.energy}%`;
+  $('timerLabel').textContent = formatTime(state.seconds);
+  $('pointsLabel').textContent = state.points.toLocaleString('pl-PL');
+  for(const [id, val] of Object.entries({progress:state.progress,hearts:state.hearts,energy:state.energy,points:state.points,seconds:state.seconds})){
+    const el = $(id); if(el && document.activeElement !== el) el.value=val;
+  }
+}
+function setUI(key, value){
+  const ranges={progress:[0,100],hearts:[0,14],energy:[0,100],points:[0,99999],seconds:[0,5999]};
+  state[key] = Math.round(clamp(value,...ranges[key])); redraw();
+}
+window.gameUI={setProgress:v=>setUI('progress',v),setHearts:v=>setUI('hearts',v),setEnergy:v=>setUI('energy',v),setPoints:v=>setUI('points',v),setSeconds:v=>setUI('seconds',v),getState:()=>({...state})};
+Object.keys(state).forEach(id=>$(id)?.addEventListener('input',event=>setUI(id,event.target.value)));
+$('transparentToggle')?.addEventListener('change',e=>$('stage').classList.toggle('transparent',e.target.checked));
+let tick=null;
+$('playPause')?.addEventListener('click',()=>{
+  if(tick){clearInterval(tick);tick=null;$('playPause').textContent='▶ Uruchom czas';return;}
+  $('playPause').textContent='Ⅱ Pauza';
+  tick=setInterval(()=>{
+    if(state.seconds<=0){clearInterval(tick);tick=null;$('playPause').textContent='▶ Uruchom czas';return;}
+    setUI('seconds', state.seconds-1);
+  },1000);
+});
+$('reset')?.addEventListener('click',()=>{Object.assign(state,{progress:54,hearts:9,energy:42,points:6547,seconds:54});redraw();});
+// Zapis całej kompozycji SVG. Eksporty pojedynczych komponentów znajdują się w ZIP.
+$('saveSvg')?.addEventListener('click',()=>{
+  const source=$('stage').querySelector('svg').cloneNode(true);
+  source.setAttribute('xmlns','http://www.w3.org/2000/svg');
+  source.setAttribute('width','800');source.setAttribute('height','800');
+  source.removeAttribute('aria-label');
+  const content=new XMLSerializer().serializeToString(source);
+  const url=URL.createObjectURL(new Blob([content],{type:'image/svg+xml;charset=utf-8'}));
+  const a=document.createElement('a');a.href=url;a.download='game-ui-elements.svg';a.click();
+  setTimeout(()=>URL.revokeObjectURL(url),1000);
+});
+redraw();
+</script>
+</body></html>

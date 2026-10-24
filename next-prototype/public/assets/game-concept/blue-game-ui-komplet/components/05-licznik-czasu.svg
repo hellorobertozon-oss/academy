@@ -1,0 +1,59 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="399 591 377 183" width="377" height="183"><defs>
+    <linearGradient id="blueTrack" x1="0" x2="0" y1="0" y2="1">
+      <stop offset="0" stop-color="#087dc7"/><stop offset=".19" stop-color="#047cc7"/><stop offset=".68" stop-color="#0070b6"/><stop offset="1" stop-color="#0064a7"/>
+    </linearGradient>
+    <linearGradient id="cyanFill" x1="0" x2="0" y1="0" y2="1">
+      <stop offset="0" stop-color="#56e7ff"/><stop offset=".25" stop-color="#46dcfa"/><stop offset=".64" stop-color="#15bee9"/><stop offset="1" stop-color="#009add"/>
+    </linearGradient>
+    <linearGradient id="cyanPill" x1="0" x2="0" y1="0" y2="1">
+      <stop offset="0" stop-color="#67ecff"/><stop offset=".36" stop-color="#3ed9fb"/><stop offset=".83" stop-color="#2dc8f2"/><stop offset="1" stop-color="#139cdb"/>
+    </linearGradient>
+    <linearGradient id="iconCyan" x1="0" x2=".9" y1="0" y2="1">
+      <stop offset="0" stop-color="#50e4fc"/><stop offset=".36" stop-color="#20bde9"/><stop offset="1" stop-color="#0575d2"/>
+    </linearGradient>
+    <linearGradient id="iconDeep" x1="0" x2=".9" y1="0" y2="1">
+      <stop offset="0" stop-color="#5af0ff"/><stop offset=".58" stop-color="#16b9ef"/><stop offset="1" stop-color="#0863d5"/>
+    </linearGradient>
+    <linearGradient id="medallion" x1="0" x2=".25" y1="0" y2="1">
+      <stop offset="0" stop-color="#60efff"/><stop offset=".5" stop-color="#1bc2e3"/><stop offset="1" stop-color="#0c6bd6"/>
+    </linearGradient>
+    <linearGradient id="starFace" x1="0" x2="1" y1="0" y2="1">
+      <stop offset="0" stop-color="#fff"/><stop offset=".5" stop-color="#c7fff7"/><stop offset="1" stop-color="#69e8ec"/>
+    </linearGradient>
+    <linearGradient id="glass" x1="0" x2="0" y1="0" y2="1">
+      <stop offset="0" stop-color="#fff" stop-opacity=".93"/><stop offset="1" stop-color="#fff" stop-opacity=".02"/>
+    </linearGradient>
+    <clipPath id="topClip"><rect id="topFillClip" x="118" y="65" width="344.52" height="67"/></clipPath>
+    <clipPath id="energyClip"><rect id="energyFillClip" x="110" y="434" width="273" height="69"/></clipPath>
+    <clipPath id="trackTopClip"><path d="M116 64 L722 64 C748 64 757 75 757 98 C757 123 747 133 722 133 L116 133 Z"/></clipPath>
+    <clipPath id="energyTrackClip"><path d="M113 433 H726 C747 433 761 449 761 468 C761 490 749 503 726 503 H113Z"/></clipPath>
+    <clipPath id="heartTrackClip"><path d="M158 239 H727 C747 239 757 255 757 274 C757 296 748 310 729 310 H158Z"/></clipPath>
+    <filter id="barShadow" x="-10%" y="-50%" width="120%" height="220%"><feDropShadow dx="0" dy="10" stdDeviation="1.2" flood-color="#25232a" flood-opacity=".45"/></filter>
+    <filter id="iconShadow" x="-30%" y="-30%" width="170%" height="185%"><feDropShadow dx="4" dy="11" stdDeviation="1.1" flood-color="#2b2931" flood-opacity=".6"/></filter>
+    <filter id="numberShadow" x="-20%" y="-20%" width="140%" height="150%"><feDropShadow dx="2" dy="3" stdDeviation=".55" flood-color="#0987cc" flood-opacity=".9"/></filter>
+  </defs>
+
+  <g id="ui-timer" data-component="timer">
+    <g filter="url(#barShadow)">
+      <path d="M509 642 H725 Q758 642 758 678 Q760 718 727 721 H511Z" fill="url(#cyanPill)" stroke="#0860b3" stroke-width="5"/>
+      <path d="M524 645 H722 Q749 648 751 661 Q735 651 716 653 H526Z" fill="#b9ffff" opacity=".78"/>
+      <path d="M552 715 H725 Q752 714 757 692" fill="none" stroke="#11a4de" stroke-width="5" opacity=".43"/>
+    </g>
+    <g filter="url(#iconShadow)">
+      <circle cx="483" cy="679" r="65" fill="url(#medallion)" stroke="#065caf" stroke-width="6"/>
+      <circle cx="483" cy="675" r="51.5" fill="#f8fffd" stroke="#61f5f1" stroke-width="5"/>
+      <path d="M437 664 A48 48 0 0 1 523 644" fill="none" stroke="#ffffff" stroke-width="4" opacity=".74"/>
+      <g fill="#12bbd2">
+        <circle cx="482" cy="634" r="4.5"/><circle cx="508" cy="644" r="4.5"/>
+        <circle cx="520" cy="671" r="4.5"/><circle cx="508" cy="699" r="4.5"/>
+        <circle cx="482" cy="710" r="4.5"/><circle cx="455" cy="699" r="4.5"/>
+        <circle cx="445" cy="671" r="4.5"/><circle cx="455" cy="645" r="4.5"/>
+      </g>
+      <path d="M482 634 L477 672 L487 676Z" fill="#14bace"/>
+      <path d="M486 676 L508 696" stroke="#10abc1" stroke-width="7" stroke-linecap="round"/>
+      <circle cx="483" cy="675" r="7.5" fill="#086dca"/>
+      <path d="M481 628 L479 648" stroke="#05a0ba" stroke-width="2.6" stroke-linecap="round"/>
+    </g>
+    <text id="timerText" x="565" y="704" font-family="Trebuchet MS, Arial, sans-serif" font-size="51" font-weight="900" font-style="italic" letter-spacing="-2" fill="#fff" stroke="#0758b4" stroke-width="3.3" stroke-linejoin="round" paint-order="stroke" filter="url(#numberShadow)">00:54</text>
+  </g>
+</svg>

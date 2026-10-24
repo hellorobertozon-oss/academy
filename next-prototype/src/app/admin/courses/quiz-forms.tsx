@@ -1,6 +1,6 @@
 "use client";
 
-import { useActionState, useState } from "react";
+import { useActionState, useEffect, useState } from "react";
 import { RiAddLine, RiDeleteBinLine } from "@remixicon/react";
 import { Badge } from "@/components/base/badges/badge";
 import { Button } from "@/components/base/buttons/button";
@@ -8,9 +8,11 @@ import { Input } from "@/components/base/input/input";
 import { Select, SelectItem } from "@/components/base/select/select";
 import { Textarea } from "@/components/base/textarea/textarea";
 import { INITIAL_ADMIN_ACTION_STATE, type AdminActionState } from "@/lib/admin/action-state";
+import { CourseEditorSaveBar, useCourseEditorFormDirty } from "@/app/admin/courses/course-editor-state";
 import type { QuizEditorContent, QuizEditorQuestion } from "@/lib/admin/quiz-validation";
 import { createQuizAction, saveQuizContentAction } from "@/app/admin/courses/quiz-actions";
 import type { LanguageOption } from "@/app/admin/courses/course-forms";
+import { getNativeLanguageName } from "@/lib/admin/language-label";
 
 export type AdminQuiz = {
   id: number;
@@ -62,7 +64,7 @@ function QuizLanguageChooser({
     >
       {languages.map((language) => (
         <SelectItem key={language.code} id={language.code}>
-          {language.native_name} · {language.code.toUpperCase()}
+          {getNativeLanguageName(language)} · {language.code.toUpperCase()}
         </SelectItem>
       ))}
     </Select>
@@ -204,12 +206,21 @@ function QuizTranslationEditor({
   disabled: boolean;
 }) {
   const [state, action, isPending] = useActionState(saveQuizContentAction, INITIAL_ADMIN_ACTION_STATE);
+  const { isDirty, markDirty, clearDirty } = useCourseEditorFormDirty(`quiz:${quizId}:${languageCode}`);
   const [questions, setQuestions] = useState<QuizEditorContent>(
     initialQuestions.length ? initialQuestions : isDefaultLanguage ? [newQuestion()] : [],
   );
+  useEffect(() => {
+    if (!isPending && state.status === "success") clearDirty();
+  }, [clearDirty, isPending, state.status]);
+
+  function updateQuestions(updater: (current: QuizEditorContent) => QuizEditorContent) {
+    markDirty();
+    setQuestions(updater);
+  }
 
   function updateQuestion(index: number, updater: (question: QuizEditorQuestion) => QuizEditorQuestion) {
-    setQuestions((current) => current.map((question, currentIndex) => currentIndex === index ? updater(question) : question));
+    updateQuestions((current) => current.map((question, currentIndex) => currentIndex === index ? updater(question) : question));
   }
 
   function updateOption(questionIndex: number, optionIndex: number, updater: (option: QuizEditorQuestion["options"][number]) => QuizEditorQuestion["options"][number]) {
@@ -227,18 +238,18 @@ function QuizTranslationEditor({
   }
 
   return (
-    <form action={action} className="flex flex-col gap-4 rounded-2xl border border-separator-border p-4">
+    <form action={action} onChange={markDirty} className="flex flex-col gap-4 rounded-2xl border border-separator-border p-4">
       <input type="hidden" name="quiz_id" value={quizId} />
       <input type="hidden" name="language_code" value={languageCode} />
       <input type="hidden" name="questions_json" value={JSON.stringify(questions)} readOnly />
       <Input name="title" label="Tytuł quizu" defaultValue={title} isRequired maxLength={160} isDisabled={disabled} />
-      <Textarea name="instructions" label="Instrukcja dla pracownika" defaultValue={instructions} rows={2} maxLength={2000} isDisabled={disabled} />
+      <Textarea name="instructions" label="Instrukcja dla użytkownika" defaultValue={instructions} rows={2} maxLength={2000} isDisabled={disabled} />
 
       <div className="flex flex-col gap-3">
         <div className="flex flex-wrap items-center justify-between gap-2">
           <h3 className="text-title-3-semibold text-text-primary">Pytania i odpowiedzi</h3>
           {isDefaultLanguage && !disabled ? (
-            <Button type="button" size="small" variant="secondary" leadingIcon={RiAddLine} onClick={() => setQuestions((current) => [...current, newQuestion()])}>
+            <Button type="button" size="small" variant="secondary" leadingIcon={RiAddLine} onClick={() => updateQuestions((current) => [...current, newQuestion()])}>
               Dodaj pytanie
             </Button>
           ) : null}
@@ -258,7 +269,7 @@ function QuizTranslationEditor({
                   leadingIcon={RiDeleteBinLine}
                   aria-label={`Usuń pytanie ${questionIndex + 1}`}
                   disabled={questions.length <= 1}
-                  onClick={() => setQuestions((current) => current.filter((_, index) => index !== questionIndex))}
+                  onClick={() => updateQuestions((current) => current.filter((_, index) => index !== questionIndex))}
                 />
               ) : null}
             </div>
@@ -340,11 +351,7 @@ function QuizTranslationEditor({
       </div>
 
       <ActionMessage state={state} />
-      {!disabled ? (
-        <Button type="submit" disabled={isPending || !questions.length} className="self-start">
-          {isPending ? "Zapisywanie..." : "Zapisz quiz"}
-        </Button>
-      ) : null}
+      <CourseEditorSaveBar isDirty={isDirty && !disabled && questions.length > 0} isPending={isPending} />
     </form>
   );
 }

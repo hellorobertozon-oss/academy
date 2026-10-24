@@ -46,6 +46,11 @@ export function RichTextEditor({
     content: value as JSONContent,
     immediatelyRender: false,
     editable,
+    editorProps: {
+      attributes: {
+        class: "min-h-48 w-full cursor-text outline-none focus:outline-none",
+      },
+    },
     onUpdate: ({ editor: changedEditor }) => {
       onChange?.(changedEditor.getJSON() as TiptapDocument);
     },

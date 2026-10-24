@@ -5,6 +5,8 @@ import { getCurrentAcademyProfile } from "@/lib/auth/profile";
 import type { AdminActionState } from "@/lib/admin/action-state";
 import { parseInviteInput, parseStoreInput } from "@/lib/admin/validation";
 import { isAcademyEmailConfigured, sendAcademyInvitationEmail } from "@/lib/email/send-invitation";
+import { buildStoreAddressQuery, searchOpenStreetMapAddresses } from "@/lib/maps/openstreetmap-geocoding";
+import type { GeocodedLocation } from "@/lib/maps/geocoding-types";
 import { createAcademyAdminClient } from "@/lib/supabase/admin";
 import { createAcademyServerClient } from "@/lib/supabase/server";
 
@@ -85,20 +87,34 @@ export async function createStoreAction(
     city: formData.get("city"),
     postalCode: formData.get("postal_code"),
     countryCode: formData.get("country_code"),
-    latitude: formData.get("latitude"),
-    longitude: formData.get("longitude"),
   });
   if (!parsed.ok) return error(parsed.error);
 
+  let location: GeocodedLocation | undefined;
+  try {
+    [location] = await searchOpenStreetMapAddresses(buildStoreAddressQuery(parsed.value), 1);
+  } catch {
+    return error("Nie udało się wyszukać adresu w OpenStreetMap. Sprawdź połączenie i spróbuj ponownie.");
+  }
+  if (!location) {
+    return error("Nie znaleziono tego adresu na mapie. Sprawdź ulicę, kod pocztowy, miasto i kraj.");
+  }
+
   const { error: insertError } = await access.supabase
     .from("stores")
-    .insert(parsed.value);
+    .insert({
+      ...parsed.value,
+      latitude: location.latitude,
+      longitude: location.longitude,
+    });
 
   if (insertError) {
     return error("Nie udało się zapisać sklepu. Sprawdź dane i spróbuj ponownie.");
   }
 
   revalidatePath("/admin");
+  revalidatePath("/admin/stores");
+  revalidatePath("/stores");
   return success("Sklep został dodany.");
 }
 

@@ -272,6 +272,7 @@ export function ModulePage({ moduleId, previewMode = false }: { moduleId: string
 
 function TextLessonPreview({ language }: { language: AcademyLanguage }) {
   const isPolish = language === "pl";
+  const isFrench = language === "fr";
   const bulletPoints = isPolish
     ? [
         "Do skorupy dobierz środek przeznaczony do materiału, z którego została wykonana.",
@@ -279,7 +280,14 @@ function TextLessonPreview({ language }: { language: AcademyLanguage }) {
         "Wyściółkę odświeżaj osobnym preparatem i pozwól jej całkowicie wyschnąć.",
         "Nie mieszaj różnych środków i nie nakładaj ich więcej, niż zaleca etykieta.",
       ]
-    : [
+    : isFrench
+      ? [
+          "Choisissez un nettoyant pour la coque adapté au matériau du casque.",
+          "Nettoyez délicatement la visière avec un chiffon doux, sans appuyer ni frotter fort.",
+          "Rafraîchissez la doublure avec un produit distinct et laissez-la sécher complètement.",
+          "Ne mélangez pas les produits et n’en appliquez pas plus que ce qu’indique l’étiquette.",
+        ]
+      : [
         "Choose a shell cleaner intended for the material the helmet is made from.",
         "Clean the visor gently with a soft cloth; avoid pressing hard or scrubbing.",
         "Refresh the lining with a separate product and let it dry completely.",
@@ -292,7 +300,14 @@ function TextLessonPreview({ language }: { language: AcademyLanguage }) {
         "Czyść wybraną powierzchnię delikatnymi ruchami, używając osobnej części ściereczki.",
         "Wytrzyj pozostałości i pozostaw kask w przewiewnym miejscu do całkowitego wyschnięcia.",
       ]
-    : [
+    : isFrench
+      ? [
+          "Préparez des chiffons propres et retirez la poussière du casque.",
+          "Lisez l’étiquette et préparez le produit en suivant exactement les instructions.",
+          "Nettoyez délicatement la surface choisie en utilisant une partie propre du chiffon.",
+          "Essuyez les résidus et laissez le casque sécher complètement dans un endroit aéré.",
+        ]
+      : [
         "Prepare clean cloths and remove loose dust from the helmet.",
         "Read the label and prepare the product exactly as instructed.",
         "Clean the chosen surface gently, using a fresh part of the cloth.",
@@ -303,12 +318,16 @@ function TextLessonPreview({ language }: { language: AcademyLanguage }) {
     <div className="grid w-full gap-10 px-2 pb-2 pt-6 sm:px-4 sm:pb-4 sm:pt-8">
       <section className="grid gap-4">
         <h2 className="text-title-1-medium text-text-primary">
-          {isPolish ? "Dobra pielęgnacja zaczyna się od właściwego produktu" : "Good care starts with the right product"}
+          {isPolish ? "Dobra pielęgnacja zaczyna się od właściwego produktu" : isFrench ? "Un bon entretien commence par le bon produit" : "Good care starts with the right product"}
         </h2>
         <p className="text-title-3-regular text-text-secondary">
           {isPolish ? (
             <>
               Kask składa się z różnych materiałów, dlatego każdy element może wymagać innego sposobu pielęgnacji. <strong>Dobierz preparat do powierzchni</strong>, a przy wizjerze <em>zawsze sprawdzaj zalecenia producenta</em>. Nie zakładaj, że środek bezpieczny dla skorupy nadaje się też do wizjera, powłoki przeciwparującej albo wyściółki.
+            </>
+          ) : isFrench ? (
+            <>
+              Un casque est composé de matériaux différents, et chaque élément peut nécessiter un entretien particulier. <strong>Choisissez un produit adapté à la surface</strong> et, pour la visière, <em>suivez toujours les recommandations du fabricant</em>. Un nettoyant adapté à la coque ne convient pas forcément à la visière, au revêtement antibuée ou à la doublure.
             </>
           ) : (
             <>
@@ -319,10 +338,12 @@ function TextLessonPreview({ language }: { language: AcademyLanguage }) {
         <p className="text-title-3-regular text-text-secondary">
           {isPolish
             ? "Przed czyszczeniem przygotuj czyste ściereczki i sprawdź, czy kask nie ma luźnych elementów. Pracuj w dobrze oświetlonym miejscu, bez pośpiechu. Dzięki temu łatwiej zauważysz zabrudzenia i nie przeniesiesz ich z jednej powierzchni na drugą."
-            : "Before cleaning, prepare fresh cloths and check that no parts are loose. Work in a well-lit place and take your time. This makes dirt easier to spot and helps prevent it from being transferred from one surface to another."}
+            : isFrench
+              ? "Avant le nettoyage, préparez des chiffons propres et vérifiez qu’aucun élément n’est desserré. Travaillez dans un endroit bien éclairé et prenez votre temps. Vous repérerez plus facilement les saletés et éviterez de les transférer d’une surface à l’autre."
+              : "Before cleaning, prepare fresh cloths and check that no parts are loose. Work in a well-lit place and take your time. This makes dirt easier to spot and helps prevent it from being transferred from one surface to another."}
         </p>
         <h3 className="text-title-2-semibold text-text-primary">
-          {isPolish ? "Co warto zapamiętać?" : "What should you remember?"}
+          {isPolish ? "Co warto zapamiętać?" : isFrench ? "Que faut-il retenir ?" : "What should you remember?"}
         </h3>
         <ul className="list-disc space-y-3 ps-6 text-title-3-regular text-text-secondary">
           {bulletPoints.map((point) => <li key={point}>{point}</li>)}
@@ -330,34 +351,42 @@ function TextLessonPreview({ language }: { language: AcademyLanguage }) {
         <p className="text-title-3-regular text-text-secondary">
           {isPolish
             ? "Po pracy pozostaw kask w suchym, przewiewnym miejscu. Nie używaj go, dopóki wnętrze nie będzie całkowicie suche. Regularna, spokojna pielęgnacja pomaga utrzymać kask w dobrym stanie i ułatwia zauważenie zmian, które warto skonsultować z producentem."
-            : "After cleaning, leave the helmet in a dry, ventilated place. Do not use it until the lining is completely dry. Regular, careful maintenance helps keep the helmet in good condition and makes it easier to notice changes that may need to be checked with the maker."}
+            : isFrench
+              ? "Après le nettoyage, laissez le casque dans un endroit sec et aéré. Ne l’utilisez pas tant que l’intérieur n’est pas complètement sec. Un entretien régulier et soigneux aide à préserver le casque et à repérer les changements à signaler au fabricant."
+              : "After cleaning, leave the helmet in a dry, ventilated place. Do not use it until the lining is completely dry. Regular, careful maintenance helps keep the helmet in good condition and makes it easier to notice changes that may need to be checked with the maker."}
         </p>
       </section>
 
       <section className="grid gap-4">
         <h2 className="text-title-1-medium text-text-primary">
-          {isPolish ? "Prosty proces czyszczenia — krok po kroku" : "A simple cleaning process, step by step"}
+          {isPolish ? "Prosty proces czyszczenia — krok po kroku" : isFrench ? "Un nettoyage simple, étape par étape" : "A simple cleaning process, step by step"}
         </h2>
         <p className="text-title-3-regular text-text-secondary">
           {isPolish
             ? "Ustal kolejność jeszcze przed rozpoczęciem. Najpierw usuń luźny kurz, potem pracuj nad wybraną powierzchnią, a na końcu sprawdź efekt. Jeśli przechodzisz między różnymi elementami kasku, korzystaj z czystej części ściereczki."
-            : "Decide on the order before you begin. Remove loose dust first, then clean one surface at a time and check the result at the end. Use a clean part of the cloth when moving between different parts of the helmet."}
+            : isFrench
+              ? "Définissez l’ordre des étapes avant de commencer. Retirez d’abord la poussière, nettoyez ensuite une surface à la fois et vérifiez le résultat. Utilisez une partie propre du chiffon pour passer d’un élément du casque à un autre."
+              : "Decide on the order before you begin. Remove loose dust first, then clean one surface at a time and check the result at the end. Use a clean part of the cloth when moving between different parts of the helmet."}
         </p>
         <ol className="list-decimal space-y-3 ps-6 text-title-3-regular text-text-secondary">
           {numberedSteps.map((step) => <li key={step}>{step}</li>)}
         </ol>
         <h3 className="text-title-2-semibold text-text-primary">
-          {isPolish ? "Wskazówka do rozmowy z klientem" : "A tip for the customer conversation"}
+          {isPolish ? "Wskazówka do rozmowy z klientem" : isFrench ? "Conseil pour l’échange avec le client" : "A tip for the customer conversation"}
         </h3>
         <p className="text-title-3-regular text-text-secondary">
           {isPolish
             ? "Zamiast wymieniać wyłącznie nazwę produktu, zapytaj o kask i sposób jego użytkowania. Wtedy łatwiej wyjaśnić, dlaczego konkretny preparat i akcesorium odpowiadają na potrzebę klienta."
-            : "Instead of naming a product straight away, ask about the helmet and how it is used. It is then easier to explain why a particular cleaner and accessory fit the customer's needs."}
+            : isFrench
+              ? "Au lieu de citer directement un produit, demandez au client quel casque il possède et comment il l’utilise. Vous pourrez ensuite expliquer plus facilement en quoi un produit et un accessoire précis répondent à ses besoins."
+              : "Instead of naming a product straight away, ask about the helmet and how it is used. It is then easier to explain why a particular cleaner and accessory fit the customer's needs."}
         </p>
         <blockquote className="border-s-2 border-accent-300 ps-4 text-title-2-regular italic text-text-secondary">
           {isPolish
             ? "Zacznijmy od tego, z czego wykonany jest kask i którą jego część chcesz wyczyścić. Na tej podstawie dobierzemy preparat i pokażę Ci, jak bezpiecznie go używać."
-            : "Let's start with the helmet material and the part you want to clean. From there, we can choose a suitable product and I can show you how to use it safely."}
+            : isFrench
+              ? "Commençons par identifier le matériau du casque et la partie que vous souhaitez nettoyer. Nous choisirons le produit adapté, puis je vous montrerai comment l’utiliser en toute sécurité."
+              : "Let's start with the helmet material and the part you want to clean. From there, we can choose a suitable product and I can show you how to use it safely."}
         </blockquote>
       </section>
     </div>

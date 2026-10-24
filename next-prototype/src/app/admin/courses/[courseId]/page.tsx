@@ -1,22 +1,21 @@
 import { Suspense } from "react";
+import Link from "next/link";
 import { notFound } from "next/navigation";
+import { RiArrowLeftLine } from "@remixicon/react";
 import { AcademyLoading } from "@/components/academy-loading";
-import { AcademyHeader } from "@/components/academy-header";
-import { LinkButton } from "@/components/base/buttons/link-button";
 import { Badge } from "@/components/base/badges/badge";
+import { Tab, TabList, TabPanel, Tabs } from "@/components/base/tabs/tabs";
 import {
-  AdminDisclosure,
   CourseTranslationPanel,
-  CreateModuleForm,
   LessonTranslationPanel,
-  LessonTranslationEditor,
   ModuleTranslationPanel,
   type LessonTranslation,
   type CourseTranslation,
   type ModuleTranslation,
 } from "@/app/admin/courses/content-forms";
-import { SortableCollection } from "@/app/admin/courses/sortable-collection";
-import { CreateCourseDraftForm, PublishCourseForm } from "@/app/admin/courses/course-forms";
+import { CourseProgramBuilder } from "@/app/admin/courses/course-program-builder";
+import { CourseDraftAutoPrepare, PublishCourseForm } from "@/app/admin/courses/course-forms";
+import { CourseEditorChangesProvider } from "@/app/admin/courses/course-editor-state";
 import type { LanguageOption } from "@/app/admin/courses/course-forms";
 import { QuizTargetPanel, type AdminQuiz } from "@/app/admin/courses/quiz-forms";
 import {
@@ -27,6 +26,8 @@ import {
 } from "@/app/admin/courses/assignment-forms";
 import { requireAcademyProfile } from "@/lib/auth/profile";
 import { createAcademyServerClient } from "@/lib/supabase/server";
+import { formatPolishCount } from "@/lib/admin/polish-count";
+import { createAcademyImageUrlMap } from "@/lib/academy/content-images";
 
 type CourseRow = {
   id: number;
@@ -81,7 +82,7 @@ function translatedTitle<T extends { language_code: string; title: string }>(
 }
 
 async function CourseEditor({ courseId }: { courseId: number }) {
-  const profile = await requireAcademyProfile();
+  await requireAcademyProfile();
   const supabase = await createAcademyServerClient();
   const [courseResult, languagesResult] = await Promise.all([
     supabase
@@ -137,7 +138,7 @@ async function CourseEditor({ courseId }: { courseId: number }) {
     ? await Promise.all([
         supabase
           .from("course_translations")
-          .select("course_version_id, language_code, title, description")
+          .select("course_version_id, language_code, title, description, image_path")
           .eq("course_version_id", versionId),
         supabase
           .from("course_modules")
@@ -152,7 +153,7 @@ async function CourseEditor({ courseId }: { courseId: number }) {
     ? await Promise.all([
         supabase
           .from("module_translations")
-          .select("module_id, language_code, title, summary")
+          .select("module_id, language_code, title, summary, image_path")
           .in("module_id", moduleIds),
         supabase
           .from("course_lessons")
@@ -168,7 +169,7 @@ async function CourseEditor({ courseId }: { courseId: number }) {
         lessonIds.length
           ? supabase
               .from("lesson_translations")
-              .select("lesson_id, language_code, title, summary, youtube_video_id, content, product_bullets")
+              .select("lesson_id, language_code, title, summary, youtube_video_id, youtube_video_ids, content, product_bullets, key_points_title, conversation_title, conversation, image_path")
               .in("lesson_id", lessonIds)
           : Promise.resolve(emptyResults),
         supabase
@@ -177,9 +178,26 @@ async function CourseEditor({ courseId }: { courseId: number }) {
           .eq("course_version_id", versionId),
       ])
     : [emptyResults, emptyResults];
-  const courseTranslations = (courseTranslationsResult.data ?? []) as CourseTranslationRow[];
-  const moduleTranslations = (moduleTranslationsResult.data ?? []) as ModuleTranslationRow[];
-  const lessonTranslations = (lessonTranslationsResult.data ?? []) as LessonTranslationRow[];
+  const rawCourseTranslations = (courseTranslationsResult.data ?? []) as CourseTranslationRow[];
+  const rawModuleTranslations = (moduleTranslationsResult.data ?? []) as ModuleTranslationRow[];
+  const rawLessonTranslations = (lessonTranslationsResult.data ?? []) as LessonTranslationRow[];
+  const imageUrls = await createAcademyImageUrlMap(supabase, [
+    ...rawCourseTranslations.map((translation) => translation.image_path),
+    ...rawModuleTranslations.map((translation) => translation.image_path),
+    ...rawLessonTranslations.map((translation) => translation.image_path),
+  ]);
+  const courseTranslations = rawCourseTranslations.map((translation) => ({
+    ...translation,
+    image_url: translation.image_path ? imageUrls.get(translation.image_path) ?? null : null,
+  }));
+  const moduleTranslations = rawModuleTranslations.map((translation) => ({
+    ...translation,
+    image_url: translation.image_path ? imageUrls.get(translation.image_path) ?? null : null,
+  }));
+  const lessonTranslations = rawLessonTranslations.map((translation) => ({
+    ...translation,
+    image_url: translation.image_path ? imageUrls.get(translation.image_path) ?? null : null,
+  }));
   const quizRows = (quizzesResult.data ?? []) as QuizRow[];
   const quizIds = quizRows.map((quiz) => quiz.id);
   const [quizTranslationsResult, quizQuestionsResult] = quizIds.length
@@ -260,10 +278,12 @@ async function CourseEditor({ courseId }: { courseId: number }) {
   const editable = currentVersion?.status === "draft";
   const currentVersionId = currentVersion?.id ?? 0;
   const locale = languages.find((language) => language.code === course.default_language_code);
+  const totalLessonCount = lessons.length;
   const moduleItems = modules.map((module) => {
     const translations = moduleTranslations.filter((translation) => translation.module_id === module.id);
     const moduleLessons = lessons.filter((lesson) => lesson.module_id === module.id);
     const title = translatedTitle(translations, course.default_language_code, "Moduł bez tytułu");
+    const moduleQuiz = adminQuizzes.find((quiz) => quiz.module_id === module.id);
     const lessonItems = moduleLessons.map((lesson) => {
       const lessonTexts = lessonTranslations.filter((translation) => translation.lesson_id === lesson.id);
       const lessonTitle = translatedTitle(lessonTexts, course.default_language_code, "Bez tytułu");
@@ -271,114 +291,97 @@ async function CourseEditor({ courseId }: { courseId: number }) {
       return {
         id: lesson.id,
         title: lessonTitle,
-        content: (
-          <div className="flex flex-col gap-3">
-            <AdminDisclosure title={`Lekcja: ${lessonTitle}`}>
-              <LessonTranslationPanel
-                moduleId={module.id}
-                lessonId={lesson.id}
-                languages={languages}
-                translations={lessonTexts}
-                defaultLanguage={course.default_language_code}
-                disabled={!editable}
-              />
-            </AdminDisclosure>
-            {lessonQuiz || editable ? (
-              <AdminDisclosure title={lessonQuiz ? `Quiz: ${lessonQuiz.translations.find((translation) => translation.language_code === course.default_language_code)?.title ?? "Quiz lekcji"}` : "+ Dodaj quiz do lekcji"}>
-                <QuizTargetPanel
-                  courseVersionId={currentVersionId}
-                  targetType="lesson"
-                  targetId={lesson.id}
-                  languages={languages}
-                  defaultLanguage={course.default_language_code}
-                  quiz={lessonQuiz}
-                  disabled={!editable}
-                />
-              </AdminDisclosure>
-            ) : null}
-          </div>
+        hasQuiz: Boolean(lessonQuiz),
+        editor: (
+          <LessonTranslationPanel
+            courseId={course.id}
+            versionId={currentVersionId}
+            moduleId={module.id}
+            lessonId={lesson.id}
+            languages={languages}
+            translations={lessonTexts}
+            defaultLanguage={course.default_language_code}
+            disabled={!editable}
+          />
         ),
+        quizEditor: lessonQuiz || editable ? (
+          <QuizTargetPanel
+            courseVersionId={currentVersionId}
+            targetType="lesson"
+            targetId={lesson.id}
+            languages={languages}
+            defaultLanguage={course.default_language_code}
+            quiz={lessonQuiz}
+            disabled={!editable}
+          />
+        ) : undefined,
       };
     });
-    const moduleQuiz = adminQuizzes.find((quiz) => quiz.module_id === module.id);
 
     return {
       id: module.id,
       title,
-      content: (
-        <article className="flex flex-col gap-4 rounded-2xl border border-separator-border p-4">
-          <div className="flex flex-wrap items-center justify-between gap-3">
-            <h3 className="text-title-3-semibold text-text-primary">{title}</h3>
-            <Badge color="neutral">{moduleLessons.length} lekcji</Badge>
-          </div>
-          <AdminDisclosure title="Tłumaczenia modułu">
-            <ModuleTranslationPanel
-              moduleId={module.id}
-              languages={languages}
-              translations={translations}
-              defaultLanguage={course.default_language_code}
-              disabled={!editable}
-            />
-          </AdminDisclosure>
-          {moduleQuiz || editable ? (
-            <AdminDisclosure title={moduleQuiz ? `Quiz: ${moduleQuiz.translations.find((translation) => translation.language_code === course.default_language_code)?.title ?? "Quiz modułu"}` : "+ Dodaj quiz do modułu"}>
-              <QuizTargetPanel
-                courseVersionId={currentVersionId}
-                targetType="module"
-                targetId={module.id}
-                languages={languages}
-                defaultLanguage={course.default_language_code}
-                quiz={moduleQuiz}
-                disabled={!editable}
-              />
-            </AdminDisclosure>
-          ) : null}
-          {moduleLessons.length ? (
-            <SortableCollection
-              key={`${module.id}:${moduleLessons.map((lesson) => lesson.id).join(",")}`}
-              kind="lesson"
-              scopeId={module.id}
-              items={lessonItems}
-              disabled={!editable}
-            />
-          ) : (
-            <p className="text-body-2-regular text-text-secondary">W tym module nie ma jeszcze lekcji.</p>
-          )}
-          {editable && locale ? (
-            <AdminDisclosure title="+ Dodaj lekcję">
-              <LessonTranslationEditor mode="create" moduleId={module.id} language={locale} disabled={false} />
-            </AdminDisclosure>
-          ) : null}
-        </article>
+      lessons: lessonItems,
+      editor: (
+        <ModuleTranslationPanel
+          courseId={course.id}
+          versionId={currentVersionId}
+          moduleId={module.id}
+          languages={languages}
+          translations={translations}
+          defaultLanguage={course.default_language_code}
+          disabled={!editable}
+        />
       ),
+      quizEditor: moduleQuiz || editable ? (
+        <QuizTargetPanel
+          courseVersionId={currentVersionId}
+          targetType="module"
+          targetId={module.id}
+          languages={languages}
+          defaultLanguage={course.default_language_code}
+          quiz={moduleQuiz}
+          disabled={!editable}
+        />
+      ) : undefined,
     };
   });
 
   return (
-    <div className="min-h-screen bg-background-full">
-      <AcademyHeader mode="app" />
-      <main className="mx-auto flex w-full max-w-7xl flex-col gap-8 px-4 pb-16 pt-8 sm:px-8">
-        <header className="flex flex-col gap-4">
-          <div className="flex flex-wrap items-center justify-between gap-4">
-            <LinkButton href="/admin/courses" variant="secondary">← Lista szkoleń</LinkButton>
+    <CourseEditorChangesProvider>
+      <header className="flex flex-col gap-4">
+        <Link href="/admin/courses" className="inline-flex w-fit items-center gap-2 text-body-medium text-text-secondary transition-colors hover:text-text-primary">
+          <RiArrowLeftLine className="size-4" aria-hidden />
+          Wszystkie szkolenia
+        </Link>
+        <div className="flex flex-wrap items-end justify-between gap-4">
+          <div>
+            <p className="text-caption-1-semibold uppercase tracking-[0.14em] text-text-tertiary">Edytor szkolenia · /{course.slug}</p>
+            <h1 className="mt-2 text-title-1-semibold text-text-primary">
+              {courseTranslations.find((translation) => translation.language_code === course.default_language_code)?.title ?? course.slug}
+            </h1>
+            <div className="mt-2 flex flex-wrap items-center gap-2 text-body-2-regular text-text-secondary">
+              <span>Język główny: {course.default_language_code.toUpperCase()}</span>
+              <span aria-hidden="true">·</span>
+              <span>{formatPolishCount(modules.length, "moduł", "moduły", "modułów")}</span>
+              <span aria-hidden="true">·</span>
+              <span>{formatPolishCount(totalLessonCount, "lekcja", "lekcje", "lekcji")}</span>
+            </div>
+          </div>
+          <div className="flex flex-wrap items-center gap-3">
             {currentVersion ? (
               <Badge color={editable ? "primary" : "neutral"}>
                 {editable ? "Szkic" : "Opublikowane"} · v{currentVersion.version_number}
               </Badge>
             ) : null}
+            {draftVersion ? (
+              <PublishCourseForm courseId={course.id} versionId={draftVersion.id} disabled={!editable} />
+            ) : course.published_version_id ? (
+              <CourseDraftAutoPrepare courseId={course.id} />
+            ) : null}
           </div>
-          <div>
-            <p className="text-caption-1-semibold uppercase tracking-wide text-text-tertiary">
-              Xzone Academy · {profile.email}
-            </p>
-            <h1 className="mt-2 font-display text-display-3-regular uppercase tracking-wide text-text-primary">
-              {courseTranslations.find((translation) => translation.language_code === course.default_language_code)?.title ?? course.slug}
-            </h1>
-            <p className="mt-2 text-body-2-regular text-text-secondary">
-              /{course.slug} · język domyślny: {course.default_language_code.toUpperCase()}
-            </p>
-          </div>
-        </header>
+        </div>
+      </header>
 
         {loadError ? (
           <div role="alert" className="rounded-2xl border border-border-error-default bg-background-primary-default p-4 text-body-regular text-text-error-primary">
@@ -398,68 +401,67 @@ async function CourseEditor({ courseId }: { courseId: number }) {
           </div>
         ) : (
           <>
-            <section className="rounded-3xl border border-border-button-default bg-background-primary-default p-6">
-              <div className="flex flex-col gap-5">
-                <SectionHeading
-                  title="Tytuł i opis szkolenia"
-                  description={editable ? "Każdy język ma niezależny tytuł i opis." : "To wydanie jest tylko do odczytu. Utwórz szkic, aby przygotować zmiany."}
-                />
-                <CourseTranslationPanel
-                  courseId={course.id}
-                  versionId={currentVersion.id}
-                  defaultLanguage={course.default_language_code}
-                  languages={languages}
-                  translations={courseTranslations}
-                  disabled={!editable}
-                />
-                {draftVersion ? (
-                  <PublishCourseForm courseId={course.id} versionId={draftVersion.id} disabled={!editable} />
-                ) : course.published_version_id ? (
-                  <CreateCourseDraftForm courseId={course.id} />
-                ) : null}
-              </div>
-            </section>
-
-            {course.published_version_id ? (
-              <CourseAssignmentManager
-                courseId={course.id}
-                stores={assignmentStores}
-                employees={assignmentEmployees}
-                assignments={courseAssignments}
-              />
-            ) : (
-              <section className="flex flex-col gap-2 rounded-3xl border border-border-button-default bg-background-primary-default p-6">
-                <h2 className="text-title-3-semibold text-text-primary">Przypisania szkolenia</h2>
-                <p className="text-body-2-regular text-text-secondary">
-                  Opublikuj szkolenie, aby przypisa&#263; je do sklepu lub pracownik&#243;w.
-                </p>
-              </section>
-            )}
-
-            <section className="flex flex-col gap-5 rounded-3xl border border-border-button-default bg-background-primary-default p-6">
-              <SectionHeading
-                title={`Moduły (${modules.length})`}
-                description="Moduły grupują lekcje. Opublikowane wydanie pozostaje niezmienione podczas pracy nad szkicem."
-              />
-              {modules.length ? (
-                <SortableCollection
-                  key={`${currentVersion.id}:${modules.map((module) => module.id).join(",")}`}
-                  kind="module"
-                  scopeId={currentVersion.id}
-                  items={moduleItems}
-                  disabled={!editable}
-                />
-              ) : null}
-              {editable && locale ? (
-                <CreateModuleForm versionId={currentVersion.id} language={locale} disabled={false} />
-              ) : modules.length === 0 ? (
-                <p className="text-body-2-regular text-text-secondary">Dodaj szkic, aby utworzyć pierwszy moduł.</p>
-              ) : null}
-            </section>
+            <Tabs defaultSelectedKey="program" className="gap-5">
+              <TabList aria-label="Sekcje edytora szkolenia">
+                <Tab id="program" count={totalLessonCount}>Program kursu</Tab>
+                <Tab id="details">Opis i języki</Tab>
+                <Tab id="access">Dostęp</Tab>
+              </TabList>
+              <TabPanel id="program">
+                <section className="flex flex-col gap-5 rounded-3xl border border-border-button-default bg-background-primary-default p-5 sm:p-6">
+                  <SectionHeading
+                    title="Program szkolenia"
+                    description={editable
+                      ? "Ułóż kurs w moduły i lekcje. Wybierz element z listy, aby edytować jego treść."
+                      : "Przygotowujemy kopię szkolenia do edycji. Opublikowana wersja pozostaje bez zmian."}
+                  />
+                  <CourseProgramBuilder
+                    key={currentVersion.id}
+                    courseId={course.id}
+                    versionId={currentVersion.id}
+                    language={locale}
+                    modules={moduleItems}
+                    editable={editable}
+                  />
+                </section>
+              </TabPanel>
+              <TabPanel id="details">
+                <section className="flex flex-col gap-5 rounded-3xl border border-border-button-default bg-background-primary-default p-5 sm:p-6">
+                  <SectionHeading
+                    title="Opis i języki"
+                    description={editable
+                      ? "Uzupełnij nazwę i opis szkolenia. Tłumaczenia dodasz w wybranym języku."
+                      : "Przygotowujemy kopię szkolenia do edycji. Opublikowana wersja pozostaje bez zmian."}
+                  />
+                  <CourseTranslationPanel
+                    courseId={course.id}
+                    versionId={currentVersion.id}
+                    defaultLanguage={course.default_language_code}
+                    languages={languages}
+                    translations={courseTranslations}
+                    disabled={!editable}
+                  />
+                </section>
+              </TabPanel>
+              <TabPanel id="access">
+                {course.published_version_id ? (
+                  <CourseAssignmentManager
+                    courseId={course.id}
+                    stores={assignmentStores}
+                    employees={assignmentEmployees}
+                    assignments={courseAssignments}
+                  />
+                ) : (
+                  <section className="flex flex-col gap-2 rounded-3xl border border-border-button-default bg-background-primary-default p-5 sm:p-6">
+                    <h2 className="text-title-3-semibold text-text-primary">Dostęp do szkolenia</h2>
+                    <p className="text-body-2-regular text-text-secondary">Po opublikowaniu przypiszesz szkolenie do sklepów lub poszczególnych użytkowników.</p>
+                  </section>
+                )}
+              </TabPanel>
+            </Tabs>
           </>
         )}
-      </main>
-    </div>
+    </CourseEditorChangesProvider>
   );
 }
 

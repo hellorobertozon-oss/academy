@@ -5,7 +5,7 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { RiArrowDownSLine } from "@remixicon/react";
 import { Avatar } from "@/components/base/avatar/avatar";
-import { Button } from "@/components/base/buttons/button";
+import { Button, ButtonLink } from "@/components/base/buttons/button";
 import {
   Dropdown,
   DropdownDivider,
@@ -16,18 +16,45 @@ import {
 } from "@/components/base/dropdown/dropdown";
 import { Select, SelectItem } from "@/components/base/select/select";
 import { useAcademy, type AcademyLanguage } from "@/components/academy-provider";
+import { ThemeToggle } from "@/components/application/theme/theme-toggle";
 import { backActionClassName } from "@/components/route-button";
 import { cx } from "@/utils/cx";
 import { createAcademyBrowserClient } from "@/lib/supabase/browser";
 
 type HeaderMode = "landing" | "login" | "app";
 
-export function AcademyHeader({ mode }: { mode: HeaderMode }) {
+export function AcademyHeader({
+  mode,
+  showThemeToggle = false,
+  themeToggleClassName,
+}: {
+  mode: HeaderMode;
+  showThemeToggle?: boolean;
+  themeToggleClassName?: string;
+}) {
   const { language, setLanguage, setPreviewLanguage, t, isAdmin } = useAcademy();
   const router = useRouter();
   const pathname = usePathname();
   const appMode = mode === "app";
   const isUserPreview = pathname.startsWith("/admin/user-preview");
+  const isAdminShell = pathname.startsWith("/admin") && !isUserPreview;
+  const adminSection = pathname.startsWith("/admin/stores")
+    ? "Sklepy"
+    : pathname.startsWith("/admin/users")
+      ? "Użytkownicy"
+      : pathname.startsWith("/admin/courses")
+        ? "Szkolenia"
+        : pathname.startsWith("/admin/progress")
+          ? "Postępy"
+          : "Przegląd";
+  const themeToggleLabels = {
+    group: t("theme"),
+    toggle: t("darkModeToggle"),
+    lightMode: t("lightMode"),
+    darkMode: t("darkMode"),
+    useLightMode: t("useLightMode"),
+    useDarkMode: t("useDarkMode"),
+  };
 
   async function signOut() {
     try {
@@ -44,31 +71,58 @@ export function AcademyHeader({ mode }: { mode: HeaderMode }) {
   return (
     <header className={cx(
       "relative z-20 border-b backdrop-blur-xl",
+      isAdminShell && "sticky top-0",
       mode === "landing"
         ? "border-separator-border/50 bg-background-full/45"
-        : "border-separator-border bg-background-full/90",
+        : isAdminShell
+          ? "border-separator-border bg-background-primary-default/95"
+          : "border-separator-border bg-background-full/90",
     )}>
       <div className={cx(
-        "relative mx-auto flex w-full max-w-6xl items-center justify-between px-4 sm:px-8",
-        appMode ? "min-h-28 items-start pt-3 sm:min-h-20 sm:items-center sm:pt-0" : "min-h-20",
+        "relative mx-auto flex w-full items-center justify-between",
+        isAdminShell ? "max-w-none px-5 sm:px-7" : "max-w-6xl px-4 sm:px-8",
+        appMode && isAdminShell
+          ? "min-h-16"
+          : appMode
+            ? "min-h-28 items-start pt-3 sm:min-h-20 sm:items-center sm:pt-0"
+            : "min-h-20",
       )}>
-        {appMode ? <span className="min-w-0 flex-1" aria-hidden="true" /> : null}
+        {(mode === "landing" || (appMode && !isAdminShell)) ? (
+          <ButtonLink
+            href="/targi"
+            variant="secondary"
+            size="small"
+            className="min-h-10 shrink-0 rounded-full px-3"
+          >
+            <span className="hidden sm:inline">Lista produktów</span>
+            <span className="sm:hidden">Produkty</span>
+          </ButtonLink>
+        ) : null}
+
+        {isAdminShell ? (
+          <nav aria-label="Okruszki" className="flex min-w-0 items-center gap-2 text-body-2-regular">
+            <Link href="/admin" className="text-text-secondary transition-colors hover:text-text-primary">Panel</Link>
+            <span aria-hidden="true" className="text-text-tertiary">/</span>
+            <span className="truncate text-body-2-medium text-text-primary">{adminSection}</span>
+          </nav>
+        ) : null}
 
         <Link
           href={isUserPreview ? "/admin/user-preview" : appMode ? "/dashboard" : "/"}
           aria-label={t("brand")}
           className={cx(
             "absolute left-1/2 -translate-x-1/2",
+            isAdminShell && "hidden",
             appMode ? "top-3 sm:top-1/2 sm:-translate-y-1/2" : "top-1/2 -translate-y-1/2",
           )}
         >
           <Image
-            src="/assets/xzone-logo.png"
-            alt="Xzone"
-            width={180}
-            height={53}
+            src="/assets/logo-xzone-academy.png"
+            alt="Xzone Academy"
+            width={1026}
+            height={360}
             priority
-            className="h-auto w-32 sm:w-40"
+            className={cx("h-auto w-32 sm:w-40", isAdminShell && "brightness-0 dark:invert")}
           />
         </Link>
 
@@ -81,7 +135,10 @@ export function AcademyHeader({ mode }: { mode: HeaderMode }) {
         ) : null}
 
         {appMode ? (
-          <div className="absolute bottom-1.5 right-4 flex items-center gap-2 sm:static sm:ml-auto sm:gap-4">
+          <div className={cx(
+            "flex items-center gap-2 sm:gap-4",
+            isAdminShell ? "ml-auto" : "absolute bottom-1.5 right-4 sm:static sm:ml-auto",
+          )}>
             <Select
               aria-label={t("language")}
               selectedKey={language}
@@ -112,6 +169,12 @@ export function AcademyHeader({ mode }: { mode: HeaderMode }) {
                   <Image src="/assets/flag-cs.svg" alt="" fill sizes="24px" />
                 </span>
                 <span>{t("czech")}</span>
+              </SelectItem>
+              <SelectItem id="fr">
+                <span aria-hidden="true" className="relative size-6 shrink-0 overflow-hidden rounded-full border border-separator-border">
+                  <Image src="/assets/flag-fr.svg" alt="" fill sizes="24px" />
+                </span>
+                <span>{t("french")}</span>
               </SelectItem>
             </Select>
 
@@ -145,7 +208,21 @@ export function AcademyHeader({ mode }: { mode: HeaderMode }) {
                   <DropdownItem onSelect={() => router.push("/change-password")}>
                     {t("changePassword")}
                   </DropdownItem>
-                  <DropdownDivider />
+                </DropdownGroup>
+                {showThemeToggle ? (
+                  <>
+                    <DropdownDivider className={themeToggleClassName} />
+                    <DropdownGroup label={t("appearance")} className={themeToggleClassName}>
+                      <div className="flex items-center justify-between gap-2 rounded-2lg px-2 py-1">
+                        <span className="text-body-medium text-text-primary">{t("theme")}</span>
+                        <ThemeToggle appearance="segmented" size="small" labels={themeToggleLabels} />
+                      </div>
+                    </DropdownGroup>
+                    <DropdownDivider className={themeToggleClassName} />
+                  </>
+                ) : null}
+                {!showThemeToggle ? <DropdownDivider /> : null}
+                <DropdownGroup>
                   <DropdownItem onSelect={() => void signOut()}>
                     {t("logout")}
                   </DropdownItem>

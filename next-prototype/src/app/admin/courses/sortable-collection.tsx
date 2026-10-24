@@ -2,7 +2,6 @@
 
 import { useState, useTransition, type ReactNode } from "react";
 import { useRouter } from "next/navigation";
-import { Button } from "@/components/base/buttons/button";
 import { INITIAL_ADMIN_ACTION_STATE } from "@/lib/admin/action-state";
 import { reorderLessonsAction, reorderModulesAction } from "@/app/admin/courses/actions";
 
@@ -79,15 +78,15 @@ export function SortableCollection({
           }}
           onDragEnd={() => setDraggedId(null)}
         >
-          <div className="flex items-start gap-3">
-            {!disabled ? <div className="flex shrink-0 flex-col items-center gap-1">
-              <Button
+          <div className="flex min-w-0 items-start gap-3">
+            {!disabled ? (
+              <div className="flex shrink-0 items-center gap-1.5 pt-0.5">
+              <button
                 type="button"
-                size="xs"
-                variant="secondary"
-                className="cursor-grab active:cursor-grabbing"
+                className="flex size-8 cursor-grab items-center justify-center rounded-lg border border-separator-border bg-background-primary-default text-text-tertiary transition-colors hover:border-border-button-hover hover:text-text-primary active:cursor-grabbing disabled:cursor-wait"
                 draggable={!isPending}
                 aria-label={`Przeciągnij: ${item.title}`}
+                disabled={isPending}
                 onDragStart={(event) => {
                   setDraggedId(item.id);
                   event.dataTransfer.effectAllowed = "move";
@@ -95,25 +94,28 @@ export function SortableCollection({
                 }}
               >
                 ⠿
-              </Button>
-              <span className="text-caption-1-regular text-text-tertiary" aria-hidden="true">{index + 1}</span>
-              <Button
+              </button>
+              <span className="flex size-7 items-center justify-center rounded-lg bg-background-secondary-default text-caption-1-semibold text-text-secondary" aria-label={`Pozycja ${index + 1}`}>
+                {index + 1}
+              </span>
+              <div className="flex flex-col">
+              <button
                 type="button"
-                size="xs"
-                variant="ghost"
+                className="flex size-6 items-center justify-center rounded-md text-text-tertiary transition-colors hover:bg-background-secondary-default hover:text-text-primary disabled:cursor-not-allowed disabled:opacity-35"
                 aria-label={`Przesuń wyżej: ${item.title}`}
                 disabled={isPending || index === 0}
                 onClick={() => moveItem(item.id, orderedItems[index - 1].id)}
-              >↑</Button>
-              <Button
+              >↑</button>
+              <button
                 type="button"
-                size="xs"
-                variant="ghost"
+                className="flex size-6 items-center justify-center rounded-md text-text-tertiary transition-colors hover:bg-background-secondary-default hover:text-text-primary disabled:cursor-not-allowed disabled:opacity-35"
                 aria-label={`Przesuń niżej: ${item.title}`}
                 disabled={isPending || index === orderedItems.length - 1}
                 onClick={() => moveItem(item.id, orderedItems[index + 1].id)}
-              >↓</Button>
-            </div> : null}
+              >↓</button>
+              </div>
+              </div>
+            ) : null}
             <div className="min-w-0 flex-1">{item.content}</div>
           </div>
         </div>

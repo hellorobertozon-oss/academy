@@ -222,8 +222,8 @@ function FooterStatCard({ stat }: { stat: Stat }) {
         </p>
       </div>
 
-      {/* Footer band: comparison caption + delta pill on an inner tile */}
-      <div className="mt-auto flex w-full items-center justify-between gap-2 rounded-2lg bg-background-inner-default py-1.5 pe-1.5 ps-2.5 shadow-card">
+      {/* Plain supporting copy; captions should read as part of the metric card. */}
+      <div className="mt-auto flex w-full items-center justify-between gap-2 px-2 pt-1 pb-2">
         <p className="truncate text-body-regular text-text-secondary">
           {stat.caption ?? "From last month"}
         </p>

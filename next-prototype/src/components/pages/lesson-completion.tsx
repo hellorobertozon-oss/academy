@@ -3,6 +3,7 @@
 import { useState, useTransition } from "react";
 import { Button } from "@/components/base/buttons/button";
 import { completeLessonAction } from "@/app/(academy)/learning/actions";
+import { RiCheckLine } from "@remixicon/react";
 
 export function LessonCompletion({
   lessonId,
@@ -12,6 +13,7 @@ export function LessonCompletion({
   pendingLabel,
   awardedMessage,
   errorMessage,
+  previewOnly = false,
 }: {
   lessonId: number;
   completed: boolean;
@@ -20,6 +22,7 @@ export function LessonCompletion({
   pendingLabel: string;
   awardedMessage: string;
   errorMessage: string;
+  previewOnly?: boolean;
 }) {
   const [pending, startTransition] = useTransition();
   const [locallyCompletedLessonId, setLocallyCompletedLessonId] = useState<number | null>(null);
@@ -34,6 +37,11 @@ export function LessonCompletion({
   function markComplete() {
     if (pending || isCompleted) return;
     setFailedLessonId(null);
+
+    if (previewOnly) {
+      setLocallyCompletedLessonId(lessonId);
+      return;
+    }
 
     startTransition(async () => {
       try {
@@ -57,9 +65,12 @@ export function LessonCompletion({
   }
 
   return (
-    <div className="flex flex-col items-start gap-3">
+    <div className="flex flex-col items-center gap-3 text-center">
       <Button
-        variant={isCompleted ? "secondary" : "primary"}
+        variant="secondary"
+        size="large"
+        leadingIcon={RiCheckLine}
+        className="bg-transparent disabled:bg-transparent aria-disabled:bg-transparent"
         disabled={pending || isCompleted}
         onClick={markComplete}
       >

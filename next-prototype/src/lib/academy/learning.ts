@@ -1,7 +1,9 @@
 import "server-only";
 
+import type { LessonConversationMessage } from "@/lib/admin/content-validation";
 import { requireAcademyProfile } from "@/lib/auth/profile";
 import { createAcademyServerClient } from "@/lib/supabase/server";
+import { createAcademyImageUrlMap } from "@/lib/academy/content-images";
 
 type AcademyClient = Awaited<ReturnType<typeof createAcademyServerClient>>;
 
@@ -16,6 +18,7 @@ export type LearningCourseCard = {
   slug: string;
   title: string;
   description: string;
+  imageUrl: string | null;
   moduleCount: number;
   lessonCount: number;
   completedLessonCount: number;
@@ -26,11 +29,13 @@ export type LearningCourseOutline = {
   slug: string;
   title: string;
   description: string;
+  imageUrl: string | null;
   modules: Array<{
     id: number;
     title: string;
     summary: string;
-    lessons: Array<{ id: number; title: string; summary: string; completed: boolean }>;
+    imageUrl: string | null;
+    lessons: Array<{ id: number; title: string; summary: string; imageUrl: string | null; completed: boolean }>;
   }>;
 };
 
@@ -42,8 +47,13 @@ export type LearningLesson = {
     title: string;
     summary: string;
     youtube_video_id: string | null;
+    youtube_video_ids: string[];
     content: unknown;
     product_bullets: string[];
+    key_points_title: string;
+    conversation_title: string;
+    conversation: LessonConversationMessage[];
+    imageUrl: string | null;
     completed: boolean;
   };
   previousLessonId: number | null;
@@ -55,7 +65,7 @@ export type LearningLesson = {
 export type LearningLeaderboardEntry = {
   position: number;
   displayName: string;
-  city: string | null;
+  storeName: string | null;
   totalPoints: number;
   isCurrentUser: boolean;
 };
@@ -66,9 +76,9 @@ export type LearningLeaderboardRead =
   | { status: "forbidden" };
 
 type CourseRow = { id: number; slug: string; published_version_id: number | null };
-type CourseTranslationRow = { course_version_id: number; title: string; description: string };
+type CourseTranslationRow = { course_version_id: number; title: string; description: string; image_path: string | null };
 type ModuleRow = { id: number; course_version_id: number; sort_order: number };
-type ModuleTranslationRow = { module_id: number; title: string; summary: string };
+type ModuleTranslationRow = { module_id: number; title: string; summary: string; image_path: string | null };
 type LessonRow = { id: number; module_id: number; sort_order: number };
 type LessonCompletionRow = { lesson_id: number; points_awarded: number };
 type LessonTranslationRow = {
@@ -76,29 +86,48 @@ type LessonTranslationRow = {
   title: string;
   summary: string;
   youtube_video_id: string | null;
+  youtube_video_ids: string[];
   content: unknown;
   product_bullets: string[];
+  key_points_title: string;
+  conversation_title: string;
+  conversation: LessonConversationMessage[];
+  image_path: string | null;
 };
 
 async function withEmployeeClient<T>(
-  read: (client: AcademyClient, languageCode: string) => Promise<LearningRead<T>>,
+  read: (client: AcademyClient, languageCode: string, profileId: string) => Promise<LearningRead<T>>,
 ): Promise<LearningRead<T>> {
   const profile = await requireAcademyProfile();
   if (profile.role !== "employee") return { status: "forbidden" };
 
   try {
-    return await read(await createAcademyServerClient(), profile.preferred_language);
+    return await read(await createAcademyServerClient(), profile.preferred_language, profile.id);
+  } catch {
+    return { status: "error" };
+  }
+}
+
+async function withAdminPreviewClient<T>(
+  read: (client: AcademyClient, languageCode: string, profileId: string) => Promise<LearningRead<T>>,
+): Promise<LearningRead<T>> {
+  const profile = await requireAcademyProfile();
+  if (profile.role !== "admin") return { status: "forbidden" };
+
+  try {
+    return await read(await createAcademyServerClient(), profile.preferred_language, profile.id);
   } catch {
     return { status: "error" };
   }
 }
 
 export async function readAssignedCourses(): Promise<LearningRead<LearningCourseCard[]>> {
-  return withEmployeeClient<LearningCourseCard[]>(async (client, languageCode) => {
+  return withEmployeeClient<LearningCourseCard[]>(async (client, languageCode, profileId) => {
     const { data: courses, error: coursesError } = await client
       .from("courses")
       .select("id, slug, published_version_id")
       .not("published_version_id", "is", null)
+      .eq("is_active", true)
       .order("updated_at", { ascending: false });
     if (coursesError) return { status: "error" };
     if (!courses?.length) return { status: "ok", data: [], languageCode };
@@ -108,7 +137,7 @@ export async function readAssignedCourses(): Promise<LearningRead<LearningCourse
     const [translationsResult, modulesResult] = await Promise.all([
       client
         .from("course_translations")
-        .select("course_version_id, title, description")
+        .select("course_version_id, title, description, image_path")
         .in("course_version_id", versionIds)
         .eq("language_code", languageCode),
       client
@@ -119,6 +148,7 @@ export async function readAssignedCourses(): Promise<LearningRead<LearningCourse
     if (translationsResult.error || modulesResult.error) return { status: "error" };
 
     const translations = (translationsResult.data ?? []) as CourseTranslationRow[];
+    const imageUrls = await createAcademyImageUrlMap(client, translations.map((translation) => translation.image_path));
     const modules = (modulesResult.data ?? []) as ModuleRow[];
     const moduleIds = modules.map((courseModule) => courseModule.id);
     const [moduleTranslationsResult, lessonsResult] = moduleIds.length
@@ -142,7 +172,11 @@ export async function readAssignedCourses(): Promise<LearningRead<LearningCourse
             .select("lesson_id")
             .in("lesson_id", lessonIds)
             .eq("language_code", languageCode),
-          client.from("lesson_completions").select("lesson_id").in("lesson_id", lessonIds),
+          client
+            .from("lesson_completions")
+            .select("lesson_id")
+            .eq("profile_id", profileId)
+            .in("lesson_id", lessonIds),
         ])
       : [{ data: [], error: null }, { data: [], error: null }];
     if (lessonTranslationsResult.error || completionsResult.error) return { status: "error" };
@@ -196,9 +230,109 @@ export async function readAssignedCourses(): Promise<LearningRead<LearningCourse
           slug: course.slug,
           title: translation.title,
           description: translation.description,
+          imageUrl: translation.image_path ? imageUrls.get(translation.image_path) ?? null : null,
           moduleCount: modulesByVersion.get(course.published_version_id) ?? 0,
           lessonCount: lessonsByVersion.get(course.published_version_id) ?? 0,
           completedLessonCount: completedCountsByVersion.get(course.published_version_id) ?? 0,
+        }];
+      }),
+    };
+  });
+}
+
+export async function readAdminPreviewCourses(): Promise<LearningRead<LearningCourseCard[]>> {
+  return withAdminPreviewClient<LearningCourseCard[]>(async (client, languageCode) => {
+    const { data: courses, error: coursesError } = await client
+      .from("courses")
+      .select("id, slug, published_version_id")
+      .not("published_version_id", "is", null)
+      .eq("is_active", true)
+      .order("updated_at", { ascending: false });
+    if (coursesError) return { status: "error" };
+    if (!courses?.length) return { status: "ok", data: [], languageCode };
+
+    const courseRows = courses as CourseRow[];
+    const versionIds = courseRows.flatMap((course) => course.published_version_id === null ? [] : [course.published_version_id]);
+    const [translationsResult, modulesResult] = await Promise.all([
+      client
+        .from("course_translations")
+        .select("course_version_id, title, description, image_path")
+        .in("course_version_id", versionIds)
+        .eq("language_code", languageCode),
+      client
+        .from("course_modules")
+        .select("id, course_version_id, sort_order")
+        .in("course_version_id", versionIds),
+    ]);
+    if (translationsResult.error || modulesResult.error) return { status: "error" };
+
+    const modules = (modulesResult.data ?? []) as ModuleRow[];
+    const moduleIds = modules.map((module) => module.id);
+    const [moduleTranslationsResult, lessonsResult] = moduleIds.length
+      ? await Promise.all([
+          client
+            .from("module_translations")
+            .select("module_id")
+            .in("module_id", moduleIds)
+            .eq("language_code", languageCode),
+          client
+            .from("course_lessons")
+            .select("id, module_id, sort_order")
+            .in("module_id", moduleIds),
+        ])
+      : [{ data: [], error: null }, { data: [], error: null }];
+    if (moduleTranslationsResult.error || lessonsResult.error) return { status: "error" };
+
+    const lessons = (lessonsResult.data ?? []) as LessonRow[];
+    const lessonIds = lessons.map((lesson) => lesson.id);
+    const lessonTranslationsResult = lessonIds.length
+      ? await client
+          .from("lesson_translations")
+          .select("lesson_id")
+          .in("lesson_id", lessonIds)
+          .eq("language_code", languageCode)
+      : { data: [], error: null };
+    if (lessonTranslationsResult.error) return { status: "error" };
+
+    const courseTranslations = (translationsResult.data ?? []) as CourseTranslationRow[];
+    const imageUrls = await createAcademyImageUrlMap(client, courseTranslations.map((translation) => translation.image_path));
+    const translatedModuleIds = new Set(
+      ((moduleTranslationsResult.data ?? []) as Array<{ module_id: number }>).map((translation) => translation.module_id),
+    );
+    const translatedLessonIds = new Set(
+      ((lessonTranslationsResult.data ?? []) as Array<{ lesson_id: number }>).map((translation) => translation.lesson_id),
+    );
+    const modulesByVersion = new Map<number, ModuleRow[]>();
+    for (const courseModule of modules) {
+      if (!translatedModuleIds.has(courseModule.id)) continue;
+      const items = modulesByVersion.get(courseModule.course_version_id) ?? [];
+      items.push(courseModule);
+      modulesByVersion.set(courseModule.course_version_id, items);
+    }
+    const lessonsByModule = new Map<number, number>();
+    for (const lesson of lessons) {
+      if (!translatedLessonIds.has(lesson.id) || !translatedModuleIds.has(lesson.module_id)) continue;
+      lessonsByModule.set(lesson.module_id, (lessonsByModule.get(lesson.module_id) ?? 0) + 1);
+    }
+    const translationByVersion = new Map(courseTranslations.map((translation) => [translation.course_version_id, translation]));
+
+    return {
+      status: "ok",
+      languageCode,
+      data: courseRows.flatMap((course) => {
+        if (course.published_version_id === null) return [];
+        const translation = translationByVersion.get(course.published_version_id);
+        if (!translation) return [];
+        const visibleModules = modulesByVersion.get(course.published_version_id) ?? [];
+        return [{
+          id: course.id,
+          slug: course.slug,
+          title: translation.title,
+          description: translation.description,
+          imageUrl: translation.image_path ? imageUrls.get(translation.image_path) ?? null : null,
+          moduleCount: visibleModules.length,
+          lessonCount: visibleModules.reduce((total, courseModule) => total + (lessonsByModule.get(courseModule.id) ?? 0), 0),
+          completedLessonCount: 0,
         }];
       }),
     };
@@ -209,12 +343,14 @@ async function readCourseOutlineWithClient(
   client: AcademyClient,
   slug: string,
   languageCode: string,
+  profileId: string,
 ): Promise<LearningRead<LearningCourseOutline>> {
   const { data: course, error: courseError } = await client
     .from("courses")
     .select("id, slug, published_version_id")
     .eq("slug", slug)
     .not("published_version_id", "is", null)
+    .eq("is_active", true)
     .maybeSingle();
   if (courseError) return { status: "error" };
   if (!course) return { status: "not-found" };
@@ -224,7 +360,7 @@ async function readCourseOutlineWithClient(
   const [courseTranslationResult, modulesResult] = await Promise.all([
     client
       .from("course_translations")
-      .select("course_version_id, title, description")
+      .select("course_version_id, title, description, image_path")
       .eq("course_version_id", courseRow.published_version_id)
       .eq("language_code", languageCode)
       .maybeSingle(),
@@ -243,7 +379,7 @@ async function readCourseOutlineWithClient(
     ? await Promise.all([
         client
           .from("module_translations")
-          .select("module_id, title, summary")
+          .select("module_id, title, summary, image_path")
           .in("module_id", moduleIds)
           .eq("language_code", languageCode),
         client
@@ -261,34 +397,43 @@ async function readCourseOutlineWithClient(
     ? await Promise.all([
         client
           .from("lesson_translations")
-          .select("lesson_id, title, summary")
+          .select("lesson_id, title, summary, image_path")
           .in("lesson_id", lessonIds)
           .eq("language_code", languageCode),
         client
           .from("lesson_completions")
           .select("lesson_id")
+          .eq("profile_id", profileId)
           .in("lesson_id", lessonIds),
       ])
     : [{ data: [], error: null }, { data: [], error: null }];
   if (lessonTranslationsResult.error || completionsResult.error) return { status: "error" };
 
+  const moduleTranslationRows = (moduleTranslationsResult.data ?? []) as ModuleTranslationRow[];
+  const lessonTranslationRows = (lessonTranslationsResult.data ?? []) as Array<Pick<LessonTranslationRow, "lesson_id" | "title" | "summary" | "image_path">>;
+  const courseTranslation = courseTranslationResult.data as CourseTranslationRow;
+  const imageUrls = await createAcademyImageUrlMap(client, [
+    courseTranslation.image_path,
+    ...moduleTranslationRows.map((translation) => translation.image_path),
+    ...lessonTranslationRows.map((translation) => translation.image_path),
+  ]);
+
   const moduleTranslations = new Map(
-    ((moduleTranslationsResult.data ?? []) as ModuleTranslationRow[]).map((translation) => [translation.module_id, translation]),
+    moduleTranslationRows.map((translation) => [translation.module_id, translation]),
   );
   const lessonTranslations = new Map(
-    ((lessonTranslationsResult.data ?? []) as Array<Pick<LessonTranslationRow, "lesson_id" | "title" | "summary">>)
-      .map((translation) => [translation.lesson_id, translation]),
+    lessonTranslationRows.map((translation) => [translation.lesson_id, translation]),
   );
   const completedLessonIds = new Set(
     ((completionsResult.data ?? []) as Array<Pick<LessonCompletionRow, "lesson_id">>)
       .map((completion) => completion.lesson_id),
   );
-  const courseTranslation = courseTranslationResult.data as CourseTranslationRow;
   const outline: LearningCourseOutline = {
     id: courseRow.id,
     slug: courseRow.slug,
     title: courseTranslation.title,
     description: courseTranslation.description,
+    imageUrl: courseTranslation.image_path ? imageUrls.get(courseTranslation.image_path) ?? null : null,
     modules: modules.flatMap((courseModule) => {
       const moduleTranslation = moduleTranslations.get(courseModule.id);
       if (!moduleTranslation) return [];
@@ -296,6 +441,7 @@ async function readCourseOutlineWithClient(
         id: courseModule.id,
         title: moduleTranslation.title,
         summary: moduleTranslation.summary,
+        imageUrl: moduleTranslation.image_path ? imageUrls.get(moduleTranslation.image_path) ?? null : null,
         lessons: lessons.flatMap((lesson) => {
           if (lesson.module_id !== courseModule.id) return [];
           const lessonTranslation = lessonTranslations.get(lesson.id);
@@ -304,6 +450,7 @@ async function readCourseOutlineWithClient(
                 id: lesson.id,
                 title: lessonTranslation.title,
                 summary: lessonTranslation.summary,
+                imageUrl: lessonTranslation.image_path ? imageUrls.get(lessonTranslation.image_path) ?? null : null,
                 completed: completedLessonIds.has(lesson.id),
               }]
             : [];
@@ -316,67 +463,112 @@ async function readCourseOutlineWithClient(
 }
 
 export async function readCourseOutline(slug: string): Promise<LearningRead<LearningCourseOutline>> {
-  return withEmployeeClient((client, languageCode) => readCourseOutlineWithClient(client, slug, languageCode));
+  return withEmployeeClient((client, languageCode, profileId) =>
+    readCourseOutlineWithClient(client, slug, languageCode, profileId),
+  );
+}
+
+export async function readAdminPreviewCourseOutline(slug: string): Promise<LearningRead<LearningCourseOutline>> {
+  return withAdminPreviewClient(async (client, languageCode, profileId) => {
+    const result = await readCourseOutlineWithClient(client, slug, languageCode, profileId);
+    if (result.status !== "ok") return result;
+    return {
+      ...result,
+      data: {
+        ...result.data,
+        modules: result.data.modules.map((courseModule) => ({
+          ...courseModule,
+          lessons: courseModule.lessons.map((lesson) => ({ ...lesson, completed: false })),
+        })),
+      },
+    };
+  });
+}
+
+async function readCourseLessonWithClient(
+  client: AcademyClient,
+  slug: string,
+  lessonId: number,
+  languageCode: string,
+  profileId: string,
+): Promise<LearningRead<LearningLesson>> {
+  const outlineResult = await readCourseOutlineWithClient(client, slug, languageCode, profileId);
+  if (outlineResult.status !== "ok") return outlineResult;
+
+  let parentModule: LearningCourseOutline["modules"][number] | undefined;
+  let lessonNumber = 0;
+  for (const courseModule of outlineResult.data.modules) {
+    const index = courseModule.lessons.findIndex((lesson) => lesson.id === lessonId);
+    if (index >= 0) {
+      parentModule = courseModule;
+      lessonNumber += index + 1;
+      break;
+    }
+    lessonNumber += courseModule.lessons.length;
+  }
+  if (!parentModule) return { status: "not-found" };
+
+  const { data: translation, error: translationError } = await client
+    .from("lesson_translations")
+    .select("lesson_id, title, summary, youtube_video_id, youtube_video_ids, content, product_bullets, key_points_title, conversation_title, conversation")
+    .eq("lesson_id", lessonId)
+    .eq("language_code", languageCode)
+    .maybeSingle();
+  if (translationError) return { status: "error" };
+  if (!translation) return { status: "not-found" };
+
+  const allLessons = outlineResult.data.modules.flatMap((courseModule) => courseModule.lessons);
+  const lessonIndex = allLessons.findIndex((lesson) => lesson.id === lessonId);
+  const lessonTranslation = translation as LessonTranslationRow;
+  return {
+    status: "ok",
+    languageCode,
+    data: {
+      course: {
+        id: outlineResult.data.id,
+        slug: outlineResult.data.slug,
+        title: outlineResult.data.title,
+      },
+      module: { id: parentModule.id, title: parentModule.title },
+      lesson: {
+        id: lessonTranslation.lesson_id,
+        title: lessonTranslation.title,
+        summary: lessonTranslation.summary,
+        youtube_video_id: lessonTranslation.youtube_video_id,
+        youtube_video_ids: lessonTranslation.youtube_video_ids ?? [],
+        content: lessonTranslation.content,
+        product_bullets: lessonTranslation.product_bullets,
+        key_points_title: lessonTranslation.key_points_title,
+        conversation_title: lessonTranslation.conversation_title,
+        conversation: lessonTranslation.conversation,
+        imageUrl: parentModule.lessons.find((courseLesson) => courseLesson.id === lessonId)?.imageUrl ?? null,
+        completed: parentModule.lessons.find((courseLesson) => courseLesson.id === lessonId)?.completed ?? false,
+      },
+      previousLessonId: lessonIndex > 0 ? allLessons[lessonIndex - 1].id : null,
+      nextLessonId: lessonIndex >= 0 && lessonIndex < allLessons.length - 1 ? allLessons[lessonIndex + 1].id : null,
+      lessonNumber,
+      lessonCount: allLessons.length,
+    },
+  };
 }
 
 export async function readCourseLesson(
   slug: string,
   lessonId: number,
 ): Promise<LearningRead<LearningLesson>> {
-  return withEmployeeClient(async (client, languageCode) => {
-    const outlineResult = await readCourseOutlineWithClient(client, slug, languageCode);
-    if (outlineResult.status !== "ok") return outlineResult;
+  return withEmployeeClient((client, languageCode, profileId) =>
+    readCourseLessonWithClient(client, slug, lessonId, languageCode, profileId),
+  );
+}
 
-    let parentModule: LearningCourseOutline["modules"][number] | undefined;
-    let lessonNumber = 0;
-    for (const courseModule of outlineResult.data.modules) {
-      const index = courseModule.lessons.findIndex((lesson) => lesson.id === lessonId);
-      if (index >= 0) {
-        parentModule = courseModule;
-        lessonNumber += index + 1;
-        break;
-      }
-      lessonNumber += courseModule.lessons.length;
-    }
-    if (!parentModule) return { status: "not-found" };
-
-    const { data: translation, error: translationError } = await client
-      .from("lesson_translations")
-      .select("lesson_id, title, summary, youtube_video_id, content, product_bullets")
-      .eq("lesson_id", lessonId)
-      .eq("language_code", languageCode)
-      .maybeSingle();
-    if (translationError) return { status: "error" };
-    if (!translation) return { status: "not-found" };
-
-    const allLessons = outlineResult.data.modules.flatMap((courseModule) => courseModule.lessons);
-    const lessonIndex = allLessons.findIndex((lesson) => lesson.id === lessonId);
-    const lessonTranslation = translation as LessonTranslationRow;
-    return {
-      status: "ok",
-      languageCode,
-      data: {
-        course: {
-          id: outlineResult.data.id,
-          slug: outlineResult.data.slug,
-          title: outlineResult.data.title,
-        },
-        module: { id: parentModule.id, title: parentModule.title },
-        lesson: {
-          id: lessonTranslation.lesson_id,
-          title: lessonTranslation.title,
-          summary: lessonTranslation.summary,
-          youtube_video_id: lessonTranslation.youtube_video_id,
-          content: lessonTranslation.content,
-          product_bullets: lessonTranslation.product_bullets,
-          completed: parentModule.lessons.find((courseLesson) => courseLesson.id === lessonId)?.completed ?? false,
-        },
-        previousLessonId: lessonIndex > 0 ? allLessons[lessonIndex - 1].id : null,
-        nextLessonId: lessonIndex >= 0 && lessonIndex < allLessons.length - 1 ? allLessons[lessonIndex + 1].id : null,
-        lessonNumber,
-        lessonCount: allLessons.length,
-      },
-    };
+export async function readAdminPreviewCourseLesson(
+  slug: string,
+  lessonId: number,
+): Promise<LearningRead<LearningLesson>> {
+  return withAdminPreviewClient(async (client, languageCode, profileId) => {
+    const result = await readCourseLessonWithClient(client, slug, lessonId, languageCode, profileId);
+    if (result.status !== "ok") return result;
+    return { ...result, data: { ...result.data, lesson: { ...result.data.lesson, completed: false } } };
   });
 }
 
@@ -439,7 +631,7 @@ export async function readEmployeeLeaderboard(): Promise<LearningLeaderboardRead
       entries.push({
         position,
         displayName: value.display_name,
-        city: value.city,
+        storeName: value.city,
         totalPoints,
         isCurrentUser: value.is_current_user,
       });

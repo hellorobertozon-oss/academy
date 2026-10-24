@@ -1,5 +1,6 @@
 import { Suspense, type ReactNode } from "react";
 import { redirect } from "next/navigation";
+import { AdminShell } from "@/app/admin/admin-shell";
 import { requireAcademyProfile } from "@/lib/auth/profile";
 
 async function AdminSession({ children }: { children: ReactNode }) {
@@ -10,8 +11,8 @@ async function AdminSession({ children }: { children: ReactNode }) {
 
 export default function AdminLayout({ children }: { children: ReactNode }) {
   return (
-    <Suspense fallback={<div className="min-h-screen bg-background-full" />}>
-      <AdminSession>{children}</AdminSession>
+    <Suspense fallback={<div className="admin-theme min-h-screen bg-background-full" />}>
+      <AdminSession><AdminShell>{children}</AdminShell></AdminSession>
     </Suspense>
   );
 }

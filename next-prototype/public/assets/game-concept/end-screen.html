@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Ekran końca gry — Blue UI</title>
+  <style>
+    :root{
+      --bg:#61626d;
+      --panel1:#0e84cf;
+      --panel2:#0668b8;
+      --panel3:#0aa2e2;
+      --outline:#0759b0;
+      --dark:#064e98;
+      --cyan1:#76f1ff;
+      --cyan2:#2ed7fb;
+      --cyan3:#13b8ee;
+      --white:#f8ffff;
+      --shadow:rgba(29,33,41,.45);
+    }
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{
+      margin:0;
+      display:grid;
+      place-items:center;
+      font-family:Inter,system-ui,-apple-system,Segoe UI,Arial,sans-serif;
+      background:
+        radial-gradient(circle at 25% 20%, rgba(255,255,255,.08), transparent 28%),
+        radial-gradient(circle at 80% 15%, rgba(0,180,255,.16), transparent 20%),
+        radial-gradient(circle at 15% 85%, rgba(0,160,255,.10), transparent 24%),
+        var(--bg);
+      overflow:hidden;
+    }
+    .screen{
+      width:min(920px,calc(100vw - 32px));
+      min-height:min(580px,calc(100vh - 32px));
+      padding:28px;
+      display:grid;
+      place-items:center;
+      position:relative;
+    }
+    .decor,.decor:before,.decor:after{
+      position:absolute;
+      border-radius:999px;
+      content:"";
+      pointer-events:none;
+    }
+    .decor{
+      inset:auto auto 52px 40px;
+      width:140px;height:18px;
+      background:linear-gradient(180deg,#42ddfa,#1088dc);
+      border:4px solid var(--outline);
+      box-shadow:0 10px 0 rgba(22,26,33,.28);
+      transform:rotate(-10deg);
+      opacity:.38;
+    }
+    .decor:before{
+      inset:-82px auto auto 560px;
+      width:100px;height:100px;
+      background:radial-gradient(circle at 30% 28%, #f7ffff 0 12%, #71edff 13% 42%, #0a7dd1 43% 100%);
+      border:5px solid var(--outline);
+      box-shadow:0 10px 0 rgba(22,26,33,.28);
+      transform:rotate(12deg);
+      opacity:.75;
+    }
+    .decor:after{
+      inset:-20px auto auto 680px;
+      width:160px;height:20px;
+      background:linear-gradient(180deg,#42ddfa,#1088dc);
+      border:4px solid var(--outline);
+      box-shadow:0 10px 0 rgba(22,26,33,.28);
+      transform:rotate(9deg);
+      opacity:.32;
+    }
+
+    .panel{
+      width:min(680px,100%);
+      background:linear-gradient(180deg, #1ab7eb 0%, #0e89d6 24%, #0a75c5 64%, #0866b5 100%);
+      border:6px solid var(--outline);
+      border-radius:38px;
+      box-shadow:0 18px 0 rgba(39,42,50,.48);
+      position:relative;
+      overflow:hidden;
+      padding:36px 30px 30px;
+    }
+    .panel::before{
+      content:"";
+      position:absolute;
+      inset:10px 16px auto 16px;
+      height:38px;
+      border-radius:22px;
+      background:linear-gradient(180deg, rgba(255,255,255,.88), rgba(255,255,255,.08));
+      opacity:.75;
+    }
+    .panel::after{
+      content:"";
+      position:absolute;
+      inset:auto 16px 12px 16px;
+      height:16px;
+      border-radius:14px;
+      background:rgba(0,77,142,.34);
+    }
+    .content{
+      position:relative;
+      z-index:1;
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+      text-align:center;
+      gap:18px;
+    }
+    .title-badge{
+      min-width:min(420px,100%);
+      padding:16px 28px;
+      border-radius:999px;
+      background:linear-gradient(180deg,#85f4ff,#35d6fa 52%,#18b7ee 100%);
+      border:5px solid var(--outline);
+      box-shadow:0 10px 0 rgba(35,39,48,.34);
+    }
+    .title{
+      margin:0;
+      font-size:clamp(34px,6vw,56px);
+      line-height:1;
+      font-weight:900;
+      font-style:italic;
+      letter-spacing:-1px;
+      color:#fff;
+      -webkit-text-stroke:4px #0659ae;
+      paint-order:stroke fill;
+      text-shadow:2px 4px 0 rgba(10,116,196,.35);
+    }
+    .score-wrap{
+      margin-top:4px;
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+      gap:8px;
+    }
+    .label{
+      margin:0;
+      color:#eafcff;
+      font-size:clamp(20px,3vw,28px);
+      font-weight:800;
+      font-style:italic;
+      letter-spacing:.2px;
+      -webkit-text-stroke:2px #0861af;
+      paint-order:stroke fill;
+      text-shadow:1px 3px 0 rgba(10,116,196,.25);
+    }
+    .score-row{
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      gap:18px;
+      flex-wrap:wrap;
+    }
+    .coin{
+      width:108px;
+      height:108px;
+      flex:0 0 auto;
+      filter:drop-shadow(0 8px 0 rgba(30,35,43,.38));
+    }
+    .score-value{
+      margin:0;
+      font-size:clamp(56px,10vw,102px);
+      font-weight:900;
+      font-style:italic;
+      line-height:.95;
+      color:#fff;
+      -webkit-text-stroke:6px #0659ae;
+      paint-order:stroke fill;
+      letter-spacing:-3px;
+      text-shadow:2px 6px 0 rgba(10,116,196,.32);
+      font-variant-numeric:tabular-nums;
+    }
+    .sub{
+      margin:0;
+      color:#ddfaff;
+      font-size:clamp(14px,2.2vw,20px);
+      font-weight:700;
+      opacity:.96;
+    }
+    .retry{
+      margin-top:8px;
+      appearance:none;
+      border:5px solid var(--outline);
+      border-radius:999px;
+      background:linear-gradient(180deg,#88f5ff 0%,#40dbfb 44%,#1bc1ef 100%);
+      color:#ffffff;
+      font-size:clamp(24px,4vw,36px);
+      font-weight:900;
+      font-style:italic;
+      line-height:1;
+      padding:18px 34px 20px;
+      cursor:pointer;
+      -webkit-text-stroke:2.8px #0860af;
+      paint-order:stroke fill;
+      box-shadow:0 10px 0 rgba(31,36,44,.33);
+      transition:transform .18s ease, box-shadow .18s ease, filter .18s ease;
+      text-shadow:1px 3px 0 rgba(10,116,196,.25);
+    }
+    .retry:hover{transform:translateY(-2px);filter:brightness(1.04)}
+    .retry:active{transform:translateY(4px);box-shadow:0 5px 0 rgba(31,36,44,.33)}
+
+    .toolbar{
+      position:fixed;
+      left:14px; right:14px; bottom:14px;
+      max-width:780px; margin:auto;
+      background:rgba(24,32,48,.92);
+      border:1px solid #394867;
+      border-radius:14px;
+      padding:14px 16px;
+      color:#dbe9fb;
+      backdrop-filter:blur(5px);
+      box-shadow:0 10px 35px rgba(0,0,0,.24);
+    }
+    .toolbar .row{display:flex;gap:14px;align-items:center;flex-wrap:wrap}
+    .toolbar label{display:flex;align-items:center;gap:10px;font-size:14px;font-weight:600}
+    .toolbar input[type=number], .toolbar input[type=text]{
+      min-height:40px;border-radius:10px;border:1px solid #46597f;background:#151d2b;color:#fff;padding:8px 12px;font:inherit;
+    }
+    .toolbar .mini{font-size:12px;color:#9db1cf;margin-top:10px;line-height:1.4}
+    .toolbar .ghost{background:#2a3952;color:#ebf6ff;border:0;border-radius:10px;padding:10px 14px;font-weight:700;cursor:pointer}
+
+    @media (max-width:600px){
+      .screen{padding:16px}
+      .panel{padding:24px 16px 24px;border-radius:28px}
+      .title-badge{padding:14px 18px}
+      .toolbar{position:static;width:min(920px,calc(100vw - 24px));margin:0 auto 12px}
+      body{display:block;padding:12px}
+    }
+  </style>
+</head>
+<body>
+  <div class="screen">
+    <div class="decor"></div>
+    <section class="panel" aria-label="Ekran końca gry">
+      <div class="content">
+        <div class="title-badge">
+          <h1 class="title" id="titleText">Koniec gry</h1>
+        </div>
+
+        <div class="score-wrap">
+          <p class="label">Zdobyte punkty</p>
+          <div class="score-row">
+            <svg class="coin" viewBox="0 0 120 120" aria-hidden="true">
+              <defs>
+                <linearGradient id="medallion" x1="0" x2=".3" y1="0" y2="1">
+                  <stop offset="0" stop-color="#60efff"/>
+                  <stop offset=".5" stop-color="#1bc2e3"/>
+                  <stop offset="1" stop-color="#0c6bd6"/>
+                </linearGradient>
+                <linearGradient id="starFace" x1="0" x2="1" y1="0" y2="1">
+                  <stop offset="0" stop-color="#fff"/>
+                  <stop offset=".5" stop-color="#c7fff7"/>
+                  <stop offset="1" stop-color="#69e8ec"/>
+                </linearGradient>
+              </defs>
+              <circle cx="60" cy="60" r="53" fill="url(#medallion)" stroke="#045bb6" stroke-width="6"/>
+              <path d="M13 44 A51 51 0 0 1 112 33 Q74 34 40 57 Q24 67 10 63 Z" fill="#b1ffff" opacity=".52"/>
+              <path d="M10 74 A53 53 0 0 0 110 82" fill="none" stroke="#006bd2" stroke-width="8" opacity=".66"/>
+              <path d="M60 17 Q62 17 64 24 L76 46 L99 43 Q110 42 104 52 L91 70 L101 95 Q104 103 93 100 L61 87 L38 100 Q27 105 31 92 L39 71 L19 53 Q12 43 24 43 L47 44 L57 22 Q58 17 60 17 Z" fill="url(#starFace)" stroke="#0aa7dd" stroke-width="3" stroke-linejoin="round"/>
+              <path d="M60 18 L76 48 L100 46 L85 69 L92 96 L60 82 Z" fill="#f9fffb" opacity=".58"/>
+              <path d="M60 82 L38 100 L45 70 L22 47 L51 48 Z" fill="#87f3ed" opacity=".7"/>
+            </svg>
+            <p class="score-value" id="scoreValue">6547</p>
+          </div>
+          <p class="sub">Świetna robota! Spróbuj pobić swój wynik.</p>
+        </div>
+
+        <button class="retry" id="retryButton" type="button">Spróbuj ponownie</button>
+      </div>
+    </section>
+  </div>
+
+  <div class="toolbar">
+    <div class="row">
+      <label>Tytuł <input id="titleInput" type="text" value="Koniec gry" /></label>
+      <label>Punkty <input id="scoreInput" type="number" min="0" max="999999" value="6547" /></label>
+      <button class="ghost" id="randomBtn" type="button">Losuj wynik</button>
+    </div>
+    <div class="mini">
+      API do gry: <code>endScreen.setScore(6547)</code>, <code>endScreen.setTitle('Koniec gry')</code>, <code>endScreen.onRetry(() =&gt; restart())</code>
+    </div>
+  </div>
+
+  <script>
+    const titleText = document.getElementById('titleText');
+    const scoreValue = document.getElementById('scoreValue');
+    const titleInput = document.getElementById('titleInput');
+    const scoreInput = document.getElementById('scoreInput');
+    const retryButton = document.getElementById('retryButton');
+
+    function setTitle(value){
+      titleText.textContent = String(value || 'Koniec gry');
+      titleInput.value = titleText.textContent;
+    }
+    function setScore(value){
+      const safe = Math.max(0, Math.floor(Number(value) || 0));
+      scoreValue.textContent = String(safe);
+      scoreInput.value = safe;
+    }
+
+    titleInput.addEventListener('input', e => setTitle(e.target.value));
+    scoreInput.addEventListener('input', e => setScore(e.target.value));
+    document.getElementById('randomBtn').addEventListener('click', () => {
+      setScore(Math.floor(Math.random() * 9000) + 1000);
+    });
+
+    retryButton.addEventListener('click', () => {
+      retryButton.animate([
+        { transform:'translateY(0) scale(1)' },
+        { transform:'translateY(2px) scale(.985)' },
+        { transform:'translateY(0) scale(1)' }
+      ], { duration:220, easing:'ease-out' });
+      console.log('Spróbuj ponownie');
+    });
+
+    window.endScreen = {
+      setTitle,
+      setScore,
+      onRetry(callback){
+        if(typeof callback !== 'function') return;
+        retryButton.onclick = callback;
+      }
+    };
+  </script>
+</body>
+</html>

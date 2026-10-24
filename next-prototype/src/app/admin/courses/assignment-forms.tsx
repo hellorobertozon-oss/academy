@@ -98,7 +98,7 @@ export function CourseAssignmentManager({
 
     if (assignment.profile_id !== null) {
       const employee = employeesById.get(assignment.profile_id);
-      if (!employee) return "Pracownik niedost\u0119pny";
+      if (!employee) return "Użytkownik niedost\u0119pny";
       const fullName = [employee.first_name, employee.last_name].filter(Boolean).join(" ");
       const store = storesById.get(employee.store_id);
       return [fullName || employee.email, store ? `${store.name} · ${store.city}` : employee.email]
@@ -153,7 +153,7 @@ export function CourseAssignmentManager({
         <form action={employeeAction} className="flex flex-col items-start gap-3 rounded-2xl border border-separator-border p-4">
           <input type="hidden" name="course_id" value={courseId} />
           <label className="text-body-medium text-text-primary" id="assignment-employee-label">
-            Przypisz pracownika
+            Przypisz użytkownika
           </label>
           {availableEmployees.length ? (
             <Select
@@ -176,12 +176,12 @@ export function CourseAssignmentManager({
             </Select>
           ) : (
             <p className="text-body-2-regular text-text-secondary">
-              {employees.length ? "Wszyscy pracownicy maj\u0105 ju\u017C indywidualne przypisanie." : "Brak pracownik\u00F3w do przypisania."}
+              {employees.length ? "Wszyscy użytkownicy maj\u0105 ju\u017C indywidualne przypisanie." : "Brak użytkownik\u00F3w do przypisania."}
             </p>
           )}
           <ActionMessage state={employeeState} />
           <Button type="submit" disabled={isEmployeePending || availableEmployees.length === 0}>
-            {isEmployeePending ? "Przypisywanie..." : "Przypisz pracownika"}
+            {isEmployeePending ? "Przypisywanie..." : "Przypisz użytkownika"}
           </Button>
         </form>
       </div>

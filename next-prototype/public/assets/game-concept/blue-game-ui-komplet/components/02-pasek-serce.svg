@@ -1,0 +1,67 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="35 189 741 179" width="741" height="179"><defs>
+    <linearGradient id="blueTrack" x1="0" x2="0" y1="0" y2="1">
+      <stop offset="0" stop-color="#087dc7"/><stop offset=".19" stop-color="#047cc7"/><stop offset=".68" stop-color="#0070b6"/><stop offset="1" stop-color="#0064a7"/>
+    </linearGradient>
+    <linearGradient id="cyanFill" x1="0" x2="0" y1="0" y2="1">
+      <stop offset="0" stop-color="#56e7ff"/><stop offset=".25" stop-color="#46dcfa"/><stop offset=".64" stop-color="#15bee9"/><stop offset="1" stop-color="#009add"/>
+    </linearGradient>
+    <linearGradient id="cyanPill" x1="0" x2="0" y1="0" y2="1">
+      <stop offset="0" stop-color="#67ecff"/><stop offset=".36" stop-color="#3ed9fb"/><stop offset=".83" stop-color="#2dc8f2"/><stop offset="1" stop-color="#139cdb"/>
+    </linearGradient>
+    <linearGradient id="iconCyan" x1="0" x2=".9" y1="0" y2="1">
+      <stop offset="0" stop-color="#50e4fc"/><stop offset=".36" stop-color="#20bde9"/><stop offset="1" stop-color="#0575d2"/>
+    </linearGradient>
+    <linearGradient id="iconDeep" x1="0" x2=".9" y1="0" y2="1">
+      <stop offset="0" stop-color="#5af0ff"/><stop offset=".58" stop-color="#16b9ef"/><stop offset="1" stop-color="#0863d5"/>
+    </linearGradient>
+    <linearGradient id="medallion" x1="0" x2=".25" y1="0" y2="1">
+      <stop offset="0" stop-color="#60efff"/><stop offset=".5" stop-color="#1bc2e3"/><stop offset="1" stop-color="#0c6bd6"/>
+    </linearGradient>
+    <linearGradient id="starFace" x1="0" x2="1" y1="0" y2="1">
+      <stop offset="0" stop-color="#fff"/><stop offset=".5" stop-color="#c7fff7"/><stop offset="1" stop-color="#69e8ec"/>
+    </linearGradient>
+    <linearGradient id="glass" x1="0" x2="0" y1="0" y2="1">
+      <stop offset="0" stop-color="#fff" stop-opacity=".93"/><stop offset="1" stop-color="#fff" stop-opacity=".02"/>
+    </linearGradient>
+    <clipPath id="topClip"><rect id="topFillClip" x="118" y="65" width="344.52" height="67"/></clipPath>
+    <clipPath id="energyClip"><rect id="energyFillClip" x="110" y="434" width="273" height="69"/></clipPath>
+    <clipPath id="trackTopClip"><path d="M116 64 L722 64 C748 64 757 75 757 98 C757 123 747 133 722 133 L116 133 Z"/></clipPath>
+    <clipPath id="energyTrackClip"><path d="M113 433 H726 C747 433 761 449 761 468 C761 490 749 503 726 503 H113Z"/></clipPath>
+    <clipPath id="heartTrackClip"><path d="M158 239 H727 C747 239 757 255 757 274 C757 296 748 310 729 310 H158Z"/></clipPath>
+    <filter id="barShadow" x="-10%" y="-50%" width="120%" height="220%"><feDropShadow dx="0" dy="10" stdDeviation="1.2" flood-color="#25232a" flood-opacity=".45"/></filter>
+    <filter id="iconShadow" x="-30%" y="-30%" width="170%" height="185%"><feDropShadow dx="4" dy="11" stdDeviation="1.1" flood-color="#2b2931" flood-opacity=".6"/></filter>
+    <filter id="numberShadow" x="-20%" y="-20%" width="140%" height="150%"><feDropShadow dx="2" dy="3" stdDeviation=".55" flood-color="#0987cc" flood-opacity=".9"/></filter>
+  </defs>
+
+  <g id="ui-progress-heart" data-component="progress-heart">
+    <g filter="url(#barShadow)">
+      <path d="M156 240 H725 C747 240 757 253 757 275 C757 298 748 311 726 311 H156Z" fill="url(#blueTrack)" stroke="#0959b0" stroke-width="6"/>
+      <g id="heartSegments" clip-path="url(#heartTrackClip)">
+        <rect x="184" y="242" width="30" height="65" fill="url(#cyanFill)"/>
+        <rect x="223" y="242" width="30" height="65" fill="url(#cyanFill)"/>
+        <rect x="263" y="242" width="29" height="65" fill="url(#cyanFill)"/>
+        <rect x="302" y="242" width="30" height="65" fill="url(#cyanFill)"/>
+        <rect x="342" y="242" width="30" height="65" fill="url(#cyanFill)"/>
+        <rect x="381" y="242" width="30" height="65" fill="url(#cyanFill)"/>
+        <rect x="421" y="242" width="29" height="65" fill="url(#cyanFill)"/>
+        <rect x="460" y="242" width="30" height="65" fill="url(#cyanFill)"/>
+        <rect x="500" y="242" width="30" height="65" fill="url(#cyanFill)"/>
+        <rect x="539" y="242" width="30" height="65" fill="#0878bd" opacity=".67"/>
+        <rect x="579" y="242" width="29" height="65" fill="#0878bd" opacity=".67"/>
+        <rect x="618" y="242" width="30" height="65" fill="#0878bd" opacity=".67"/>
+        <rect x="658" y="242" width="30" height="65" fill="#0878bd" opacity=".67"/>
+        <rect x="697" y="242" width="30" height="65" fill="#0878bd" opacity=".67"/>
+      </g>
+      <path d="M743 250 Q752 259 751 277" fill="none" stroke="#41b6e8" stroke-width="6" opacity=".68" stroke-linecap="round"/>
+      <path d="M732 300 Q745 302 752 287" fill="none" stroke="#0cace6" stroke-width="5" opacity=".39"/>
+    </g>
+    <g filter="url(#iconShadow)">
+      <path d="M116 224 C96 201 69 206 57 225 C35 259 57 291 82 314 L126 341 Q140 351 149 334 C165 305 183 280 178 247 C176 207 143 195 116 224Z" fill="url(#iconDeep)" stroke="#0755ac" stroke-width="6"/>
+      <path d="M119 232 C92 207 67 219 59 238 C42 272 73 304 128 331 C146 303 169 273 171 244 C165 214 138 214 119 232Z" fill="#27c7f0" opacity=".71"/>
+      <path d="M55 249 Q61 222 90 225 Q66 235 64 258 Q62 279 71 287 Q53 281 55 249Z" fill="#f7ffff" opacity=".96"/>
+      <path d="M78 216 Q105 209 120 229 Q142 208 165 225 Q151 221 132 239 Q108 263 85 290 Q61 270 78 216Z" fill="#b7fdff" opacity=".45"/>
+      <path d="M82 312 L128 339 Q141 347 145 329 L167 287" fill="none" stroke="#0673d7" stroke-width="6" opacity=".65"/>
+    </g>
+  </g>
+
+  </svg>

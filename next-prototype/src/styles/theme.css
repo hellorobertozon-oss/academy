@@ -53,6 +53,7 @@
                "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol",
                "Noto Color Emoji";
   --font-display: var(--font-bebas), ui-sans-serif, sans-serif;
+  --font-game: var(--font-rajdhani), ui-sans-serif, sans-serif;
 
   /* Monospace ramp for code blocks. Loaded via next/font in app/layout.tsx
    * (--font-mono-source → JetBrains Mono). Figma's spec uses IBM Plex Mono;
@@ -419,6 +420,28 @@
   --gradient-button-danger-hover:     linear-gradient(180deg, var(--color-red-400) 0%, var(--color-red-500) 100%);
   --gradient-button-danger-active:    linear-gradient(180deg, var(--color-red-600) 0%, var(--color-red-700) 100%);
   --gradient-button-danger-disabled:  linear-gradient(180deg, var(--color-red-100) 0%, var(--color-red-200) 100%);
+}
+
+.admin-theme {
+  color-scheme: light;
+  --shadow-dropdown:
+    0 1px 1px 0 rgb(0 0 0 / 0.04),
+    0 4px 4px 0 rgb(0 0 0 / 0.02);
+  --shadow-sidebar:
+    0 1px 0 0 rgb(0 0 0 / 0.0196),
+    0 1px 12px 0 rgb(0 0 0 / 0.0588),
+    0 0 1px 0 rgb(0 0 0 / 0.3216);
+}
+
+.dark .admin-theme {
+  color-scheme: dark;
+  --shadow-dropdown:
+    0 1px 1px 0 rgb(0 0 0 / 0.14),
+    0 4px 4px 0 rgb(0 0 0 / 0.10);
+  --shadow-sidebar:
+    0 1px 0 0 rgb(0 0 0 / 0.10),
+    0 1px 12px 0 rgb(0 0 0 / 0.16),
+    0 0 1px 0 rgb(0 0 0 / 0.42);
 }
 
 .dark {

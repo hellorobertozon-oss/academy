@@ -143,10 +143,10 @@ describe("Academy course content migration", { concurrency: false }, () => {
     }
   }
 
-  it("allows admins to add languages and uses active languages for new profiles", async () => {
+  it("keeps French active, allows admins to add languages, and uses active languages for new profiles", async () => {
     await asUserCommitted(adminId, () => db.query(
       `insert into public.academy_languages (code, name, native_name, sort_order)
-       values ('fr', 'French', 'Français', 4)`,
+       values ('it', 'Italian', 'Italiano', 5)`,
     ));
 
     await db.query(
@@ -163,7 +163,7 @@ describe("Academy course content migration", { concurrency: false }, () => {
 
     await asUser(employeeId, async () => {
       const languages = await db.query("select code from public.academy_languages order by sort_order");
-      assert.deepEqual(languages.rows.map((row) => row.code), ["pl", "en", "de", "cs", "fr"]);
+      assert.deepEqual(languages.rows.map((row) => row.code), ["pl", "en", "de", "cs", "fr", "it"]);
     });
   });
 

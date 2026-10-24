@@ -1,0 +1,102 @@
+[data-trade-fair-product-enter] {
+  animation: trade-fair-product-in 260ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+[data-trade-fair-product-copy-enter] {
+  animation: trade-fair-product-in 230ms cubic-bezier(0.22, 1, 0.36, 1) 45ms both;
+}
+
+[data-trade-fair-thumbnail-enter] {
+  animation: trade-fair-thumbnail-in 220ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+[data-trade-fair-progress] {
+  animation: trade-fair-progress linear both;
+}
+
+[data-trade-fair-spotlight] {
+  position: absolute;
+  z-index: 20;
+  inset: 7%;
+  border-radius: 50%;
+  background: radial-gradient(
+    circle,
+    transparent 52%,
+    color-mix(in oklab, var(--color-accent-200) 40%, transparent) 58%,
+    color-mix(in oklab, var(--color-accent-100) 24%, transparent) 64%,
+    transparent 74%
+  );
+  filter: blur(4px);
+  opacity: 0;
+  pointer-events: none;
+  animation: trade-fair-spotlight 460ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+@keyframes trade-fair-product-in {
+  from {
+    opacity: 0;
+    transform: translateY(8px) scale(0.95);
+    filter: blur(3px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+    filter: blur(0);
+  }
+}
+
+@keyframes trade-fair-thumbnail-in {
+  from {
+    opacity: 0;
+    transform: scale(0.94);
+    filter: blur(2px);
+  }
+
+  to {
+    opacity: 1;
+    transform: scale(1);
+    filter: blur(0);
+  }
+}
+
+@keyframes trade-fair-progress {
+  from {
+    transform: scaleX(0);
+  }
+
+  to {
+    transform: scaleX(1);
+  }
+}
+
+@keyframes trade-fair-spotlight {
+  0% {
+    opacity: 0;
+    transform: scale(0.84);
+  }
+
+  32% {
+    opacity: 0.62;
+  }
+
+  100% {
+    opacity: 0;
+    transform: scale(1.1);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  [data-trade-fair-product-enter],
+  [data-trade-fair-product-copy-enter],
+  [data-trade-fair-thumbnail-enter],
+  [data-trade-fair-spotlight] {
+    animation: none;
+  }
+
+  [data-trade-fair-progress] {
+    animation: none;
+    transform: scaleX(1);
+  }
+
+}

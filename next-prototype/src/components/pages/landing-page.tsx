@@ -37,12 +37,12 @@ export function LandingPage() {
         />
       </header>
       <main className="relative z-10 mx-auto grid min-h-screen w-full max-w-[1600px] bg-transparent lg:grid-cols-[minmax(360px,0.88fr)_minmax(0,1.12fr)]">
-        <section className="flex items-center justify-center px-6 pb-10 pt-32 sm:px-12 lg:px-16" aria-label={t("signIn")}>
+        <section className="relative z-10 flex items-center justify-center px-6 pb-10 pt-32 sm:px-12 lg:px-16" aria-label={t("signIn")}>
           <AcademyLoginCard
             className="w-full max-w-[540px] rounded-none border-0 bg-transparent p-0 shadow-none dark:bg-transparent"
           />
         </section>
-        <section className="relative min-h-[58svh] overflow-hidden bg-transparent lg:min-h-screen">
+        <section className="relative z-0 min-h-[58svh] overflow-hidden bg-transparent lg:min-h-screen lg:overflow-visible">
           <Image
             src="/assets/login-page-right-column-v5.png"
             alt="Przedstawicielka prezentuje zestaw Xzone do detailingu motocykla"
@@ -50,7 +50,7 @@ export function LandingPage() {
             priority
             sizes="(max-width: 1024px) 100vw, 56vw"
             className="object-contain object-bottom origin-center scale-[1.08] translate-y-[5vh] lg:origin-bottom lg:scale-[1.188] lg:translate-y-[20vh]"
-            style={{ filter: "drop-shadow(0 18px 28px rgba(0,0,0,0.64)) drop-shadow(0 64px 104px rgba(0,0,0,0.5))" }}
+            style={{ filter: "drop-shadow(0 18px 28px rgba(0,0,0,0.32)) drop-shadow(0 64px 104px rgba(0,0,0,0.24))" }}
           />
         </section>
       </main>

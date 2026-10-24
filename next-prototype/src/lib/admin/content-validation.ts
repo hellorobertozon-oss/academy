@@ -7,6 +7,11 @@ export type TiptapDocument = {
   content: Array<Record<string, unknown>>;
 };
 
+export type LessonConversationMessage = {
+  speaker: "client" | "seller";
+  text: string;
+};
+
 export type CourseInput = {
   slug: string;
   languageCode: string;
@@ -19,8 +24,12 @@ export type LessonInput = {
   title: string;
   summary: string;
   youtubeVideoId: string | null;
+  youtubeVideoIds: string[];
   content: TiptapDocument;
   productBullets: string[];
+  keyPointsTitle: string;
+  conversationTitle: string;
+  conversation: LessonConversationMessage[];
 };
 
 function text(value: unknown) {
@@ -103,6 +112,29 @@ export function parseYoutubeVideoId(value: unknown): ContentValidationResult<str
     return { ok: false, error: "Podany adres nie prowadzi do filmu YouTube." };
   }
   return { ok: true, value: videoId };
+}
+
+export function parseYoutubeVideoIds(value: unknown): ContentValidationResult<string[]> {
+  const raw = text(value);
+  if (!raw) return { ok: true, value: [] };
+
+  const urls = raw.split(/\r?\n|,/).map((item) => item.trim()).filter(Boolean);
+  if (urls.length > 10) {
+    return { ok: false, error: "Dodaj maksymalnie 10 filmów do jednej lekcji." };
+  }
+
+  const ids: string[] = [];
+  for (const url of urls) {
+    const parsed = parseYoutubeVideoId(url);
+    if (!parsed.ok || !parsed.value) {
+      return { ok: false, error: parsed.ok ? "Podany adres nie prowadzi do filmu YouTube." : parsed.error };
+    }
+    if (ids.includes(parsed.value)) {
+      return { ok: false, error: "Ten sam film występuje na liście więcej niż raz." };
+    }
+    ids.push(parsed.value);
+  }
+  return { ok: true, value: ids };
 }
 
 function safeExternalUrl(value: unknown, allowMailto = false) {
@@ -220,9 +252,13 @@ export function parseLessonInput(input: {
   languageCode: unknown;
   title: unknown;
   summary: unknown;
-  youtubeUrl: unknown;
+  youtubeUrls?: unknown;
+  youtubeUrl?: unknown;
   contentJson: unknown;
   productBullets: unknown;
+  keyPointsTitle?: unknown;
+  conversationTitle?: unknown;
+  conversationJson?: unknown;
 }): ContentValidationResult<LessonInput> {
   const languageCode = normalizeLanguageCode(input.languageCode);
   const title = text(input.title);
@@ -234,17 +270,69 @@ export function parseLessonInput(input: {
     return { ok: false, error: "Tytuł lekcji jest wymagany; podsumowanie może mieć do 500 znaków." };
   }
 
-  const youtube = parseYoutubeVideoId(input.youtubeUrl);
+  const youtube = parseYoutubeVideoIds(input.youtubeUrls ?? input.youtubeUrl);
   if (!youtube.ok) return youtube;
   const content = sanitizeTiptapDocument(input.contentJson);
   if (!content.ok) return content;
 
-  const productBullets = text(input.productBullets)
-    .split(/\r?\n/)
-    .map((bullet) => bullet.trim())
+  let rawBullets: unknown[];
+  const rawBulletsText = text(input.productBullets);
+  if (rawBulletsText.startsWith("[")) {
+    try {
+      const parsedBullets = JSON.parse(rawBulletsText) as unknown;
+      if (!Array.isArray(parsedBullets)) return { ok: false, error: "Lista punktów ma nieprawidłowy format." };
+      rawBullets = parsedBullets;
+    } catch {
+      return { ok: false, error: "Nie udało się odczytać listy punktów." };
+    }
+  } else {
+    rawBullets = rawBulletsText.split(/\r?\n/);
+  }
+  if (rawBullets.some((bullet) => typeof bullet !== "string")) {
+    return { ok: false, error: "Każdy punkt musi być tekstem." };
+  }
+  const productBullets = rawBullets
+    .map((bullet) => (bullet as string).trim())
     .filter(Boolean);
   if (productBullets.length > 12 || productBullets.some((bullet) => bullet.length > 160)) {
     return { ok: false, error: "Dodaj maksymalnie 12 krótkich punktów (do 160 znaków każdy)." };
+  }
+
+  const keyPointsTitle = text(input.keyPointsTitle) || "Warto zapamiętać";
+  const conversationTitle = text(input.conversationTitle) || "Rozmowa z klientem";
+  if (keyPointsTitle.length > 120 || conversationTitle.length > 120) {
+    return { ok: false, error: "Tytuły sekcji mogą mieć maksymalnie 120 znaków." };
+  }
+
+  let rawConversation: unknown;
+  const conversationText = text(input.conversationJson);
+  if (!conversationText) {
+    rawConversation = [];
+  } else {
+    try {
+      rawConversation = JSON.parse(conversationText) as unknown;
+    } catch {
+      return { ok: false, error: "Nie udało się odczytać rozmowy z klientem." };
+    }
+  }
+  if (!Array.isArray(rawConversation) || rawConversation.length > 30) {
+    return { ok: false, error: "Rozmowa może zawierać maksymalnie 30 wypowiedzi." };
+  }
+  const conversation: LessonConversationMessage[] = [];
+  for (const item of rawConversation) {
+    if (!item || typeof item !== "object" || Array.isArray(item)) {
+      return { ok: false, error: "Wypowiedź w rozmowie ma nieprawidłowy format." };
+    }
+    const message = item as Record<string, unknown>;
+    const messageText = text(message.text);
+    if (!messageText) continue;
+    if (messageText.length > 500) {
+      return { ok: false, error: "Wypowiedź może mieć maksymalnie 500 znaków." };
+    }
+    if (message.speaker !== "client" && message.speaker !== "seller") {
+      return { ok: false, error: "Wybierz, kto wypowiada każdą kwestię: klient czy sprzedawca." };
+    }
+    conversation.push({ speaker: message.speaker, text: messageText });
   }
 
   return {
@@ -253,9 +341,13 @@ export function parseLessonInput(input: {
       languageCode,
       title,
       summary,
-      youtubeVideoId: youtube.value,
+      youtubeVideoId: youtube.value[0] ?? null,
+      youtubeVideoIds: youtube.value,
       content: content.value,
       productBullets,
+      keyPointsTitle,
+      conversationTitle,
+      conversation,
     },
   };
 }

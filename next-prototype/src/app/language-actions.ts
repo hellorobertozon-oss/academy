@@ -3,7 +3,7 @@
 import { getCurrentAcademyProfile } from "@/lib/auth/profile";
 import { createAcademyServerClient } from "@/lib/supabase/server";
 
-const STANDARD_LANGUAGES = ["pl", "en", "de", "cs"];
+const STANDARD_LANGUAGES = ["pl", "en", "de", "cs", "fr"];
 
 export async function readAcademyViewerContextAction(): Promise<{
   preferredLanguage: string | null;

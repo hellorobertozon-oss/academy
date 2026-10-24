@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
-import { Bebas_Neue, Inter } from "next/font/google";
+import Script from "next/script";
+import { Bebas_Neue, Inter, Rajdhani } from "next/font/google";
 import { AcademyProvider } from "@/components/academy-provider";
 import "leaflet/dist/leaflet.css";
 import "@/styles/globals.css";
@@ -15,6 +16,12 @@ const bebas = Bebas_Neue({
   weight: "400",
 });
 
+const rajdhani = Rajdhani({
+  variable: "--font-rajdhani",
+  subsets: ["latin", "latin-ext"],
+  weight: ["400", "500", "600", "700"],
+});
+
 export const metadata: Metadata = {
   title: "Xzone Academy — wiedza dla sprzedawców",
   description: "Poznaj produkty Xzone i pewniej doradzaj motocyklistom.",
@@ -22,9 +29,12 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html lang="pl" className={`${inter.variable} ${bebas.variable} dark h-full antialiased`}>
+    <html lang="pl" className={`${inter.variable} ${bebas.variable} ${rajdhani.variable} h-full antialiased`} suppressHydrationWarning>
       <body className="flex min-h-full flex-col bg-background-full font-sans text-text-primary">
         <AcademyProvider>{children}</AcademyProvider>
+        <Script id="academy-theme-bootstrap" strategy="beforeInteractive">
+          {`const path = location.pathname; const adminPanel = path.startsWith("/admin") && !path.startsWith("/admin/user-preview"); const tradeFairKiosk = path === "/targi" || path.startsWith("/targi/"); let savedTheme = "light"; try { savedTheme = localStorage.getItem("boardui:theme") === "dark" ? "dark" : "light"; } catch {} document.documentElement.classList.toggle("dark", adminPanel ? savedTheme === "dark" : !tradeFairKiosk);`}
+        </Script>
       </body>
     </html>
   );

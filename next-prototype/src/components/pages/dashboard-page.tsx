@@ -4,21 +4,41 @@ import Link from "next/link";
 import Image from "next/image";
 import { RiArrowRightLine, RiMapPin2Line } from "@remixicon/react";
 import { AcademyHeader } from "@/components/academy-header";
+import { PointsSummary } from "@/components/points-summary";
 import { useAcademy } from "@/components/academy-provider";
 import { RouteButton } from "@/components/route-button";
 import { LinkButton } from "@/components/base/buttons/link-button";
 import { cx } from "@/utils/cx";
 
-const sections: { href: string; previewHref: string; title: "learning" | "questions"; description: "learningDescription" | "questionsDescription"; image: string }[] = [
+const sections: { href: string; previewHref: string; title: "learning" | "questions" | "ranking" | "games"; description: "learningDescription" | "questionsDescription" | "rankingDescription" | "gamesDescription"; image: string }[] = [
   { href: "/learning", previewHref: "/admin/user-preview/learning", title: "learning", description: "learningDescription", image: "/assets/main-learning-v3.png" },
+  { href: "/games", previewHref: "/admin/user-preview/games", title: "games", description: "gamesDescription", image: "/assets/main-game.png" },
   { href: "/faq", previewHref: "/admin/user-preview/faq", title: "questions", description: "questionsDescription", image: "/assets/main-faq-v3.png" },
+  { href: "/rewards", previewHref: "/admin/user-preview/rewards", title: "ranking", description: "rankingDescription", image: "/assets/ranking-photo-v2.png" },
 ];
 
-export function DashboardPage({ isAdmin, previewMode = false }: { isAdmin: boolean; previewMode?: boolean }) {
+export function DashboardPage({
+  isAdmin,
+  firstName,
+  currentPoints,
+  previewMode = false,
+}: {
+  isAdmin: boolean;
+  firstName?: string | null;
+  currentPoints: number | null;
+  previewMode?: boolean;
+}) {
   const { t } = useAcademy();
+  const name = firstName?.trim();
+  const greeting = name ? t("greetingNamed").replace("{name}", name) : t("greeting");
 
   return (
     <div className="relative isolate min-h-screen bg-background-full">
+      {previewMode ? (
+        <div role="note" className="relative z-30 bg-accent-300 px-4 py-1.5 text-center text-body-2-semibold text-accent-950 sm:px-8">
+          <p className="mx-auto max-w-6xl">{t("userPreviewNotice")}</p>
+        </div>
+      ) : null}
       <AcademyHeader mode="app" />
       <div className="pointer-events-none absolute inset-x-0 top-28 z-0 h-96 overflow-hidden sm:top-20" aria-hidden="true">
         <Image
@@ -32,22 +52,22 @@ export function DashboardPage({ isAdmin, previewMode = false }: { isAdmin: boole
         <div className="absolute inset-0 bg-gradient-to-b from-background-full/20 via-background-full/60 to-background-full" />
       </div>
       <main className="relative z-10 mx-auto w-full max-w-6xl px-4 pb-16 pt-12 sm:px-8 sm:pt-16">
-        {previewMode ? (
-          <p className="mb-6 rounded-2xl border border-accent-400/40 bg-background-secondary-default px-5 py-4 text-body-medium text-text-primary">
-            {t("userPreviewNotice")}
-          </p>
-        ) : null}
-        <section className="grid gap-8" aria-labelledby="dashboard-heading">
+        <section className="grid gap-6" aria-labelledby="dashboard-heading">
           <div>
             <p className="mb-2 text-body-semibold uppercase tracking-[0.16em] text-accent-300 sm:text-title-3-semibold">
               {t("brand")}
             </p>
-            <h1 id="dashboard-heading" className="font-display text-display-3-regular uppercase tracking-wide text-text-primary sm:text-display-1-regular">
-              {t("greeting")}
-            </h1>
-            <p className="mt-3 max-w-3xl text-headline-regular text-text-secondary sm:text-title-3-regular">
-              {t("dashboardIntro")}
-            </p>
+            <div className="grid grid-cols-1 items-start gap-4 sm:grid-cols-[minmax(0,1fr)_auto] sm:gap-8">
+              <div className="min-w-0">
+                <h1 id="dashboard-heading" className="font-display text-display-3-regular uppercase tracking-wide text-text-primary sm:text-display-1-regular">
+                  {greeting}
+                </h1>
+                <p className="mt-3 max-w-3xl text-headline-regular text-text-secondary sm:text-title-3-regular">
+                  {t("dashboardIntro")}
+                </p>
+              </div>
+              {!isAdmin || previewMode ? <PointsSummary currentPoints={currentPoints} compact /> : null}
+            </div>
           </div>
         </section>
 
@@ -82,7 +102,7 @@ export function DashboardPage({ isAdmin, previewMode = false }: { isAdmin: boole
               </>
             );
 
-            return <Link key={href} href={previewMode ? previewHref : href} className={cardClassName}>{card}</Link>;
+            return <Link key={href} href={previewMode || isAdmin ? previewHref : href} className={cardClassName}>{card}</Link>;
           })}
         </section>
 
@@ -108,15 +128,17 @@ export function DashboardPage({ isAdmin, previewMode = false }: { isAdmin: boole
           </RouteButton>
         </section>
 
-        <section className="mt-5 flex flex-col items-start justify-between gap-4 rounded-3xl border border-border-button-default bg-background-primary-default p-5 sm:flex-row sm:items-center sm:px-6">
-          <div>
-            <p className="text-body-medium text-text-primary">{t("storeMapTitle")}</p>
-            <p className="mt-1 text-body-2-regular text-text-secondary">{t("storeMapDescription")}</p>
-          </div>
-          <RouteButton href="/stores" size="large" leadingIcon={RiMapPin2Line} trailingIcon={RiArrowRightLine} disabled={previewMode}>
-            {previewMode ? t("previewOnly") : t("storeMapButton")}
-          </RouteButton>
-        </section>
+        {!previewMode ? (
+          <section className="mt-5 flex flex-col items-start justify-between gap-4 rounded-3xl border border-border-button-default bg-background-primary-default p-5 sm:flex-row sm:items-center sm:px-6">
+            <div>
+              <p className="text-body-medium text-text-primary">{t("storeMapTitle")}</p>
+              <p className="mt-1 text-body-2-regular text-text-secondary">{t("storeMapDescription")}</p>
+            </div>
+            <RouteButton href="/stores" size="large" leadingIcon={RiMapPin2Line} trailingIcon={RiArrowRightLine}>
+              {t("storeMapButton")}
+            </RouteButton>
+          </section>
+        ) : null}
       </main>
     </div>
   );

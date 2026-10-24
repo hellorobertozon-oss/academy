@@ -1,5 +1,5 @@
 export type AdminRole = "admin" | "employee";
-export const INVITE_LANGUAGES = ["pl", "en", "de", "cs"] as const;
+export const INVITE_LANGUAGES = ["pl", "en", "de", "cs", "fr"] as const;
 export type InviteLanguage = (typeof INVITE_LANGUAGES)[number];
 
 export type InviteInput = {
@@ -15,8 +15,6 @@ export type StoreInput = {
   city: string;
   postal_code: string;
   country_code: string;
-  latitude: number | null;
-  longitude: number | null;
 };
 
 export type ValidationResult<T> =
@@ -84,8 +82,6 @@ export function parseStoreInput(input: {
   city: unknown;
   postalCode: unknown;
   countryCode: unknown;
-  latitude: unknown;
-  longitude: unknown;
 }): ValidationResult<StoreInput> {
   const name = text(input.name);
   const streetAddress = text(input.streetAddress);
@@ -100,29 +96,6 @@ export function parseStoreInput(input: {
     return { ok: false, error: "Kod kraju musi składać się z dwóch liter, np. PL." };
   }
 
-  const latitudeText = text(input.latitude);
-  const longitudeText = text(input.longitude);
-  if (Boolean(latitudeText) !== Boolean(longitudeText)) {
-    return { ok: false, error: "Podaj obie współrzędne albo pozostaw je puste." };
-  }
-
-  let latitude: number | null = null;
-  let longitude: number | null = null;
-  if (latitudeText && longitudeText) {
-    latitude = Number(latitudeText);
-    longitude = Number(longitudeText);
-    if (
-      !Number.isFinite(latitude) ||
-      !Number.isFinite(longitude) ||
-      latitude < -90 ||
-      latitude > 90 ||
-      longitude < -180 ||
-      longitude > 180
-    ) {
-      return { ok: false, error: "Współrzędne muszą mieścić się w dozwolonym zakresie." };
-    }
-  }
-
   return {
     ok: true,
     value: {
@@ -131,8 +104,6 @@ export function parseStoreInput(input: {
       city,
       postal_code: postalCode,
       country_code: countryCode,
-      latitude,
-      longitude,
     },
   };
 }

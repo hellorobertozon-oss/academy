@@ -28,8 +28,7 @@ async function RewardsContent() {
         description: copy.leaderboardDescription,
         empty: copy.leaderboardEmpty,
         loadError: copy.leaderboardLoadError,
-        you: copy.leaderboardYou,
-        city: copy.leaderboardCity,
+        storeName: copy.leaderboardStore,
         points: copy.leaderboardPoints,
       }}
     />
