@@ -1,6 +1,6 @@
 "use client";
 
-import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState, useSyncExternalStore, type ReactNode } from "react";
+import { createContext, Suspense, useCallback, useContext, useEffect, useMemo, useRef, useState, useSyncExternalStore, type ReactNode } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import { DirectionProvider } from "@/components/foundations/direction/direction";
 import {
@@ -1898,16 +1898,28 @@ function getServerLanguage(): AcademyLanguage {
   return "pl";
 }
 
+function AcademyPathnameSync({ onPathnameChange }: { onPathnameChange: (pathname: string) => void }) {
+  const pathname = usePathname();
+
+  useEffect(() => {
+    onPathnameChange(pathname);
+  }, [onPathnameChange, pathname]);
+
+  return null;
+}
+
 export function AcademyProvider({ children }: { children: ReactNode }) {
   const router = useRouter();
-  const pathname = usePathname();
-  const isTradeFairKiosk = pathname === "/targi" || pathname.startsWith("/targi/");
+  const [pathname, setPathname] = useState<string | null>(null);
+  const isTradeFairKiosk = pathname === "/targi" || pathname?.startsWith("/targi/") === true;
   const language = useSyncExternalStore(subscribeToLanguage, getStoredLanguage, getServerLanguage);
   const [role, setRole] = useState<"admin" | "employee" | null>(null);
   const [completedLessons, setCompletedLessons] = useState<CopyKey[]>([]);
   const didChangeLanguage = useRef(false);
 
   useEffect(() => {
+    if (pathname === null) return;
+
     let active = true;
     void readAcademyViewerContextAction().then(({ preferredLanguage, previewLanguage, role: currentRole }) => {
       if (!active) return;
@@ -1966,7 +1978,7 @@ export function AcademyProvider({ children }: { children: ReactNode }) {
       // Keep the current language for this session when browser storage is unavailable.
     }
     window.dispatchEvent(new Event(LANGUAGE_EVENT));
-    if (pathname.startsWith("/admin/user-preview")) {
+    if (pathname?.startsWith("/admin/user-preview")) {
       void updateAcademyPreviewLanguageAction(nextLanguage)
         .catch(() => false)
         .finally(() => router.refresh());
@@ -2014,7 +2026,12 @@ export function AcademyProvider({ children }: { children: ReactNode }) {
 
   return (
     <DirectionProvider locale={{ pl: "pl-PL", en: "en-US", de: "de-DE", cs: "cs-CZ", fr: "fr-FR", it: "it-IT" }[language]}>
-      <AcademyContext.Provider value={value}>{children}</AcademyContext.Provider>
+      <AcademyContext.Provider value={value}>
+        <Suspense fallback={null}>
+          <AcademyPathnameSync onPathnameChange={setPathname} />
+        </Suspense>
+        {children}
+      </AcademyContext.Provider>
     </DirectionProvider>
   );
 }
