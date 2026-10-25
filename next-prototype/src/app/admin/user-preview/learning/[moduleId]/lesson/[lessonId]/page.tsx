@@ -131,7 +131,7 @@ export default function UserPreviewLessonPage({
   params: Promise<{ moduleId: string; lessonId: string }>;
 }) {
   return (
-    <Suspense fallback={<AcademyLoading label="Wczytywanie lekcji" />}>
+    <Suspense fallback={<AcademyLoading label="Wczytywanie lekcji" withHeader />}>
       <PreviewLessonContent params={params} />
     </Suspense>
   );

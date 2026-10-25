@@ -12,6 +12,9 @@ import {
 import { Button } from "@/components/base/buttons/button";
 import { LinkButton } from "@/components/base/buttons/link-button";
 import { Switch } from "@/components/base/switch/switch";
+import { AcademyLanguagePicker } from "@/components/academy-header";
+import { ACADEMY_LANGUAGES, useAcademy, type AcademyLanguage } from "@/components/academy-provider";
+import { TRADE_FAIR_COPY } from "@/lib/trade-fair-copy";
 import type { TradeFairProduct } from "@/lib/trade-fair-products";
 import { cx } from "@/utils/cx";
 import "./trade-fair-showcase-motion.module.css";
@@ -21,6 +24,8 @@ const IDLE_RESET_DELAY_MS = 60_000;
 const STAFF_PASSWORD = "kiosk";
 
 export function TradeFairShowcase({ products }: { products: TradeFairProduct[] }) {
+  const { language, setKioskLanguage } = useAcademy();
+  const copy = TRADE_FAIR_COPY[language];
   const [selectedId, setSelectedId] = useState(products[0].id);
   const [selectedImageIndex, setSelectedImageIndex] = useState(0);
   const [canScrollProductsLeft, setCanScrollProductsLeft] = useState(false);
@@ -46,6 +51,23 @@ export function TradeFairShowcase({ products }: { products: TradeFairProduct[] }
     setStaffPassword("");
     setStaffPasswordError(false);
   }, []);
+
+  useEffect(() => {
+    const applyLanguage = (value: unknown) => {
+      if (typeof value === "string" && ACADEMY_LANGUAGES.includes(value as AcademyLanguage)) {
+        setKioskLanguage(value as AcademyLanguage);
+      }
+    };
+    const onMessage = (event: MessageEvent) => {
+      if (event.origin !== "https://robertozon.com") return;
+      if (!event.data || typeof event.data !== "object" || event.data.type !== "xzone-language") return;
+      applyLanguage(event.data.lang);
+    };
+
+    applyLanguage(new URLSearchParams(window.location.search).get("lang"));
+    window.addEventListener("message", onMessage);
+    return () => window.removeEventListener("message", onMessage);
+  }, [setKioskLanguage]);
 
   useEffect(() => {
     const carousel = productCarouselRef.current;
@@ -98,6 +120,13 @@ export function TradeFairShowcase({ products }: { products: TradeFairProduct[] }
       });
     }
   }, []);
+
+  const changeProduct = useCallback((direction: -1 | 1) => {
+    const currentIndex = products.findIndex((item) => item.id === product.id);
+    const nextIndex = (currentIndex + direction + products.length) % products.length;
+    setSelectedId(products[nextIndex].id);
+    setSelectedImageIndex(0);
+  }, [product.id, products]);
 
   useEffect(() => {
     revealProductCard(selectedNumber - 1);
@@ -186,6 +215,9 @@ export function TradeFairShowcase({ products }: { products: TradeFairProduct[] }
           height={193}
           className="absolute left-1/2 top-1/2 size-14 -translate-x-1/2 -translate-y-1/2 brightness-0 sm:size-16"
         />
+        <div className="absolute left-2 top-1/2 z-50 -translate-y-1/2 sm:left-6">
+          <AcademyLanguagePicker persistence="kiosk" className="min-h-12" />
+        </div>
         <div ref={settingsRef} className="relative z-50 ml-auto flex items-center gap-1">
           <Button
             ref={settingsTriggerRef}
@@ -194,27 +226,27 @@ export function TradeFairShowcase({ products }: { products: TradeFairProduct[] }
             size="xs"
             iconOnly
             leadingIcon={RiSettings3Line}
-            aria-label="Ustawienia obsługi"
+            aria-label={copy.staffSettings}
             aria-expanded={settingsOpen}
             aria-controls="trade-fair-presentation-settings"
             onClick={() => settingsOpen ? closeSettings() : setSettingsOpen(true)}
             className="size-8 rounded-full p-0 text-text-tertiary opacity-40 transition-opacity hover:opacity-100 focus-visible:opacity-100"
           />
           <LinkButton href="/dashboard" variant="secondary" size="small" leadingIcon={RiArrowLeftLine} className="min-h-11 rounded-full px-3">
-            Akademia
+            {copy.academy}
           </LinkButton>
           {settingsOpen ? (
             <div
               id="trade-fair-presentation-settings"
               role="dialog"
-              aria-label="Ustawienia prezentacji"
+              aria-label={copy.settingsDialog}
               className="absolute right-0 top-full mt-2 w-[min(20rem,calc(100vw-2rem))] rounded-2xl border border-separator-border bg-background-primary-default p-4 shadow-xl"
             >
               {staffUnlocked ? (
                 <>
-                  <h3 className="text-body-1-semibold text-text-primary">Ustawienia kiosku</h3>
+                  <h3 className="text-body-1-semibold text-text-primary">{copy.kioskSettings}</h3>
                   <p id="trade-fair-interval-label" className="mb-2 mt-4 text-body-2-regular text-text-secondary">
-                    Zmieniaj produkt co
+                    {copy.changeProductEvery}
                   </p>
                   <div role="group" aria-labelledby="trade-fair-interval-label" className="grid grid-cols-5 gap-2">
                     {AUTO_ADVANCE_PRESETS.map((seconds) => (
@@ -236,7 +268,7 @@ export function TradeFairShowcase({ products }: { products: TradeFairProduct[] }
                     onChange={setLoopProducts}
                     className="mt-3 min-h-11 w-full justify-between rounded-xl border border-border-button-default px-3 py-2"
                   >
-                    {loopProducts ? "Pętla włączona" : "Pętla wyłączona"}
+                    {loopProducts ? copy.loopOn : copy.loopOff}
                   </Switch>
                   <Button
                     type="button"
@@ -247,7 +279,7 @@ export function TradeFairShowcase({ products }: { products: TradeFairProduct[] }
                     onClick={() => setAutoAdvanceEnabled((enabled) => !enabled)}
                     className="mt-3 w-full justify-center"
                   >
-                    {autoAdvanceEnabled ? "Zatrzymaj pokaz" : "Uruchom pokaz"}
+                    {autoAdvanceEnabled ? copy.stopRotation : copy.startRotation}
                   </Button>
                 </>
               ) : (
@@ -263,9 +295,9 @@ export function TradeFairShowcase({ products }: { products: TradeFairProduct[] }
                     }
                   }}
                 >
-                  <h3 className="text-body-1-semibold text-text-primary">Ustawienia obsługi</h3>
+                  <h3 className="text-body-1-semibold text-text-primary">{copy.staffSettings}</h3>
                   <label htmlFor="trade-fair-staff-password" className="mb-2 mt-3 block text-body-2-regular text-text-secondary">
-                    Hasło
+                    {copy.password}
                   </label>
                   <input
                     id="trade-fair-staff-password"
@@ -282,11 +314,11 @@ export function TradeFairShowcase({ products }: { products: TradeFairProduct[] }
                   />
                   {staffPasswordError ? (
                     <p id="trade-fair-password-error" role="alert" className="mt-2 text-body-2-regular text-text-error-primary">
-                      Nieprawidłowe hasło
+                      {copy.invalidPassword}
                     </p>
                   ) : null}
                   <Button type="submit" variant="primary" size="medium" className="mt-3 min-h-11 w-full rounded-xl">
-                    Odblokuj ustawienia
+                    {copy.unlockSettings}
                   </Button>
                 </form>
               )}
@@ -305,31 +337,59 @@ export function TradeFairShowcase({ products }: { products: TradeFairProduct[] }
         ) : null}
       </header>
 
-      <main className="mx-auto flex w-full max-w-7xl flex-1 flex-col px-4 sm:px-8 2xl:max-w-[1600px]">
-        <div className="flex min-h-[min(37vh,20rem)] flex-1 flex-col items-center justify-center gap-2 py-2 sm:min-h-[min(30vh,20rem)]">
-          <div
-            key={`stage-${product.id}`}
-            className={cx(
-              "relative isolate size-[min(72vw,32vh)] shrink-0 sm:size-[min(27vh,22rem)] [@media(min-width:2200px)_and_(min-height:1200px)]:size-[min(36vh,40rem)]",
-            )}
-          >
-            <span aria-hidden="true" data-trade-fair-spotlight="" />
-            <div
-              key={`${product.id}-${selectedImageIndex}`}
-              data-trade-fair-product-enter=""
-              className="absolute inset-0"
-            >
-              <Image
-                src={selectedImage}
-                alt={`${product.name}, photo ${selectedImageIndex + 1} of ${productImages.length}`}
-                fill
-                preload
-                sizes="(max-width: 640px) 72vw, (min-width: 2200px) 40rem, 27vh"
-                className="z-10 object-contain"
+      <main className="mx-auto grid w-full max-w-7xl flex-1 grid-cols-1 items-center gap-4 px-4 py-4 sm:px-8 sm:py-6 lg:grid-cols-[minmax(0,1.15fr)_minmax(0,0.85fr)] lg:gap-10 lg:py-3 2xl:max-w-[1600px]">
+        <div className="flex min-w-0 flex-col items-center justify-center gap-3">
+          <div className="relative flex w-full items-center justify-center">
+            {products.length > 1 ? (
+              <Button
+                type="button"
+                variant="primary"
+                size="large"
+                iconOnly
+                leadingIcon={RiArrowLeftLine}
+                aria-label={copy.previousProducts}
+                aria-controls="trade-fair-products"
+                onClick={() => changeProduct(-1)}
+                className="absolute start-0 top-1/2 z-20 size-12 -translate-y-1/2 rounded-full p-0 shadow-md sm:size-14 lg:size-16 [&_svg]:size-6 lg:[&_svg]:size-8"
               />
+            ) : null}
+            <div
+              key={`stage-${product.id}`}
+              className={cx(
+                "relative isolate aspect-square w-full max-w-[min(82vw,38svh)] shrink-0 sm:max-w-[min(62vw,44svh)] lg:max-w-[min(55vw,58svh)]",
+              )}
+            >
+              <span aria-hidden="true" data-trade-fair-spotlight="" />
+              <div
+                key={`${product.id}-${selectedImageIndex}`}
+                data-trade-fair-product-enter=""
+                className="absolute inset-0 overflow-hidden rounded-3xl"
+              >
+                <Image
+                  src={selectedImage}
+                  alt={`${product.name}, photo ${selectedImageIndex + 1} of ${productImages.length}`}
+                  fill
+                  preload
+                  sizes="(max-width: 640px) min(82vw, 38svh), (min-width: 1024px) min(55vw, 58svh), min(62vw, 44svh)"
+                  className="z-10 object-contain"
+                />
+              </div>
             </div>
+            {products.length > 1 ? (
+              <Button
+                type="button"
+                variant="primary"
+                size="large"
+                iconOnly
+                leadingIcon={RiArrowRightLine}
+                aria-label={copy.nextProducts}
+                aria-controls="trade-fair-products"
+                onClick={() => changeProduct(1)}
+                className="absolute end-0 top-1/2 z-20 size-12 -translate-y-1/2 rounded-full p-0 shadow-md sm:size-14 lg:size-16 [&_svg]:size-6 lg:[&_svg]:size-8"
+              />
+            ) : null}
           </div>
-          <div role="group" aria-label="Product photos / Foto del prodotto" className="mx-auto flex max-w-full snap-x snap-mandatory gap-2 overflow-x-auto overscroll-x-contain px-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+          <div role="group" aria-label={copy.productPhotos} className="mx-auto flex max-w-full snap-x snap-mandatory gap-2 overflow-x-auto overscroll-x-contain px-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
             {productImages.map((image, index) => {
               const isSelected = index === selectedImageIndex;
 
@@ -339,7 +399,7 @@ export function TradeFairShowcase({ products }: { products: TradeFairProduct[] }
                   type="button"
                   variant="secondary"
                   size="small"
-                  aria-label={`Photo ${index + 1} of ${productImages.length} / Foto ${index + 1} di ${productImages.length}`}
+                  aria-label={copy.photoNumber(index + 1, productImages.length)}
                   aria-pressed={isSelected}
                   onClick={() => setSelectedImageIndex(index)}
                   style={{ animationDelay: `${Math.min(index, 6) * 28}ms` }}
@@ -358,32 +418,28 @@ export function TradeFairShowcase({ products }: { products: TradeFairProduct[] }
           </div>
         </div>
 
-        <section key={`copy-${product.id}`} data-trade-fair-product-copy-enter="" aria-live="polite" aria-atomic="true" className={cx("mx-auto w-full max-w-4xl pb-3 sm:pb-4")}>
+        <section key={`copy-${product.id}`} data-trade-fair-product-copy-enter="" aria-live="polite" aria-atomic="true" className="mx-auto w-full max-w-4xl lg:mx-0 lg:max-w-none">
           <div className="mb-3 flex items-end justify-between gap-4">
             <h1 className="text-balance text-title-1-semibold text-text-primary sm:text-display-3-bold">{product.name}</h1>
             <span className="shrink-0 pb-1 text-body-2-medium tabular-nums text-text-tertiary">
               {String(selectedNumber).padStart(2, "0")} / {String(products.length).padStart(2, "0")}
             </span>
           </div>
-          <div className="grid gap-3 sm:grid-cols-2 sm:gap-8">
-            <article className="border-s-2 border-accent-500 ps-4">
-              <p className="mb-1 text-caption-1-semibold uppercase tracking-wide text-text-tertiary">English</p>
-              <p className="text-pretty text-body-regular text-text-secondary">{product.descriptionEn}</p>
-            </article>
-            <article className="border-s-2 border-accent-500 ps-4">
-              <p className="mb-1 text-caption-1-semibold uppercase tracking-wide text-text-tertiary">Italiano</p>
-              <p className="text-pretty text-body-regular text-text-secondary">{product.descriptionIt}</p>
-            </article>
-          </div>
+          <article className="border-s-2 border-accent-500 ps-4">
+            <p className="mb-1 text-caption-1-semibold uppercase tracking-wide text-text-tertiary">{copy.productDescription}</p>
+            <p className="text-pretty text-body-regular text-text-secondary">
+              {product.descriptionByLanguage[language]}
+            </p>
+          </article>
         </section>
       </main>
 
-      <nav aria-label="Explore products / Esplora i prodotti" className="shrink-0 border-t border-separator-border bg-background-primary-default">
+      <nav aria-label={copy.exploreProducts} className="shrink-0 border-t border-separator-border bg-background-primary-default">
         <div className="mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-2 px-4 pb-2 pt-3 sm:gap-4 sm:px-8 sm:pt-4 2xl:max-w-[1600px]">
           <h2 className="text-caption-1-semibold uppercase tracking-wide text-text-tertiary">
-            Our products <span aria-hidden="true">·</span> I nostri prodotti
+            {copy.exploreProducts}
           </h2>
-          <span className="text-body-2-regular text-text-tertiary">Tap a product to explore <span aria-hidden="true">·</span> Tocca un prodotto per scoprirlo</span>
+          <span className="text-body-2-regular text-text-tertiary">{copy.tapToExplore}</span>
         </div>
         <div className="mx-auto flex w-full max-w-7xl items-center gap-2 px-2 pb-4 pt-1 sm:gap-3 sm:px-8 2xl:max-w-[1600px]">
           <Button
@@ -392,7 +448,7 @@ export function TradeFairShowcase({ products }: { products: TradeFairProduct[] }
             size="large"
             iconOnly
             leadingIcon={RiArrowLeftLine}
-            aria-label="Previous products / Prodotti precedenti"
+            aria-label={copy.previousProducts}
             aria-controls="trade-fair-products"
             disabled={!canScrollProductsLeft}
             onClick={() => scrollProducts(-1)}
@@ -445,7 +501,7 @@ export function TradeFairShowcase({ products }: { products: TradeFairProduct[] }
             size="large"
             iconOnly
             leadingIcon={RiArrowRightLine}
-            aria-label="Next products / Prodotti successivi"
+            aria-label={copy.nextProducts}
             aria-controls="trade-fair-products"
             disabled={!canScrollProductsRight}
             onClick={() => scrollProducts(1)}

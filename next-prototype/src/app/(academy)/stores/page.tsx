@@ -17,7 +17,7 @@ async function StoresContent() {
 
 export default function StoresPage() {
   return (
-    <Suspense fallback={<AcademyLoading label="Wczytywanie sklepów" />}>
+    <Suspense fallback={<AcademyLoading label="Wczytywanie sklepów" withHeader />}>
       <StoresContent />
     </Suspense>
   );

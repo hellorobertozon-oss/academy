@@ -15,13 +15,70 @@ import {
   DropdownTrigger,
 } from "@/components/base/dropdown/dropdown";
 import { Select, SelectItem } from "@/components/base/select/select";
-import { useAcademy, type AcademyLanguage } from "@/components/academy-provider";
+import { ACADEMY_LANGUAGES, useAcademy, type AcademyLanguage } from "@/components/academy-provider";
 import { ThemeToggle } from "@/components/application/theme/theme-toggle";
 import { backActionClassName } from "@/components/route-button";
 import { cx } from "@/utils/cx";
 import { createAcademyBrowserClient } from "@/lib/supabase/browser";
 
 type HeaderMode = "landing" | "login" | "app";
+
+const LANGUAGE_LABEL_KEYS: Record<AcademyLanguage, "polish" | "english" | "german" | "czech" | "french" | "italian"> = {
+  pl: "polish",
+  en: "english",
+  de: "german",
+  cs: "czech",
+  fr: "french",
+  it: "italian",
+};
+
+const LANGUAGE_FLAGS: Record<AcademyLanguage, string> = {
+  pl: "/assets/flag-pl.svg",
+  en: "/assets/flag-en.svg",
+  de: "/assets/flag-de.svg",
+  cs: "/assets/flag-cs.svg",
+  fr: "/assets/flag-fr.svg",
+  it: "/assets/flag-it.svg",
+};
+
+export function AcademyLanguagePicker({
+  persistence = "profile",
+  className,
+}: {
+  persistence?: "profile" | "local" | "kiosk";
+  className?: string;
+}) {
+  const { language, setLanguage, setPreviewLanguage, setKioskLanguage, t } = useAcademy();
+  const onChange = persistence === "profile"
+    ? setLanguage
+    : persistence === "kiosk"
+      ? setKioskLanguage
+      : setPreviewLanguage;
+
+  return (
+    <Select
+      aria-label={t("language")}
+      selectedKey={language}
+      onSelectionChange={(key) => {
+        if (key !== null) onChange(String(key) as AcademyLanguage);
+      }}
+      triggerClassName={cx(
+        "min-h-11 border-0 bg-transparent px-2.5 py-2 text-text-primary shadow-none hover:border-transparent hover:bg-background-primary-hover",
+        className,
+      )}
+      popoverClassName="z-50"
+    >
+      {ACADEMY_LANGUAGES.map((code) => (
+        <SelectItem key={code} id={code}>
+          <span aria-hidden="true" className="relative size-6 shrink-0 overflow-hidden rounded-full border border-separator-border">
+            <Image src={LANGUAGE_FLAGS[code]} alt="" fill sizes="24px" />
+          </span>
+          <span>{t(LANGUAGE_LABEL_KEYS[code])}</span>
+        </SelectItem>
+      ))}
+    </Select>
+  );
+}
 
 export function AcademyHeader({
   mode,
@@ -32,7 +89,7 @@ export function AcademyHeader({
   showThemeToggle?: boolean;
   themeToggleClassName?: string;
 }) {
-  const { language, setLanguage, setPreviewLanguage, t, isAdmin } = useAcademy();
+  const { t, isAdmin } = useAcademy();
   const router = useRouter();
   const pathname = usePathname();
   const appMode = mode === "app";
@@ -94,8 +151,8 @@ export function AcademyHeader({
             size="small"
             className="min-h-10 shrink-0 rounded-full px-3"
           >
-            <span className="hidden sm:inline">Lista produktów</span>
-            <span className="sm:hidden">Produkty</span>
+            <span className="hidden sm:inline">{t("productList")}</span>
+            <span className="sm:hidden">{t("productListShort")}</span>
           </ButtonLink>
         ) : null}
 
@@ -126,8 +183,15 @@ export function AcademyHeader({
           />
         </Link>
 
-        {mode === "login" ? (
+        {mode === "landing" ? (
           <div className="ml-auto">
+            <AcademyLanguagePicker persistence="local" />
+          </div>
+        ) : null}
+
+        {mode === "login" ? (
+          <div className="ml-auto flex items-center gap-2">
+            <AcademyLanguagePicker persistence="local" />
             <Button variant="secondary" className={backActionClassName} onClick={() => router.push("/")}>
               {t("backHome")}
             </Button>
@@ -139,44 +203,7 @@ export function AcademyHeader({
             "flex items-center gap-2 sm:gap-4",
             isAdminShell ? "ml-auto" : "absolute bottom-1.5 right-4 sm:static sm:ml-auto",
           )}>
-            <Select
-              aria-label={t("language")}
-              selectedKey={language}
-              onSelectionChange={(key) => (isUserPreview ? setPreviewLanguage : setLanguage)(String(key) as AcademyLanguage)}
-              triggerClassName="min-h-10 border-0 bg-transparent px-1.5 py-2 text-text-primary shadow-none hover:border-transparent hover:bg-transparent"
-              popoverClassName="z-50"
-            >
-              <SelectItem id="pl">
-                <span aria-hidden="true" className="relative size-6 shrink-0 overflow-hidden rounded-full border border-separator-border">
-                  <Image src="/assets/flag-pl.svg" alt="" fill sizes="24px" />
-                </span>
-                <span>{t("polish")}</span>
-              </SelectItem>
-              <SelectItem id="en">
-                <span aria-hidden="true" className="relative size-6 shrink-0 overflow-hidden rounded-full border border-separator-border">
-                  <Image src="/assets/flag-en.svg" alt="" fill sizes="24px" />
-                </span>
-                <span>{t("english")}</span>
-              </SelectItem>
-              <SelectItem id="de">
-                <span aria-hidden="true" className="relative size-6 shrink-0 overflow-hidden rounded-full border border-separator-border">
-                  <Image src="/assets/flag-de.svg" alt="" fill sizes="24px" />
-                </span>
-                <span>{t("german")}</span>
-              </SelectItem>
-              <SelectItem id="cs">
-                <span aria-hidden="true" className="relative size-6 shrink-0 overflow-hidden rounded-full border border-separator-border">
-                  <Image src="/assets/flag-cs.svg" alt="" fill sizes="24px" />
-                </span>
-                <span>{t("czech")}</span>
-              </SelectItem>
-              <SelectItem id="fr">
-                <span aria-hidden="true" className="relative size-6 shrink-0 overflow-hidden rounded-full border border-separator-border">
-                  <Image src="/assets/flag-fr.svg" alt="" fill sizes="24px" />
-                </span>
-                <span>{t("french")}</span>
-              </SelectItem>
-            </Select>
+            <AcademyLanguagePicker persistence={isUserPreview ? "local" : "profile"} />
 
             <Dropdown>
               <DropdownTrigger

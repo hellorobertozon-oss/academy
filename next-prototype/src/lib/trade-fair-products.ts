@@ -1,6 +1,12 @@
 // Current Xzone24 shop assortment and local packshots, summarized and translated
 // for the kiosk: https://xzone24.com/shop/
 import { TRADE_FAIR_PRODUCT_GALLERIES } from "@/lib/trade-fair-product-galleries";
+import polishProductDescriptions from "../../supabase/translations/trade-fair-products.pl.json";
+import germanProductDescriptions from "../../supabase/translations/trade-fair-products.de.json";
+import czechProductDescriptions from "../../supabase/translations/trade-fair-products.cs.json";
+import frenchProductDescriptions from "../../supabase/translations/trade-fair-products.fr.json";
+
+type TradeFairLanguage = "pl" | "en" | "de" | "cs" | "fr" | "it";
 
 export type TradeFairProduct = {
   id: string;
@@ -8,10 +14,11 @@ export type TradeFairProduct = {
   image: string;
   descriptionEn: string;
   descriptionIt: string;
+  descriptionByLanguage: Record<TradeFairLanguage, string>;
   galleryImages: string[];
 };
 
-const tradeFairProductInfo: Omit<TradeFairProduct, "galleryImages">[] = [
+const tradeFairProductInfo: Omit<TradeFairProduct, "galleryImages" | "descriptionByLanguage">[] = [
   {
     id: "interior-refresher-man",
     name: "Xzone® Interior Refresher with Silver Ions Man 100ml",
@@ -350,7 +357,22 @@ const tradeFairProductInfo: Omit<TradeFairProduct, "galleryImages">[] = [
   },
 ];
 
+const additionalDescriptions: Record<"pl" | "de" | "cs" | "fr", Record<string, string>> = {
+  pl: polishProductDescriptions,
+  de: germanProductDescriptions,
+  cs: czechProductDescriptions,
+  fr: frenchProductDescriptions,
+};
+
 export const TRADE_FAIR_PRODUCTS: TradeFairProduct[] = tradeFairProductInfo.map((product) => ({
   ...product,
+  descriptionByLanguage: {
+    pl: additionalDescriptions.pl[product.id],
+    en: product.descriptionEn,
+    de: additionalDescriptions.de[product.id],
+    cs: additionalDescriptions.cs[product.id],
+    fr: additionalDescriptions.fr[product.id],
+    it: product.descriptionIt,
+  },
   galleryImages: TRADE_FAIR_PRODUCT_GALLERIES[product.id] ?? [product.image],
 }));

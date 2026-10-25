@@ -4,6 +4,19 @@ const nextConfig: NextConfig = {
   /* config options here */
   cacheComponents: true,
   partialPrefetching: true,
+  async headers() {
+    return [
+      {
+        source: "/:path*",
+        headers: [
+          {
+            key: "Content-Security-Policy",
+            value: "frame-ancestors 'self' https://robertozon.com",
+          },
+        ],
+      },
+    ];
+  },
   turbopack: {
     rules: {
       "*.css": {

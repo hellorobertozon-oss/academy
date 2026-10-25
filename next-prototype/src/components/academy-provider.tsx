@@ -1,11 +1,16 @@
 "use client";
 
 import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState, useSyncExternalStore, type ReactNode } from "react";
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { DirectionProvider } from "@/components/foundations/direction/direction";
-import { readAcademyViewerContextAction, updatePreferredLanguageAction } from "@/app/language-actions";
+import {
+  readAcademyViewerContextAction,
+  updateAcademyPreviewLanguageAction,
+  updatePreferredLanguageAction,
+} from "@/app/language-actions";
+import italianAcademyCopy from "../../supabase/translations/academy-copy.it.json";
 
-export const ACADEMY_LANGUAGES = ["pl", "en", "de", "cs", "fr"] as const;
+export const ACADEMY_LANGUAGES = ["pl", "en", "de", "cs", "fr", "it"] as const;
 export type AcademyLanguage = (typeof ACADEMY_LANGUAGES)[number];
 
 function isAcademyLanguage(value: unknown): value is AcademyLanguage {
@@ -22,9 +27,12 @@ const COPY = {
     language: "Zmień język",
     polish: "Polski",
     english: "English",
-    german: "German",
-    czech: "Czech",
+    german: "Niemiecki",
+    czech: "Czeski",
     french: "Francuski",
+    italian: "Włoski",
+    productList: "Lista produktów",
+    productListShort: "Produkty",
     profile: "Profil",
     profileMenu: "Menu profilu",
     appearance: "Wygląd",
@@ -352,6 +360,14 @@ const COPY = {
     sampleQuestionOneAnswer: "Przed poleceniem sprawdź zalecenia na etykiecie produktu i wymagania producenta napędu. Warto też zapytać klienta, czy ma łańcuch z uszczelnieniami.",
     sampleQuestionTwo: "Klient szuka jednego środka do kasku i wizjera. Co najlepiej zaproponować?",
     sampleQuestionTwoAnswer: "Dobierz produkt przeznaczony do materiału wizjera oraz zewnętrznej powierzchni kasku. Zawsze potwierdź zastosowanie w instrukcji produktu.",
+    sampleQuestionThree: "Jak sprawdzić, czy preparat nadaje się do odzieży tekstylnej z membraną?",
+    sampleQuestionThreeAnswer: "Sprawdź oznaczenia na produkcie i zalecenia producenta odzieży. Wybierz środek do tekstyliów zgodny z membraną i stosuj go według instrukcji.",
+    sampleQuestionFour: "Czy mogę użyć tego samego środka do wizjera i zewnętrznej części kasku?",
+    sampleQuestionFourAnswer: "Tylko jeśli etykieta wyraźnie wskazuje oba zastosowania. Dobierz produkt do materiału wizjera i zaleceń producenta kasku.",
+    sampleQuestionFive: "Klient chce wyczyścić motocykl po jeździe w błocie. Od czego zacząć?",
+    sampleQuestionFiveAnswer: "Najpierw ustal, jakie powierzchnie i zabrudzenia wymagają czyszczenia. Dobierz preparat do materiału i stosuj go zgodnie z etykietą.",
+    sampleQuestionSix: "Jak pomóc klientowi, który nie wie, jakiego produktu potrzebuje?",
+    sampleQuestionSixAnswer: "Zapytaj o oczekiwany efekt, czyszczone powierzchnie i sposób użycia. Na tej podstawie zaproponuj produkt lub prosty zestaw.",
     sampleComment: "Dobrze też dopytać, czy klient zna materiał wizjera.",
     employee: "Sprzedawca",
     teamMember: "Zespół Xzone",
@@ -377,6 +393,9 @@ const COPY = {
     german: "German",
     czech: "Czech",
     french: "French",
+    italian: "Italian",
+    productList: "Product list",
+    productListShort: "Products",
     profile: "Profile",
     profileMenu: "Profile menu",
     appearance: "Appearance",
@@ -704,6 +723,14 @@ const COPY = {
     sampleQuestionOneAnswer: "Before recommending it, check the product label and the drive manufacturer's guidance. Ask whether the customer has a sealed chain.",
     sampleQuestionTwo: "A customer wants one product for a helmet and visor. What should I recommend?",
     sampleQuestionTwoAnswer: "Choose a product suitable for the visor material and the outside of the helmet. Confirm the intended use on the product instructions.",
+    sampleQuestionThree: "How can I check whether a cleaner is suitable for membrane textile gear?",
+    sampleQuestionThreeAnswer: "Check the product label and the garment maker’s care instructions. Choose a textile cleaner compatible with the membrane and follow its directions.",
+    sampleQuestionFour: "Can I use the same cleaner on a visor and the outside of a helmet?",
+    sampleQuestionFourAnswer: "Only if the label clearly lists both uses. Choose a product that suits the visor material and follows the helmet maker’s guidance.",
+    sampleQuestionFive: "A customer wants to clean a motorcycle after a muddy ride. Where should they start?",
+    sampleQuestionFiveAnswer: "First identify the surfaces and dirt that need attention. Choose a product suitable for those materials and follow its label.",
+    sampleQuestionSix: "How can I help a customer who is unsure which product they need?",
+    sampleQuestionSixAnswer: "Ask what result they want, which surfaces they need to clean, and how they will use the product. Then suggest a suitable product or simple kit.",
     sampleComment: "It also helps to ask what material the visor is made of.",
     employee: "Seller",
     teamMember: "Xzone team",
@@ -721,8 +748,11 @@ const COPY = {
 
 export type CopyKey = keyof typeof COPY.pl;
 
-const LOCALIZED_COPY: Record<"de" | "cs" | "fr", Partial<Record<CopyKey, string>>> = {
+const LOCALIZED_COPY: Record<"de" | "cs" | "fr" | "it", Partial<Record<CopyKey, string>>> = {
   de: {
+    italian: "Italienisch",
+    productList: "Produktliste",
+    productListShort: "Produkte",
     activeStore: "Aktiv",
     addComment: "Kommentar hinzufügen",
     addressColumn: "Adresse",
@@ -912,6 +942,14 @@ const LOCALIZED_COPY: Record<"de" | "cs" | "fr", Partial<Record<CopyKey, string>
     sampleQuestionOneAnswer: "Prüfe vor der Empfehlung das Produktetikett und die Hinweise des Kettenherstellers. Frage nach, ob die Kette abgedichtet ist.",
     sampleQuestionTwo: "Ein Kunde sucht ein Produkt für Helm und Visier. Was empfiehlst du?",
     sampleQuestionTwoAnswer: "Wähle ein Produkt, das zum Visiermaterial und zur Außenseite des Helms passt. Prüfe die Anwendungshinweise auf dem Produkt.",
+    sampleQuestionThree: "Woran erkennst du, ob ein Reiniger für Textilbekleidung mit Membran geeignet ist?",
+    sampleQuestionThreeAnswer: "Prüfe das Produktetikett und die Pflegehinweise des Bekleidungsherstellers. Wähle einen membrangeeigneten Textilreiniger und befolge die Anwendungshinweise.",
+    sampleQuestionFour: "Kann ich denselben Reiniger für Visier und Helmschale verwenden?",
+    sampleQuestionFourAnswer: "Nur wenn beide Anwendungen ausdrücklich auf dem Etikett stehen. Achte auf das Visiermaterial und die Pflegehinweise des Helmherstellers.",
+    sampleQuestionFive: "Ein Kunde möchte sein Motorrad nach einer schlammigen Fahrt reinigen. Wo fängt er an?",
+    sampleQuestionFiveAnswer: "Kläre zuerst, welche Oberflächen und Verschmutzungen gereinigt werden sollen. Wähle ein passendes Produkt und befolge das Etikett.",
+    sampleQuestionSix: "Wie hilfst du einem Kunden, der nicht weiß, welches Produkt er braucht?",
+    sampleQuestionSixAnswer: "Frage nach dem gewünschten Ergebnis, den zu reinigenden Oberflächen und der geplanten Anwendung. Empfiehl daraufhin ein passendes Produkt oder Set.",
     savePassword: "Neues Passwort speichern",
     seeResult: "Ergebnis anzeigen",
     sellerQuestions: "Fragen aus den Stores",
@@ -937,9 +975,147 @@ const LOCALIZED_COPY: Record<"de" | "cs" | "fr", Partial<Record<CopyKey, string>
     unlikeQuestion: "Gefällt mir nicht mehr",
     useCategory: "Anwendung",
     waitingAnswer: "Warte auf eine Antwort des Xzone-Teams",
+    points: "200 Punkte",
+    heroEyebrow: "Academy für Verkaufsteams",
+    heroTitle: "Sicher verkaufen.",
+    heroDescription: "Entdecke die Xzone-Produkte und berate Motorradfahrende mit Sicherheit.",
+    recoveryMessage: "Falls ein Konto mit dieser E-Mail-Adresse existiert, senden wir einen Link zum Zurücksetzen des Passworts.",
+    rewards: "Prämien",
+    rewardsDescription: "Punkte, Abzeichen und neue Wissensstufen.",
+    adminLeaderboardTitle: "Globale Rangliste",
+    adminLeaderboardDescription: "Lege fest, ob Nutzer die Rangliste sehen können. Angezeigt werden Vorname, erster Buchstabe des Nachnamens, Stadt und Punktzahl.",
+    adminLeaderboardEnabled: "Die Rangliste ist für Nutzer sichtbar.",
+    adminLeaderboardDisabled: "Die Rangliste ist für Nutzer ausgeblendet.",
+    adminLeaderboardUnavailable: "Die Ranglisteneinstellung konnte nicht geladen werden.",
+    adminLeaderboardHide: "Rangliste ausblenden",
+    adminLeaderboardShow: "Rangliste anzeigen",
+    adminLeaderboardSaving: "Wird gespeichert …",
+    adminLeaderboardSaved: "Die Ranglisteneinstellung wurde gespeichert.",
+    adminLeaderboardSaveError: "Die Ranglisteneinstellung konnte nicht gespeichert werden.",
+    moduleTwo: "Modul 2",
+    moduleThree: "Modul 3",
+    moduleFour: "Modul 4",
+    moduleFive: "Modul 5",
+    moduleSix: "Modul 6",
+    moduleSeven: "Modul 7",
+    productsDescription: "Lerne das Wichtigste zur Pflege von Motorrädern, Helmen und Motorradbekleidung.",
+    care: "Die passende Pflege wählen",
+    careDescription: "Lerne, das passende Produkt auf die Bedürfnisse der Motorradfahrenden abzustimmen.",
+    advice: "Beraten und empfehlen",
+    adviceDescription: "Praktische Tipps für sichere Empfehlungen im Store.",
+    helmetCareTitle: "Helmpflege",
+    helmetCareDescription: "Lerne, wie du Helm, Visier und Innenfutter reinigst und pflegst.",
+    leatherCareTitle: "Pflege von Lederbekleidung",
+    leatherCareDescription: "Lerne, wie du Motorradbekleidung aus Leder reinigst und pflegst.",
+    textileCareTitle: "Pflege von Textilbekleidung",
+    textileCareDescription: "Wähle die passende Reinigung und Imprägnierung für Textil- und Sportbekleidung.",
+    glovesCareTitle: "Handschuhe und Zubehör",
+    glovesCareDescription: "Pflege deine Motorradhandschuhe und entdecke praktisches Pflegezubehör.",
+    motorcycleDetailingTitle: "Motorradpflege",
+    motorcycleDetailingDescription: "Lerne die einzelnen Schritte der Motorradwäsche kennen und wähle passende Produkte und Zubehör aus.",
+    offRoadTitle: "Pflege von Offroad-Motorrädern",
+    offRoadDescription: "Lerne, wie du Schlamm entfernst und dein Motorrad nach einer Offroad-Fahrt pflegst.",
+    salesSkillsTitle: "Xzone-Produkte erfolgreich verkaufen",
+    salesSkillsDescription: "Erkenne die Bedürfnisse deiner Kunden und empfehle passende Xzone-Produkte und Sets.",
+    openModule: "Modul öffnen",
+    comingSoon: "Demnächst verfügbar",
+    openLesson: "Lektion öffnen",
+    levelCardLabel: "Deine aktuelle Stufe",
+    yourLevel: "Deine Stufe",
+    levelName: "Level 2 · Fortgeschritten",
+    levelNext: "Noch 2 Lektionen bis zur nächsten Stufe",
+    levelProgress: "3 von 5 Lektionen",
+    lessonTakeawayOne: "Ein komplettes Set begleitet dich beim Waschen, Trocknen und abschließenden Finish des Motorrads.",
+    lessonTakeawayTwo: "Power Powder Moto Wash löst sich in Wasser auf und bildet aktiven Reinigungsschaum.",
+    lessonTakeawayThree: "Ceramic Detailer verleiht Glanz und hinterlässt eine wasserabweisende Schicht, die Schmutzablagerungen entgegenwirkt.",
+    lessonTakeawayFour: "Fiber Hand erleichtert das Waschen. Das dicke Detailing Fiber Tuch eignet sich zum Trocknen und Polieren.",
+    lessonTakeawayFive: "Die einfache Reihenfolge: Vorwäsche, Hauptwäsche, abspülen und trocknen, anschließend den Detailer auftragen.",
+    lessonProductsOne: "Entdecke das Xzone-Sortiment",
+    lessonProductsTwo: "Wähle das passende Produkt für die Oberfläche",
+    lessonProductsThree: "Motorradpflegeprodukte sicher anwenden",
+    lessonCareOne: "Erkenne die Bedürfnisse der Motorradfahrenden",
+    lessonCareTwo: "Stimme das Produkt auf das Material ab",
+    lessonCareThree: "Empfiehl die passende Pflege",
+    lessonAdviceOne: "Beginne mit einer guten Frage",
+    lessonAdviceTwo: "Erkläre den Nutzen des Produkts",
+    lessonAdviceThree: "Empfiehl ein ergänzendes Produkt",
+    helmetTextLesson: "Beispiel für eine Textlektion",
+    helmetLessonOne: "Warum braucht ein Helm die richtige Pflege?",
+    helmetLessonTwo: "Helmet Gel und Helmet Detailer: Unterschiede und Anwendung",
+    helmetLessonThree: "Wie reinigst du Visier und Pinlock richtig?",
+    helmetLessonFour: "Wie pflegst du das Helminnenfutter?",
+    helmetLessonFive: "Welches Set empfiehlst du: GIGA oder Trip Kit?",
+    helmetLessonSix: "Verkaufssimulation: Ein Kunde kauft einen neuen Helm",
+    leatherLessonOne: "Warum braucht Motorrad-Leder regelmäßige Pflege?",
+    leatherLessonTwo: "Leder reinigen: Leather Cleaner und Bürste",
+    leatherLessonThree: "Leder pflegen: Leather Milk",
+    leatherLessonFour: "So verwendest du das Leather Care Kit",
+    leatherLessonFive: "Verkaufssimulation: Ein Kunde kauft Lederbekleidung",
+    textileLessonOne: "Wie pflegst du Textilbekleidung?",
+    textileLessonTwo: "Textile Care: Motorradbekleidung reinigen",
+    textileLessonThree: "Fabric Protect: Motorradbekleidung imprägnieren",
+    textileLessonFour: "Active Care: Sportbekleidung pflegen",
+    textileLessonFive: "Merino Care und Jeans Care: Spezialprodukte",
+    textileLessonSix: "Verkaufssimulation: Pflege passend zur Bekleidungsart auswählen",
+    glovesLessonOne: "Wie pflegst du Motorradhandschuhe?",
+    glovesLessonTwo: "Magic Gloves: Anwendung und Vorführung",
+    glovesLessonThree: "Zip Agent: Reißverschlüsse pflegen und Zusatzprodukte verkaufen",
+    detailingLessonOne: "Wie beginnst du mit der Motorradpflege?",
+    detailingLessonTwo: "Wash & Ride: Motorradwäsche",
+    detailingLessonThree: "Power Powder: Vorbereitung und Anwendung",
+    detailingLessonFour: "Bug Killer und Wheelixir: Schmutz entfernen",
+    detailingLessonFive: "Ceramic Detailer: Finish und Schutz",
+    detailingLessonSix: "Bürsten und Mikrofasertücher: Zubehör auswählen",
+    offRoadLessonOne: "Welche Verschmutzungen entstehen beim Offroad-Fahren?",
+    offRoadLessonTwo: "Mud Breaker: Schlamm entfernen",
+    offRoadLessonThree: "Dirt Finisher: Finish und Pflege",
+    offRoadLessonFour: "So wählst du das Off-Road Kit aus",
+    salesLessonOne: "Wie erkennst du die Bedürfnisse deiner Kunden?",
+    salesLessonTwo: "So empfiehlst du komplette Sets statt einzelner Produkte",
+    salesLessonThree: "Mit ergänzenden Produkten den Verkauf steigern",
+    salesLessonFour: "So gehst du auf häufige Einwände von Kunden ein",
+    salesLessonFive: "Gesprächssimulationen und der abschließende Verkaufstest",
+    quizPromptOne: "Ein Kunde möchte ein Produkt auf einem Helmvisier verwenden. Was empfiehlst du?",
+    quizOptionOneA: "Empfiehl ein beliebiges Motorradreinigungsmittel – sie sind alle universell einsetzbar.",
+    quizOptionOneB: "Prüfe, ob das Produkt für Visiere geeignet ist und die Empfehlungen des Helmherstellers beachtet werden.",
+    quizOptionOneC: "Schlage vor, mehr Produkt zu verwenden, damit sich der Schmutz schneller löst.",
+    quizPromptTwo: "Womit solltest du beginnen, wenn du ein Motorradpflegeprodukt auswählst?",
+    quizOptionTwoA: "Finde heraus, welche Oberfläche gepflegt werden soll und welches Ergebnis sich der Kunde wünscht.",
+    quizOptionTwoB: "Wähle das beliebteste Produkt im Store.",
+    quizOptionTwoC: "Empfiehl ein Produkt für alle Oberflächen am Motorrad.",
+    quizPromptThree: "Ein Kunde fragt, wie oft ein Schutzprodukt angewendet werden soll. Was antwortest du?",
+    quizOptionThreeA: "Verwende es jedes Mal, wenn jemand das Motorrad berührt.",
+    quizOptionThreeB: "Die Häufigkeit spielt keine Rolle, solange nur wenig Produkt verwendet wird.",
+    quizOptionThreeC: "Halte dich an die Anweisungen auf dem Etikett und die Pflegehinweise für die jeweilige Oberfläche.",
+    quizPromptFour: "Welche Frage hilft dir, ein passendes Produkt für die Bedürfnisse eines Motorradfahrers zu finden?",
+    quizOptionFourA: "Welche Motorradfarbe ist am beliebtesten?",
+    quizOptionFourB: "Welche Oberfläche soll gepflegt werden und welches Ergebnis wird gewünscht?",
+    quizOptionFourC: "Kennt der Kunde bereits den Namen eines bestimmten Produkts?",
+    rewardLessonDescription: "Für jede abgeschlossene Lektion erhältst du",
+    rewardTestDescription: "Für jeden bestandenen Test erhältst du",
+    pointsDescription: "Mit jeder abgeschlossenen Lektion und jedem Test sammelst du weitere Punkte.",
+    rewardsNoteTitle: "Mit jeder Lektion kommst du deinem Ziel näher",
+    rewardsNoteDescription: "Sammle beim Lernen Punkte und überprüfe dein Wissen in Tests.",
+    lessonsLabel: "Lektionen",
+    lessonsReward: "Schließe Module ab und sammle dabei Punkte.",
+    badges: "Abzeichen",
+    badgesDescription: "Schalte Abzeichen frei und erweitere dein Produktwissen.",
+    levels: "Level",
+    levelsDescription: "Entwickle dich zum Xzone-Experten weiter.",
+    searchQuestions: "Fragen oder Produkte suchen",
+    allTopics: "Alle Themen",
+    employee: "Verkaufskraft",
+    teamMember: "Xzone-Team",
+    categoryLabel: "Kategorie",
+    resetPasswordTitle: "Passwort ändern",
+    currentPassword: "Aktuelles Passwort",
+    passwordUnavailable: "Passwortänderungen sind in dieser Vorschau noch nicht verfügbar.",
     welcomeBack: "Willkommen zurück",
   },
   cs: {
+    italian: "Italština",
+    productList: "Seznam produktů",
+    productListShort: "Produkty",
     activeStore: "Aktivní",
     addComment: "Přidat komentář",
     addressColumn: "Adresa",
@@ -1129,6 +1305,14 @@ const LOCALIZED_COPY: Record<"de" | "cs" | "fr", Partial<Record<CopyKey, string>
     sampleQuestionOneAnswer: "Před doporučením zkontrolujte štítek výrobku a pokyny výrobce řetězu. Zeptejte se, zda má zákazník řetěz s těsnicími kroužky.",
     sampleQuestionTwo: "Zákazník hledá jeden přípravek na helmu i hledí. Co doporučit?",
     sampleQuestionTwoAnswer: "Vyberte přípravek vhodný pro materiál hledí i vnější povrch helmy. Ověřte způsob použití v pokynech k výrobku.",
+    sampleQuestionThree: "Jak poznám, zda je přípravek vhodný pro textilní oblečení s membránou?",
+    sampleQuestionThreeAnswer: "Zkontrolujte štítek výrobku a pokyny výrobce oblečení. Vyberte čisticí přípravek na textil vhodný pro membránu a dodržujte návod.",
+    sampleQuestionFour: "Mohu použít stejný přípravek na hledí i vnější část helmy?",
+    sampleQuestionFourAnswer: "Pouze pokud štítek výslovně uvádí obě použití. Zohledněte materiál hledí a pokyny výrobce helmy.",
+    sampleQuestionFive: "Zákazník chce očistit motocykl po jízdě v blátě. Kde začít?",
+    sampleQuestionFiveAnswer: "Nejprve zjistěte, které povrchy a nečistoty je potřeba vyčistit. Vyberte vhodný přípravek a řiďte se pokyny na etiketě.",
+    sampleQuestionSix: "Jak poradit zákazníkovi, který neví, jaký přípravek potřebuje?",
+    sampleQuestionSixAnswer: "Zeptejte se, jakého výsledku chce dosáhnout, jaké povrchy potřebuje čistit a jak bude přípravek používat. Potom doporučte vhodný výrobek nebo sadu.",
     savePassword: "Uložit nové heslo",
     seeResult: "Zobrazit výsledek",
     sellerQuestions: "Otázky prodejců",
@@ -1154,9 +1338,147 @@ const LOCALIZED_COPY: Record<"de" | "cs" | "fr", Partial<Record<CopyKey, string>
     unlikeQuestion: "Odebrat označení To se mi líbí",
     useCategory: "Použití",
     waitingAnswer: "Čeká se na odpověď týmu Xzone",
+    points: "200 bodů",
+    heroEyebrow: "Akademie pro prodejní týmy",
+    heroTitle: "Prodávejte s jistotou.",
+    heroDescription: "Poznejte produkty Xzone a poraďte motocyklistům s jistotou.",
+    recoveryMessage: "Pokud pro tuto e-mailovou adresu existuje účet, zašleme vám odkaz k obnovení hesla.",
+    rewards: "Odměny",
+    rewardsDescription: "Body, odznaky a nové úrovně znalostí.",
+    adminLeaderboardTitle: "Celkový žebříček",
+    adminLeaderboardDescription: "Zvolte, zda uživatelé uvidí žebříček. Zobrazuje jméno, první písmeno příjmení, město a počet bodů.",
+    adminLeaderboardEnabled: "Žebříček je pro uživatele viditelný.",
+    adminLeaderboardDisabled: "Žebříček je pro uživatele skrytý.",
+    adminLeaderboardUnavailable: "Nastavení žebříčku se nepodařilo načíst.",
+    adminLeaderboardHide: "Skrýt žebříček",
+    adminLeaderboardShow: "Zobrazit žebříček",
+    adminLeaderboardSaving: "Ukládání…",
+    adminLeaderboardSaved: "Nastavení žebříčku bylo uloženo.",
+    adminLeaderboardSaveError: "Nastavení žebříčku se nepodařilo uložit.",
+    moduleTwo: "Modul 2",
+    moduleThree: "Modul 3",
+    moduleFour: "Modul 4",
+    moduleFive: "Modul 5",
+    moduleSix: "Modul 6",
+    moduleSeven: "Modul 7",
+    productsDescription: "Poznejte základy péče o motocykly, helmy a motocyklové oblečení.",
+    care: "Vyberte správnou péči",
+    careDescription: "Naučte se vybírat produkty podle potřeb motocyklistů.",
+    advice: "Radit a doporučovat",
+    adviceDescription: "Praktické tipy, díky kterým budete při doporučování produktů v prodejně jednat s jistotou.",
+    helmetCareTitle: "Péče o helmu",
+    helmetCareDescription: "Naučte se čistit a pečovat o helmu, její hledí i vnitřek.",
+    leatherCareTitle: "Péče o kožené oblečení",
+    leatherCareDescription: "Poznejte zásady čištění a péče o kožené motocyklové oblečení.",
+    textileCareTitle: "Péče o textilní oblečení",
+    textileCareDescription: "Vyberte vhodné čištění a impregnaci textilního i sportovního oblečení.",
+    glovesCareTitle: "Rukavice a příslušenství",
+    glovesCareDescription: "Pečujte o motocyklové rukavice a poznejte praktické doplňky pro péči.",
+    motorcycleDetailingTitle: "Detailing motocyklu",
+    motorcycleDetailingDescription: "Poznejte jednotlivé kroky mytí motocyklu a vyberte vhodné produkty i příslušenství.",
+    offRoadTitle: "Péče o offroadové motocykly",
+    offRoadDescription: "Naučte se odstraňovat bláto a pečovat o motocykl po jízdě v terénu.",
+    salesSkillsTitle: "Úspěšný prodej produktů Xzone",
+    salesSkillsDescription: "Rozpoznávejte potřeby zákazníků a doporučujte vhodné produkty a sady Xzone.",
+    openModule: "Otevřít modul",
+    comingSoon: "Již brzy",
+    openLesson: "Otevřít lekci",
+    levelCardLabel: "Vaše aktuální úroveň",
+    yourLevel: "Vaše úroveň",
+    levelName: "Úroveň 2 · Praktik",
+    levelNext: "Do další úrovně vám zbývají 2 lekce",
+    levelProgress: "3 z 5 lekcí",
+    lessonTakeawayOne: "Kompletní sada pokryje mytí, sušení i závěrečné ošetření motocyklu.",
+    lessonTakeawayTwo: "Power Powder Moto Wash se rozpustí ve vodě a vytvoří aktivní pěnu pro mytí.",
+    lessonTakeawayThree: "Ceramic Detailer dodá lesk a vytvoří hydrofobní vrstvu, která pomáhá omezit usazování nečistot.",
+    lessonTakeawayFour: "Fiber Hand usnadní mytí, zatímco silná utěrka Detailing Fiber slouží k sušení a leštění.",
+    lessonTakeawayFive: "Jednoduchý postup: předmytí, hlavní mytí, opláchnutí a osušení, nakonec aplikace detaileru.",
+    lessonProductsOne: "Poznejte sortiment produktů Xzone",
+    lessonProductsTwo: "Vyberte přípravek podle povrchu",
+    lessonProductsThree: "Používejte přípravky pro péči o motocykl bezpečně",
+    lessonCareOne: "Rozpoznejte potřeby motocyklisty",
+    lessonCareTwo: "Vyberte přípravek podle materiálu",
+    lessonCareThree: "Doporučte správnou péči",
+    lessonAdviceOne: "Začněte vhodnou otázkou",
+    lessonAdviceTwo: "Vysvětlete přínos přípravku",
+    lessonAdviceThree: "Doporučte doplňkový produkt",
+    helmetTextLesson: "Ukázková textová lekce",
+    helmetLessonOne: "Proč helma potřebuje správnou péči?",
+    helmetLessonTwo: "Helmet Gel a Helmet Detailer: rozdíly a použití",
+    helmetLessonThree: "Jak správně čistit hledí a Pinlock?",
+    helmetLessonFour: "Jak pečovat o vnitřek helmy?",
+    helmetLessonFive: "Kterou sadu doporučit: GIGA, nebo Trip Kit?",
+    helmetLessonSix: "Prodejní simulace: zákazník si kupuje novou helmu",
+    leatherLessonOne: "Proč kožené motocyklové oblečení potřebuje péči?",
+    leatherLessonTwo: "Jak čistit kůži: Leather Cleaner a kartáč",
+    leatherLessonThree: "Jak pečovat o kůži: Leather Milk",
+    leatherLessonFour: "Jak používat Leather Care Kit",
+    leatherLessonFive: "Prodejní simulace: zákazník si kupuje kožené oblečení",
+    textileLessonOne: "Jak pečovat o textilní motocyklové oblečení?",
+    textileLessonTwo: "Textile Care: čištění oblečení",
+    textileLessonThree: "Fabric Protect: impregnace oblečení",
+    textileLessonFour: "Active Care: péče o sportovní oblečení",
+    textileLessonFive: "Merino Care a Jeans Care: specializované přípravky",
+    textileLessonSix: "Prodejní simulace: výběr péče podle typu oblečení",
+    glovesLessonOne: "Jak pečovat o motocyklové rukavice?",
+    glovesLessonTwo: "Magic Gloves: použití a předvedení",
+    glovesLessonThree: "Zip Agent: péče o zipy a nabídka doplňkových produktů",
+    detailingLessonOne: "Kde začít s péčí o motocykl?",
+    detailingLessonTwo: "Wash & Ride: mytí motocyklu",
+    detailingLessonThree: "Power Powder: příprava a použití",
+    detailingLessonFour: "Bug Killer a Wheelixir: odstranění nečistot",
+    detailingLessonFive: "Ceramic Detailer: závěrečné ošetření a ochrana",
+    detailingLessonSix: "Kartáče a utěrky z mikrovlákna: jak vybrat příslušenství",
+    offRoadLessonOne: "Jaké nečistoty vznikají při jízdě v terénu?",
+    offRoadLessonTwo: "Mud Breaker: odstranění bláta",
+    offRoadLessonThree: "Dirt Finisher: závěrečné ošetření a péče",
+    offRoadLessonFour: "Jak vybrat Off-Road Kit",
+    salesLessonOne: "Jak rozpoznat potřeby zákazníka?",
+    salesLessonTwo: "Jak doporučovat kompletní sady místo jednotlivých produktů",
+    salesLessonThree: "Jak zvýšit prodej pomocí doplňkových produktů",
+    salesLessonFour: "Jak reagovat na časté námitky zákazníků",
+    salesLessonFive: "Simulace rozhovorů a závěrečný prodejní test",
+    quizPromptOne: "Zákazník chce použít přípravek na hledí helmy. Co mu nejlépe poradíte?",
+    quizOptionOneA: "Doporučte jakýkoli přípravek na mytí motocyklu; všechny jsou univerzální.",
+    quizOptionOneB: "Ověřte, zda je přípravek určený na hledí a zda jsou dodrženy pokyny výrobce helmy.",
+    quizOptionOneC: "Navrhněte použít větší množství přípravku, aby se nečistoty odstranily rychleji.",
+    quizPromptTwo: "Kde začít při výběru přípravku pro péči o motocykl?",
+    quizOptionTwoA: "Zjistěte, o jaký povrch se chce zákazník starat a jakého výsledku chce dosáhnout.",
+    quizOptionTwoB: "Vyberte nejoblíbenější produkt v prodejně.",
+    quizOptionTwoC: "Doporučte jeden přípravek na všechny povrchy motocyklu.",
+    quizPromptThree: "Zákazník se ptá, jak často používat ochranný přípravek. Co mu odpovíte?",
+    quizOptionThreeA: "Používejte ho pokaždé, když se někdo dotkne motocyklu.",
+    quizOptionThreeB: "Na četnosti nezáleží, pokud použijete jen malé množství.",
+    quizOptionThreeC: "Dodržujte pokyny na etiketě a doporučení pro konkrétní povrch.",
+    quizPromptFour: "Která otázka vám pomůže vybrat produkt podle potřeb motocyklisty?",
+    quizOptionFourA: "Která barva motocyklu je nejoblíbenější?",
+    quizOptionFourB: "O jaký povrch se chce zákazník starat a jakého výsledku chce dosáhnout?",
+    quizOptionFourC: "Zná zákazník název konkrétního produktu?",
+    rewardLessonDescription: "Za každou dokončenou lekci získáte",
+    rewardTestDescription: "Za každý úspěšně dokončený test získáte",
+    pointsDescription: "Za dokončené lekce a testy získáváte další body.",
+    rewardsNoteTitle: "Každá lekce vás přiblíží k cíli",
+    rewardsNoteDescription: "Získávejte body za učení a ověřujte své znalosti v testech.",
+    lessonsLabel: "Lekce",
+    lessonsReward: "Dokončujte moduly a průběžně získávejte body.",
+    badges: "Odznaky",
+    badgesDescription: "Získávejte odznaky a rozšiřujte své znalosti produktů.",
+    levels: "Úrovně",
+    levelsDescription: "Budujte si pozici odborníka na produkty Xzone.",
+    searchQuestions: "Hledat otázky nebo produkty",
+    allTopics: "Všechna témata",
+    employee: "Prodejce",
+    teamMember: "Tým Xzone",
+    categoryLabel: "Kategorie",
+    resetPasswordTitle: "Změnit heslo",
+    currentPassword: "Současné heslo",
+    passwordUnavailable: "Změna hesla zatím v této ukázce není dostupná.",
     welcomeBack: "Vítejte zpět",
   },
   fr: {
+    italian: "Italien",
+    productList: "Liste des produits",
+    productListShort: "Produits",
     brand: "Xzone Academy",
     signIn: "Se connecter",
     welcomeBack: "Ravi de vous retrouver",
@@ -1495,6 +1817,14 @@ const LOCALIZED_COPY: Record<"de" | "cs" | "fr", Partial<Record<CopyKey, string>
     sampleQuestionOneAnswer: "Avant de le conseiller, vérifiez l’étiquette du produit et les recommandations du fabricant de la transmission. Demandez si le client possède une chaîne avec joints d’étanchéité.",
     sampleQuestionTwo: "Un client cherche un seul produit pour le casque et la visière. Que recommander ?",
     sampleQuestionTwoAnswer: "Choisissez un produit adapté au matériau de la visière et à l’extérieur du casque. Vérifiez l’usage prévu dans les instructions du produit.",
+    sampleQuestionThree: "Comment vérifier qu’un nettoyant convient à un vêtement textile avec membrane ?",
+    sampleQuestionThreeAnswer: "Vérifiez l’étiquette du produit et les conseils d’entretien du fabricant du vêtement. Choisissez un nettoyant textile compatible avec la membrane et suivez le mode d’emploi.",
+    sampleQuestionFour: "Puis-je utiliser le même nettoyant pour la visière et l’extérieur du casque ?",
+    sampleQuestionFourAnswer: "Uniquement si l’étiquette indique clairement ces deux usages. Tenez compte du matériau de la visière et des recommandations du fabricant du casque.",
+    sampleQuestionFive: "Un client veut nettoyer sa moto après une sortie dans la boue. Par où commencer ?",
+    sampleQuestionFiveAnswer: "Commencez par identifier les surfaces et les salissures à traiter. Choisissez un produit adapté aux matériaux et suivez son étiquette.",
+    sampleQuestionSix: "Comment aider un client qui ne sait pas quel produit choisir ?",
+    sampleQuestionSixAnswer: "Demandez-lui le résultat souhaité, les surfaces à nettoyer et l’usage prévu. Proposez ensuite un produit ou un kit adapté.",
     sampleComment: "Pensez aussi à demander au client de quel matériau est faite la visière.",
     employee: "Vendeur",
     teamMember: "Équipe Xzone",
@@ -1508,6 +1838,7 @@ const LOCALIZED_COPY: Record<"de" | "cs" | "fr", Partial<Record<CopyKey, string>
     passwordMismatch: "Les nouveaux mots de passe ne correspondent pas.",
     passwordUnavailable: "Le changement de mot de passe n’est pas encore disponible dans cet aperçu.",
   },
+  it: italianAcademyCopy,
 };
 
 type AcademyContextValue = {
@@ -1515,6 +1846,7 @@ type AcademyContextValue = {
   isAdmin: boolean;
   setLanguage: (language: AcademyLanguage) => void;
   setPreviewLanguage: (language: AcademyLanguage) => void;
+  setKioskLanguage: (language: AcademyLanguage) => void;
   t: (key: CopyKey) => string;
   completedLessons: CopyKey[];
   completeLesson: (lesson: CopyKey) => void;
@@ -1551,9 +1883,15 @@ function subscribeToLanguage(notify: () => void) {
   };
 }
 
+let memoryLanguage: AcademyLanguage | null = null;
+
 function getStoredLanguage(): AcademyLanguage {
-  const stored = window.localStorage.getItem("xzone-academy-language");
-  return isAcademyLanguage(stored) ? stored : "pl";
+  try {
+    const stored = window.localStorage.getItem("xzone-academy-language");
+    return isAcademyLanguage(stored) ? stored : memoryLanguage ?? "pl";
+  } catch {
+    return memoryLanguage ?? "pl";
+  }
 }
 
 function getServerLanguage(): AcademyLanguage {
@@ -1562,6 +1900,8 @@ function getServerLanguage(): AcademyLanguage {
 
 export function AcademyProvider({ children }: { children: ReactNode }) {
   const router = useRouter();
+  const pathname = usePathname();
+  const isTradeFairKiosk = pathname === "/targi" || pathname.startsWith("/targi/");
   const language = useSyncExternalStore(subscribeToLanguage, getStoredLanguage, getServerLanguage);
   const [role, setRole] = useState<"admin" | "employee" | null>(null);
   const [completedLessons, setCompletedLessons] = useState<CopyKey[]>([]);
@@ -1569,18 +1909,27 @@ export function AcademyProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     let active = true;
-    void readAcademyViewerContextAction().then(({ preferredLanguage, role: currentRole }) => {
+    void readAcademyViewerContextAction().then(({ preferredLanguage, previewLanguage, role: currentRole }) => {
       if (!active) return;
       setRole(currentRole);
-      if (didChangeLanguage.current || !isAcademyLanguage(preferredLanguage)) return;
-      window.localStorage.setItem("xzone-academy-language", preferredLanguage);
+      if (isTradeFairKiosk || didChangeLanguage.current) return;
+      const selectedLanguage = pathname.startsWith("/admin/user-preview") && isAcademyLanguage(previewLanguage)
+        ? previewLanguage
+        : preferredLanguage;
+      if (!isAcademyLanguage(selectedLanguage)) return;
+      memoryLanguage = selectedLanguage;
+      try {
+        window.localStorage.setItem("xzone-academy-language", selectedLanguage);
+      } catch {
+        // Keep the profile language available for this session.
+      }
       window.dispatchEvent(new Event(LANGUAGE_EVENT));
     }).catch(() => {});
 
     return () => {
       active = false;
     };
-  }, []);
+  }, [isTradeFairKiosk, pathname]);
 
   useEffect(() => {
     const syncCompletedLessons = () => setCompletedLessons(readCompletedLessons());
@@ -1598,13 +1947,35 @@ export function AcademyProvider({ children }: { children: ReactNode }) {
     didChangeLanguage.current = true;
     void updatePreferredLanguageAction(nextLanguage).then((saved) => {
       if (!saved) return;
-      window.localStorage.setItem("xzone-academy-language", nextLanguage);
+      memoryLanguage = nextLanguage;
+      try {
+        window.localStorage.setItem("xzone-academy-language", nextLanguage);
+      } catch {
+        // Keep the selected profile language available for this session.
+      }
       window.dispatchEvent(new Event(LANGUAGE_EVENT));
       router.refresh();
     }).catch(() => {});
   }, [router]);
   const setPreviewLanguage = useCallback((nextLanguage: AcademyLanguage) => {
     didChangeLanguage.current = true;
+    memoryLanguage = nextLanguage;
+    try {
+      window.localStorage.setItem("xzone-academy-language", nextLanguage);
+    } catch {
+      // Keep the current language for this session when browser storage is unavailable.
+    }
+    window.dispatchEvent(new Event(LANGUAGE_EVENT));
+    if (pathname.startsWith("/admin/user-preview")) {
+      void updateAcademyPreviewLanguageAction(nextLanguage)
+        .catch(() => false)
+        .finally(() => router.refresh());
+      return;
+    }
+    router.refresh();
+  }, [pathname, router]);
+  const setKioskLanguage = useCallback((nextLanguage: AcademyLanguage) => {
+    memoryLanguage = nextLanguage;
     try {
       window.localStorage.setItem("xzone-academy-language", nextLanguage);
     } catch {
@@ -1637,12 +2008,12 @@ export function AcademyProvider({ children }: { children: ReactNode }) {
   }, [language]);
 
   const value = useMemo(
-    () => ({ language, isAdmin, setLanguage, setPreviewLanguage, t, completedLessons, completeLesson }),
-    [language, isAdmin, setLanguage, setPreviewLanguage, t, completedLessons, completeLesson],
+    () => ({ language, isAdmin, setLanguage, setPreviewLanguage, setKioskLanguage, t, completedLessons, completeLesson }),
+    [language, isAdmin, setLanguage, setPreviewLanguage, setKioskLanguage, t, completedLessons, completeLesson],
   );
 
   return (
-    <DirectionProvider locale={{ pl: "pl-PL", en: "en-US", de: "de-DE", cs: "cs-CZ", fr: "fr-FR" }[language]}>
+    <DirectionProvider locale={{ pl: "pl-PL", en: "en-US", de: "de-DE", cs: "cs-CZ", fr: "fr-FR", it: "it-IT" }[language]}>
       <AcademyContext.Provider value={value}>{children}</AcademyContext.Provider>
     </DirectionProvider>
   );

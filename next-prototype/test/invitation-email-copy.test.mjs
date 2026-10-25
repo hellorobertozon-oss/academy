@@ -6,8 +6,8 @@ import {
 } from "../src/lib/email/invitation-copy.ts";
 
 describe("Academy invitation email copy", () => {
-  it("provides complete invitation copy for the five initial languages", () => {
-    assert.deepEqual(Object.keys(INVITATION_EMAIL_COPY).sort(), ["cs", "de", "en", "fr", "pl"]);
+  it("provides complete invitation copy for all Academy languages", () => {
+    assert.deepEqual(Object.keys(INVITATION_EMAIL_COPY).sort(), ["cs", "de", "en", "fr", "it", "pl"]);
 
     for (const copy of Object.values(INVITATION_EMAIL_COPY)) {
       assert.ok(copy.subject);

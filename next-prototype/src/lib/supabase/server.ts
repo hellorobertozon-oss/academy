@@ -13,6 +13,10 @@ export async function createAcademyServerClient() {
   const cookieStore = await cookies();
 
   return createServerClient(config.url, config.publishableKey, {
+    cookieOptions: {
+      sameSite: "none",
+      secure: true,
+    },
     cookies: {
       getAll() {
         return cookieStore.getAll();

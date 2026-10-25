@@ -13,7 +13,7 @@ export type AcademyProfile = {
   last_name: string | null;
   role: AcademyRole;
   store_id: number | null;
-  preferred_language: "pl" | "en" | "de" | "cs";
+  preferred_language: "pl" | "en" | "de" | "cs" | "fr" | "it";
 };
 
 export const getCurrentAcademyProfile = cache(async (): Promise<AcademyProfile | null> => {

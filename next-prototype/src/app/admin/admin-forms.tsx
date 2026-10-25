@@ -155,6 +155,7 @@ function InviteFormFields({
           <SelectItem id="de">Deutsch</SelectItem>
           <SelectItem id="cs">Čeština</SelectItem>
           <SelectItem id="fr">Français</SelectItem>
+          <SelectItem id="it">Italiano</SelectItem>
         </Select>
       </div>
       <div className="flex min-w-0 flex-col gap-1">

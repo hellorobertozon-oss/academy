@@ -91,7 +91,7 @@ async function PreviewLearningContent() {
 
 export default function UserPreviewLearningPage() {
   return (
-    <Suspense fallback={<AcademyLoading label="Wczytywanie szkoleń" />}>
+    <Suspense fallback={<AcademyLoading label="Wczytywanie szkoleń" withHeader />}>
       <PreviewLearningContent />
     </Suspense>
   );

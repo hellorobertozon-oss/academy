@@ -1,3 +1,4 @@
+import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import { RewardsPage } from "@/components/pages/rewards-page";
 import { getLearningCopy } from "@/lib/academy/learning-copy";
@@ -7,7 +8,8 @@ export default async function UserPreviewRewardsPage() {
   const profile = await requireAcademyProfile();
   if (profile.role !== "admin") redirect("/dashboard");
 
-  const copy = getLearningCopy(profile.preferred_language);
+  const previewLanguage = (await cookies()).get("xzone-academy-preview-language")?.value;
+  const copy = getLearningCopy(previewLanguage ?? profile.preferred_language);
 
   return (
     <RewardsPage

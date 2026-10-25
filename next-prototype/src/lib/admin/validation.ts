@@ -1,5 +1,5 @@
 export type AdminRole = "admin" | "employee";
-export const INVITE_LANGUAGES = ["pl", "en", "de", "cs", "fr"] as const;
+export const INVITE_LANGUAGES = ["pl", "en", "de", "cs", "fr", "it"] as const;
 export type InviteLanguage = (typeof INVITE_LANGUAGES)[number];
 
 export type InviteInput = {

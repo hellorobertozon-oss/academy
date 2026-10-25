@@ -9,6 +9,11 @@ export function createAcademyBrowserClient() {
     throw new Error("Academy authentication is not configured.");
   }
 
-  return createBrowserClient(config.url, config.publishableKey);
+  return createBrowserClient(config.url, config.publishableKey, {
+    cookieOptions: {
+      sameSite: "none",
+      secure: true,
+    },
+  });
 }
 

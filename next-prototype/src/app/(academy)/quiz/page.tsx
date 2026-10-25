@@ -73,7 +73,7 @@ async function QuizListContent() {
 
 export default function Page() {
   return (
-    <Suspense fallback={<AcademyLoading label="Wczytywanie quizów" />}>
+    <Suspense fallback={<AcademyLoading label="Wczytywanie quizów" withHeader />}>
       <QuizListContent />
     </Suspense>
   );

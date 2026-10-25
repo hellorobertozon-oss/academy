@@ -37,7 +37,7 @@ async function RewardsContent() {
 
 export default function Page() {
   return (
-    <Suspense fallback={<AcademyLoading label="Wczytywanie wyników" />}>
+    <Suspense fallback={<AcademyLoading label="Wczytywanie wyników" withHeader />}>
       <RewardsContent />
     </Suspense>
   );

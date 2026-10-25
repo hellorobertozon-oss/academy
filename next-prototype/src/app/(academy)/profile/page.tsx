@@ -37,7 +37,7 @@ async function ProfileContent() {
 
 export default function ProfilePage() {
   return (
-    <Suspense fallback={<AcademyLoading label="Wczytywanie profilu" />}>
+    <Suspense fallback={<AcademyLoading label="Wczytywanie profilu" withHeader />}>
       <ProfileContent />
     </Suspense>
   );

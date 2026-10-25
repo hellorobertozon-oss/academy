@@ -51,7 +51,7 @@ async function QuizContent({ params }: { params: Promise<{ quizId: string }> }) 
 
 export default function Page({ params }: { params: Promise<{ quizId: string }> }) {
   return (
-    <Suspense fallback={<AcademyLoading label="Wczytywanie quizu" />}>
+    <Suspense fallback={<AcademyLoading label="Wczytywanie quizu" withHeader />}>
       <QuizContent params={params} />
     </Suspense>
   );

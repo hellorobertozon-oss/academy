@@ -51,6 +51,14 @@ export const INVITATION_EMAIL_COPY: Record<
     button: "Activer le compte",
     fallback: "Si le bouton ne fonctionne pas, copiez cette adresse dans votre navigateur :",
   },
+  it: {
+    subject: "Il tuo invito a Xzone Academy",
+    preview: "Configura il tuo accesso a Xzone Academy.",
+    heading: "Il tuo invito a Xzone Academy",
+    body: "Un amministratore ha creato un account per te. Conferma il tuo indirizzo e-mail e imposta una password per iniziare la formazione.",
+    button: "Attiva l’account",
+    fallback: "Se il pulsante non funziona, copia questo indirizzo nel browser:",
+  },
 };
 
 export function getInvitationEmailCopy(language: InviteLanguage) {

@@ -39,6 +39,10 @@ export async function proxy(request: NextRequest) {
 
   let response = NextResponse.next({ request });
   const supabase = createServerClient(config.url, config.publishableKey, {
+    cookieOptions: {
+      sameSite: "none",
+      secure: true,
+    },
     cookies: {
       getAll() {
         return request.cookies.getAll();

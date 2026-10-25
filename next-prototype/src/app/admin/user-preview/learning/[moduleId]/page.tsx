@@ -52,7 +52,7 @@ async function PreviewCourseContent({ params }: { params: Promise<{ moduleId: st
 
 export default function UserPreviewCoursePage({ params }: { params: Promise<{ moduleId: string }> }) {
   return (
-    <Suspense fallback={<AcademyLoading label="Wczytywanie szkolenia" />}>
+    <Suspense fallback={<AcademyLoading label="Wczytywanie szkolenia" withHeader />}>
       <PreviewCourseContent params={params} />
     </Suspense>
   );

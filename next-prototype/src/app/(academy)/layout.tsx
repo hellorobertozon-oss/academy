@@ -1,4 +1,5 @@
 import { Suspense, type ReactNode } from "react";
+import { AcademyLoading } from "@/components/academy-loading";
 import { requireAcademyProfile } from "@/lib/auth/profile";
 
 async function AcademySession({ children }: { children: ReactNode }) {
@@ -8,7 +9,7 @@ async function AcademySession({ children }: { children: ReactNode }) {
 
 export default function AcademyLayout({ children }: { children: ReactNode }) {
   return (
-    <Suspense fallback={<div className="min-h-screen bg-background-full" />}>
+    <Suspense fallback={<AcademyLoading label="Wczytywanie Akademii" withHeader />}>
       <AcademySession>{children}</AcademySession>
     </Suspense>
   );

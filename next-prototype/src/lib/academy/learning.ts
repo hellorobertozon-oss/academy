@@ -1,11 +1,13 @@
 import "server-only";
 
+import { cookies } from "next/headers";
 import type { LessonConversationMessage } from "@/lib/admin/content-validation";
 import { requireAcademyProfile } from "@/lib/auth/profile";
 import { createAcademyServerClient } from "@/lib/supabase/server";
 import { createAcademyImageUrlMap } from "@/lib/academy/content-images";
 
 type AcademyClient = Awaited<ReturnType<typeof createAcademyServerClient>>;
+const ACADEMY_LANGUAGE_CODES = ["pl", "en", "de", "cs", "fr", "it"] as const;
 
 export type LearningRead<T> =
   | { status: "ok"; data: T; languageCode: string }
@@ -115,7 +117,11 @@ async function withAdminPreviewClient<T>(
   if (profile.role !== "admin") return { status: "forbidden" };
 
   try {
-    return await read(await createAcademyServerClient(), profile.preferred_language, profile.id);
+    const previewLanguage = (await cookies()).get("xzone-academy-preview-language")?.value;
+    const languageCode = ACADEMY_LANGUAGE_CODES.includes(previewLanguage as (typeof ACADEMY_LANGUAGE_CODES)[number])
+      ? previewLanguage as (typeof ACADEMY_LANGUAGE_CODES)[number]
+      : profile.preferred_language;
+    return await read(await createAcademyServerClient(), languageCode, profile.id);
   } catch {
     return { status: "error" };
   }

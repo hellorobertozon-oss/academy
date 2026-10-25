@@ -16,6 +16,12 @@ import { useAcademy, type AcademyLanguage } from "@/components/academy-provider"
 import { GAME_PRODUCT_CATALOG, type GameProductCategory } from "@/lib/game-product-catalog";
 import { CUSTOMER_ADVICE_SCENARIOS, type CustomerAdviceScenario, type CustomerAdviceTurn } from "@/lib/customer-advice-scenarios";
 
+type GameLanguage = AcademyLanguage;
+
+function getGameCopy<T>(copy: Record<GameLanguage, T>, language: AcademyLanguage): T {
+  return copy[language];
+}
+
 const ROUND_SECONDS_BY_DIFFICULTY: Record<CustomerAdviceScenario["difficulty"], number> = {
   easy: 120,
   medium: 105,
@@ -108,7 +114,7 @@ type ContestFlowCopy = {
   motorcycleAlt: string;
 };
 
-const CONTEST_FLOW_COPY: Record<AcademyLanguage, ContestFlowCopy> = {
+const CONTEST_FLOW_COPY: Record<GameLanguage, ContestFlowCopy> = {
   pl: {
     titleEyebrow: "MOTO EKSPERT · WYZWANIE SPRZEDAŻOWE",
     title: "Mistrz sprzedaży",
@@ -224,6 +230,29 @@ const CONTEST_FLOW_COPY: Record<AcademyLanguage, ContestFlowCopy> = {
     managerAlt: "Le responsable annonce le concours",
     motorcycleAlt: "La moto à gagner dans le concours",
   },
+  it: {
+    titleEyebrow: "ESPERTO DI MOTO · SFIDA DI VENDITA",
+    title: "Campione di vendite",
+    tagline: "Consiglia i clienti e aggiudicati la moto.",
+    start: "Inizia il gioco",
+    chooseTitle: "Scegli il tuo addetto alle vendite",
+    chooseHint: "Scegli il personaggio che guiderà la sfida di vendita di oggi.",
+    playerOne: "Agnieszka",
+    playerTwo: "Robert",
+    chooseCharacter: "Scegli il personaggio",
+    manager: "Responsabile del negozio",
+    bossIntro: "La gara inizia oggi! Alla chiusura, chi avrà venduto di più vincerà questa moto!",
+    selectedLabel: "TU",
+    rivalLabel: "AVVERSARIO",
+    selectedReply: "Ci sto. Oggi darò il massimo!",
+    rivalReply: "Buona fortuna. Vediamo chi saprà consigliare meglio i clienti!",
+    next: "Avanti",
+    begin: "Inizia a vendere",
+    back: "Torna alla scelta del personaggio",
+    characterAlt: "Personaggio di un addetto alle vendite di un negozio di moto",
+    managerAlt: "Il responsabile del negozio annuncia la gara",
+    motorcycleAlt: "La moto in palio nella gara",
+  },
 };
 
 type GameCopy = {
@@ -269,7 +298,7 @@ type GameCopy = {
   confirmSelection: string;
 };
 
-const GAME_COPY: Record<AcademyLanguage, GameCopy> = {
+const GAME_COPY: Record<GameLanguage, GameCopy> = {
   pl: {
     round: "Obsłuż 15 klientów",
     demoNote: "15 rozmów · 3 rundy rosnącej trudności",
@@ -480,17 +509,60 @@ const GAME_COPY: Record<AcademyLanguage, GameCopy> = {
     categoryAccessories: "Accessoires",
     confirmSelection: "Vérifier la sélection",
   },
+  it: {
+    round: "Servi 15 clienti",
+    demoNote: "15 conversazioni · 3 turni a difficoltà crescente",
+    customerImageAlt: "Un motociclista parla con un addetto alle vendite",
+    scoreLabel: "Il tuo punteggio",
+    pointsUnit: "punti",
+    timerLabel: "Tempo",
+    levelLabel: "Livello",
+    levelProgressLabel: "Clienti serviti in questo turno",
+    sceneEyebrow: "ESPERTO DI MOTO · ALLENAMENTO ALLA VENDITA",
+    shelfTitle: "Cosa consiglieresti al cliente?",
+    question: "Dopo il lavaggio vorrei dare brillantezza alla moto e proteggerla dallo sporco. Cosa mi consigli?",
+    product: "Ceramic Detailer",
+    productDescription: "Dona brillantezza e lascia uno strato idrofobico che aiuta a ridurre l’accumulo di sporco.",
+    productType: "Cura della moto",
+    washOption: "Prodotto per il lavaggio della moto",
+    washDescription: "Per rimuovere lo sporco durante il lavaggio.",
+    helmetOption: "Prodotto per la pulizia del casco",
+    helmetDescription: "Per la cura della calotta e della visiera.",
+    chainLubeOption: "Lubrificante per catena",
+    visorCleanerOption: "Detergente per visiera",
+    correctTitle: "Ottimo consiglio!",
+    correctDescription: "Ceramic Detailer dona brillantezza e lascia uno strato idrofobico che aiuta a ridurre l’accumulo di sporco.",
+    wrongTitle: "Questo prodotto serve per un’altra esigenza.",
+    wrongDescription: "La moto è già stata lavata e il cliente cerca un prodotto per la finitura. Riprova.",
+    speedBonus: "Bonus velocità",
+    timeUpTitle: "Tempo scaduto",
+    timeUpDescription: "Gioca di nuovo e prova a servire più clienti.",
+    replay: "Gioca ancora",
+    arrowBack: "Prodotti precedenti",
+    arrowForward: "Prodotti successivi",
+    selectProduct: "Scegli un prodotto",
+    productNumberLabel: "Prodotto",
+    productCategories: "Categorie di prodotti",
+    allProducts: "Tutti",
+    categoryHelmets: "Caschi",
+    categoryTextileClothing: "Abbigliamento in tessuto",
+    categoryLeatherClothing: "Abbigliamento in pelle",
+    categoryCare: "Cura",
+    categoryAccessories: "Accessori",
+    confirmSelection: "Verifica la selezione",
+  },
 };
 
-const CONVERSATION_COPY: Record<AcademyLanguage, { answerPrompt: string; completeTitle: string; completePrompt: string }> = {
+const CONVERSATION_COPY: Record<GameLanguage, { answerPrompt: string; completeTitle: string; completePrompt: string }> = {
   pl: { answerPrompt: "Co odpowiesz klientowi?", completeTitle: "Zmiana zakończona", completePrompt: "To wszyscy klienci na dziś. Zobacz wynik i zagraj ponownie." },
   en: { answerPrompt: "What would you tell the customer?", completeTitle: "Shift complete", completePrompt: "That’s all the customers for today. See your score and play again." },
   de: { answerPrompt: "Was antwortest du dem Kunden?", completeTitle: "Schicht beendet", completePrompt: "Das waren alle Kunden für heute. Sieh dir dein Ergebnis an und spiele noch einmal." },
   cs: { answerPrompt: "Co zákazníkovi odpovíš?", completeTitle: "Směna skončila", completePrompt: "To byli všichni dnešní zákazníci. Podívej se na výsledek a zahraj si znovu." },
   fr: { answerPrompt: "Que réponds-tu au client ?", completeTitle: "Service terminé", completePrompt: "C’étaient tous les clients du jour. Consulte ton score et rejoue." },
+  it: { answerPrompt: "Cosa risponderesti al cliente?", completeTitle: "Turno completato", completePrompt: "Questi erano tutti i clienti di oggi. Guarda il punteggio e gioca ancora." },
 };
 
-const PRODUCT_INFO_COPY: Record<AcademyLanguage, {
+const PRODUCT_INFO_COPY: Record<GameLanguage, {
   button: string;
   title: string;
   category: string;
@@ -580,6 +652,22 @@ const PRODUCT_INFO_COPY: Record<AcademyLanguage, {
     textileWashDescription: "Lessive pour vêtements techniques et moto. Aide à éliminer la transpiration et la saleté tout en préservant les propriétés du tissu. Ne pas utiliser d’adoucissant.",
     ceramicDetailerDescription: "Detailer rapide pour une moto propre après lavage : ajoute de la brillance et un effet déperlant, et facilite les lavages suivants. Ce n’est pas un revêtement céramique classique.",
   },
+  it: {
+    button: "Info",
+    title: "Informazioni sul prodotto",
+    category: "Categoria",
+    close: "Chiudi",
+    categoryDescriptions: {
+      helmets: "Prodotto per la cura del casco. Verifica se è indicato per l’imbottitura, la calotta o la visiera e segui le istruzioni sull’etichetta.",
+      "textile-clothing": "Prodotto per la cura dell’abbigliamento in tessuto e tecnico. Controlla il materiale e le istruzioni del produttore, soprattutto per i capi con membrana.",
+      "leather-clothing": "Prodotto per la pulizia e la cura dell’abbigliamento da moto in pelle. Controlla il tipo di pelle e le istruzioni del capo.",
+      care: "Prodotto per la pulizia o la cura della moto. Controlla sull’etichetta su quali superfici può essere utilizzato.",
+      accessories: "Accessorio per la pulizia o la cura. Sceglilo in base alla superficie e al prodotto che stai usando.",
+    },
+    refresherDescription: "Rinfresca l’interno del casco e aiuta a ridurre gli odori sgradevoli tra una pulizia e l’altra. Non sostituisce il lavaggio.",
+    textileWashDescription: "Detergente per l’abbigliamento tecnico e da moto. Aiuta a rimuovere sudore e sporco preservando le proprietà del tessuto. Non usare l’ammorbidente.",
+    ceramicDetailerDescription: "Prodotto di finitura rapido da usare su una moto pulita dopo il lavaggio: dona brillantezza e un effetto idrofobico e facilita i lavaggi successivi. Non è un rivestimento ceramico tradizionale.",
+  },
 };
 
 const PRODUCT_INFO_DETAILS_PL: Record<string, string> = {
@@ -634,7 +722,7 @@ const PRODUCT_INFO_DETAILS_PL: Record<string, string> = {
 };
 
 function getProductInfoDescription(product: ProductChoice, language: AcademyLanguage) {
-  const info = PRODUCT_INFO_COPY[language];
+  const info = getGameCopy(PRODUCT_INFO_COPY, language);
   if (language === "pl" && PRODUCT_INFO_DETAILS_PL[product.id]) return PRODUCT_INFO_DETAILS_PL[product.id];
   if (product.id.startsWith("interior-refresher-") || product.id.startsWith("helmet-freshener-")) return info.refresherDescription;
   if (product.id === "textile-washing-liquid") return info.textileWashDescription;
@@ -642,7 +730,7 @@ function getProductInfoDescription(product: ProductChoice, language: AcademyLang
   return info.categoryDescriptions[product.category];
 }
 
-const CHOICE_FEEDBACK_COPY: Record<AcademyLanguage, {
+const CHOICE_FEEDBACK_COPY: Record<GameLanguage, {
   bestProduct: string;
   acceptableProduct: string;
   acceptableSelection: string;
@@ -696,6 +784,15 @@ const CHOICE_FEEDBACK_COPY: Record<AcademyLanguage, {
     correctAnswer: "Bonne réponse !",
     wrongAnswer: "Ce n'est pas la bonne réponse. Réessaie.",
   },
+  it: {
+    bestProduct: "La scelta migliore!",
+    acceptableProduct: "Questo prodotto va bene, ma una scelta migliore è: ",
+    acceptableSelection: "Anche questo set va bene, ma la scelta migliore è: ",
+    wrongProduct: "Questo prodotto non risponde alle esigenze del cliente. Prova con un altro.",
+    wrongSelection: "Questo set non risponde a tutte le esigenze del cliente. Modifica la selezione.",
+    correctAnswer: "Risposta corretta!",
+    wrongAnswer: "Non è la risposta giusta. Riprova.",
+  },
 };
 
 type GameDifficulty = CustomerAdviceScenario["difficulty"];
@@ -705,7 +802,7 @@ function getRoundDuration(difficulty: GameDifficulty, contestantId: ContestantId
     + (difficulty === "easy" && contestantId === "two" ? CHARACTER_TIME_BONUS_SECONDS : 0);
 }
 
-const ROUND_STAGE_COPY: Record<AcademyLanguage, Record<GameDifficulty, string>> = {
+const ROUND_STAGE_COPY: Record<GameLanguage, Record<GameDifficulty, string>> = {
   pl: {
     easy: "Runda 1",
     medium: "Runda 2",
@@ -730,6 +827,11 @@ const ROUND_STAGE_COPY: Record<AcademyLanguage, Record<GameDifficulty, string>> 
     easy: "Manche 1",
     medium: "Manche 2",
     hard: "Manche 3",
+  },
+  it: {
+    easy: "Turno 1",
+    medium: "Turno 2",
+    hard: "Turno 3",
   },
 };
 
@@ -797,12 +899,13 @@ type CharacterBonusCopy = {
   timeDetail: string;
 };
 
-const CHARACTER_BONUS_COPY: Record<AcademyLanguage, CharacterBonusCopy> = {
+const CHARACTER_BONUS_COPY: Record<GameLanguage, CharacterBonusCopy> = {
   pl: { pointsTitle: "+10% punkt\u00f3w", pointsDetail: "za dobre odpowiedzi", timeTitle: "+20 sekund", timeDetail: "na start gry" },
   en: { pointsTitle: "+10% points", pointsDetail: "for correct answers", timeTitle: "+20 seconds", timeDetail: "at the start" },
   de: { pointsTitle: "+10% Punkte", pointsDetail: "f\u00fcr richtige Antworten", timeTitle: "+20 Sekunden", timeDetail: "zu Beginn" },
   cs: { pointsTitle: "+10% bod\u016f", pointsDetail: "za spr\u00e1vn\u00e9 odpov\u011bdi", timeTitle: "+20 sekund", timeDetail: "na za\u010d\u00e1tku hry" },
   fr: { pointsTitle: "+10% de points", pointsDetail: "pour les bonnes r\u00e9ponses", timeTitle: "+20 secondes", timeDetail: "au d\u00e9but" },
+  it: { pointsTitle: "+10% punti", pointsDetail: "per le risposte corrette", timeTitle: "+20 secondi", timeDetail: "all’inizio" },
 };
 
 function ContestantPortrait({ contestant, label }: { contestant: ContestantEntry; label: string }) {
@@ -964,7 +1067,7 @@ function ContestantSelectionScreen({
                 <ContestantPortrait contestant={contestant} label={contestant.label} />
                 <ContestantBonusBadge
                   contestant={contestant}
-                  bonusCopy={CHARACTER_BONUS_COPY[language]}
+                  bonusCopy={getGameCopy(CHARACTER_BONUS_COPY, language)}
                   side={index === 0 ? "left" : "right"}
                 />
               </div>
@@ -1198,8 +1301,8 @@ export function CustomerAdviceGame() {
   const pathname = usePathname();
   const isGameRoute = GAME_ROUTE_PATHS.has(pathname.replace(/\/+$/, "") || "/");
   const { language } = useAcademy();
-  const copy = GAME_COPY[language];
-  const flowCopy = CONTEST_FLOW_COPY[language];
+  const copy = getGameCopy(GAME_COPY, language);
+  const flowCopy = getGameCopy(CONTEST_FLOW_COPY, language);
   const [screen, setScreen] = useState<GameScreen>("start");
   const [introBeat, setIntroBeat] = useState(0);
   const [selectedContestantId, setSelectedContestantId] = useState<ContestantId>("one");
@@ -1757,7 +1860,7 @@ export function CustomerAdviceGame() {
       setChoiceFeedback("incorrect");
       playSound(wrongSoundRef.current);
       setPoints((current) => Math.max(0, current - WRONG_CHOICE_PENALTY));
-      showScoreFeedback(-WRONG_CHOICE_PENALTY, CHOICE_FEEDBACK_COPY[language].wrongProduct);
+      showScoreFeedback(-WRONG_CHOICE_PENALTY, getGameCopy(CHOICE_FEEDBACK_COPY, language).wrongProduct);
       return;
     }
 
@@ -1767,8 +1870,8 @@ export function CustomerAdviceGame() {
     playSound(correctSoundRef.current);
     const bestProduct = GAME_PRODUCT_CATALOG.find((product) => bestProductIds.includes(product.id));
     const message = isBestMatch
-      ? CHOICE_FEEDBACK_COPY[language].bestProduct
-      : `${CHOICE_FEEDBACK_COPY[language].acceptableProduct}${bestProduct?.name ?? ""}`;
+      ? getGameCopy(CHOICE_FEEDBACK_COPY, language).bestProduct
+      : `${getGameCopy(CHOICE_FEEDBACK_COPY, language).acceptableProduct}${bestProduct?.name ?? ""}`;
     const pointsEarned = applyContestantPointsBonus(
       isBestMatch ? 75 + Math.min(25, secondsLeft) : ALTERNATIVE_PRODUCT_POINTS,
       selectedContestantId,
@@ -1784,7 +1887,7 @@ export function CustomerAdviceGame() {
       setChoiceFeedback("incorrect");
       playSound(wrongSoundRef.current);
       setPoints((current) => Math.max(0, current - WRONG_CHOICE_PENALTY));
-      showScoreFeedback(-WRONG_CHOICE_PENALTY, CHOICE_FEEDBACK_COPY[language].wrongSelection);
+      showScoreFeedback(-WRONG_CHOICE_PENALTY, getGameCopy(CHOICE_FEEDBACK_COPY, language).wrongSelection);
       return;
     }
 
@@ -1796,8 +1899,8 @@ export function CustomerAdviceGame() {
       .filter((name): name is string => Boolean(name))
       .join(" + ");
     const message = isBestMatch
-      ? CHOICE_FEEDBACK_COPY[language].bestProduct
-      : `${CHOICE_FEEDBACK_COPY[language].acceptableSelection}${bestProductNames}`;
+      ? getGameCopy(CHOICE_FEEDBACK_COPY, language).bestProduct
+      : `${getGameCopy(CHOICE_FEEDBACK_COPY, language).acceptableSelection}${bestProductNames}`;
     const pointsEarned = applyContestantPointsBonus(
       isBestMatch ? 90 + Math.min(25, secondsLeft) : ALTERNATIVE_PRODUCT_POINTS,
       selectedContestantId,
@@ -1815,14 +1918,14 @@ export function CustomerAdviceGame() {
 
     if (!isCorrect) {
       setPoints((current) => Math.max(0, current - WRONG_CHOICE_PENALTY));
-      showScoreFeedback(-WRONG_CHOICE_PENALTY, CHOICE_FEEDBACK_COPY[language].wrongAnswer);
+      showScoreFeedback(-WRONG_CHOICE_PENALTY, getGameCopy(CHOICE_FEEDBACK_COPY, language).wrongAnswer);
       return;
     }
 
     setIsResolvingChoice(true);
     const pointsEarned = applyContestantPointsBonus(65 + Math.min(20, secondsLeft), selectedContestantId);
     setPoints((current) => current + pointsEarned);
-    showScoreFeedback(pointsEarned, CHOICE_FEEDBACK_COPY[language].correctAnswer);
+    showScoreFeedback(pointsEarned, getGameCopy(CHOICE_FEEDBACK_COPY, language).correctAnswer);
     turnAdvanceTimerRef.current = window.setTimeout(() => {
       turnAdvanceTimerRef.current = null;
       advanceTurn();
@@ -1953,7 +2056,7 @@ export function CustomerAdviceGame() {
       : "text-emerald-100 [text-shadow:0_0_12px_rgba(52,211,153,0.9)]";
   const isTimeUp = roundState === "time-up";
   const isComplete = roundState === "complete";
-  const conversationCopy = CONVERSATION_COPY[language];
+  const conversationCopy = getGameCopy(CONVERSATION_COPY, language);
   const shelfTitle = isComplete
     ? conversationCopy.completeTitle
     : isTimeUp
@@ -1964,14 +2067,15 @@ export function CustomerAdviceGame() {
   const customerImage = customerIndex < 0
     ? `${GAME_ASSETS}/customer-rider.webp`
     : CUSTOMER_IMAGES[customerIndex] ?? CUSTOMER_IMAGES[0];
-  const soundLabels: Record<AcademyLanguage, [string, string]> = {
+  const soundLabels: Record<GameLanguage, [string, string]> = {
     pl: ["W\u0142\u0105cz d\u017awi\u0119k", "Wy\u0142\u0105cz d\u017awi\u0119k"],
     en: ["Turn sound on", "Turn sound off"],
     de: ["Ton einschalten", "Ton ausschalten"],
     cs: ["Zapnout zvuk", "Vypnout zvuk"],
     fr: ["Activer le son", "D\u00e9sactiver le son"],
+    it: ["Attiva l’audio", "Disattiva l’audio"],
   };
-  const soundLabel = soundLabels[language][soundEnabled ? 1 : 0];
+  const soundLabel = getGameCopy(soundLabels, language)[soundEnabled ? 1 : 0];
   const audioElements = (
     <>
       <audio
@@ -2093,7 +2197,7 @@ export function CustomerAdviceGame() {
             <button
               ref={productInfoCloseRef}
               type="button"
-              aria-label={PRODUCT_INFO_COPY[language].close}
+              aria-label={getGameCopy(PRODUCT_INFO_COPY, language).close}
               onClick={() => setSelectedProductInfo(null)}
               className="absolute right-3 top-3 z-10 grid size-10 place-items-center rounded-full border border-white/20 bg-[#03101f]/80 text-white/85 transition-colors hover:border-cyan-200/70 hover:text-cyan-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-200"
             >
@@ -2104,7 +2208,7 @@ export function CustomerAdviceGame() {
             </div>
             <div className="flex min-w-0 flex-col justify-center px-1 pb-1 pt-2 sm:py-8 sm:pr-9">
               <span className="game-product-info-label mb-2 w-fit rounded-full border border-cyan-200/45 bg-cyan-300/10 px-3 py-1 font-game text-xs font-bold uppercase tracking-[0.13em] text-cyan-100">
-                {PRODUCT_INFO_COPY[language].category}: {selectedProductInfo.category === "helmets"
+                {getGameCopy(PRODUCT_INFO_COPY, language).category}: {selectedProductInfo.category === "helmets"
                   ? copy.categoryHelmets
                   : selectedProductInfo.category === "textile-clothing"
                     ? copy.categoryTextileClothing
@@ -2164,7 +2268,7 @@ export function CustomerAdviceGame() {
       {roundAnnouncement && screen === "game" && roundState === "playing" ? (
         <div key={roundAnnouncement.id} role="status" aria-live="polite" aria-atomic="true" className="pointer-events-none fixed inset-0 z-[130] grid place-items-center px-4">
           <div className="game-round-announcement w-full max-w-[420px] rounded-[24px] border border-cyan-200/60 bg-[#061629]/95 px-6 py-5 text-center font-game text-white shadow-[0_0_36px_rgba(34,211,238,0.3),0_20px_60px_rgba(0,0,0,0.6)] sm:px-8 sm:py-6">
-            <h2 className="text-2xl font-black uppercase tracking-[0.12em] sm:text-3xl">{ROUND_STAGE_COPY[language][roundAnnouncement.difficulty]}</h2>
+            <h2 className="text-2xl font-black uppercase tracking-[0.12em] sm:text-3xl">{getGameCopy(ROUND_STAGE_COPY, language)[roundAnnouncement.difficulty]}</h2>
           </div>
         </div>
       ) : null}
@@ -2338,7 +2442,7 @@ export function CustomerAdviceGame() {
                       </button>
                       <button
                         type="button"
-                        aria-label={`${PRODUCT_INFO_COPY[language].title}: ${choice.name}`}
+                        aria-label={`${getGameCopy(PRODUCT_INFO_COPY, language).title}: ${choice.name}`}
                         aria-haspopup="dialog"
                         disabled={roundState !== "playing" || isResolvingChoice}
                         onClick={() => {
@@ -2348,7 +2452,7 @@ export function CustomerAdviceGame() {
                         className="flex min-h-7 w-full shrink-0 items-center justify-center gap-1 rounded-lg font-game text-[10px] font-bold uppercase tracking-[0.12em] text-cyan-100 transition-colors hover:bg-cyan-300/15 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-200 disabled:cursor-default disabled:opacity-50 sm:min-h-7 sm:text-[11px]"
                       >
                         <RiInformationLine className="size-3.5" aria-hidden="true" />
-                        {PRODUCT_INFO_COPY[language].button}
+                        {getGameCopy(PRODUCT_INFO_COPY, language).button}
                       </button>
                     </div>
                   );
