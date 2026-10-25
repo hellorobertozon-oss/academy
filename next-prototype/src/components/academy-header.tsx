@@ -1,5 +1,6 @@
 "use client";
 
+import { Suspense } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
@@ -41,6 +42,34 @@ const LANGUAGE_FLAGS: Record<AcademyLanguage, string> = {
   it: "/assets/flag-it.svg",
 };
 
+type AcademyHeaderProps = {
+  mode: HeaderMode;
+  showThemeToggle?: boolean;
+  themeToggleClassName?: string;
+};
+
+function AcademyHeaderFallback() {
+  return (
+    <header aria-busy="true" className="relative z-20 min-h-20 border-b border-separator-border bg-background-full/90">
+      <div className="relative mx-auto flex min-h-20 w-full max-w-6xl items-center justify-between px-4 sm:px-8">
+        <span aria-hidden="true" className="size-10" />
+        <Link href="/" aria-label="Xzone Academy" className="absolute left-1/2 -translate-x-1/2">
+          <Image
+            src="/assets/logo-xzone-academy.png"
+            alt="Xzone Academy"
+            width={1026}
+            height={360}
+            priority
+            className="h-auto w-32 sm:w-40"
+          />
+        </Link>
+        <span aria-hidden="true" className="h-10 w-28 animate-pulse rounded-full bg-background-tertiary-default" />
+        <span className="sr-only" role="status">Wczytywanie Akademii</span>
+      </div>
+    </header>
+  );
+}
+
 export function AcademyLanguagePicker({
   persistence = "profile",
   className,
@@ -80,15 +109,19 @@ export function AcademyLanguagePicker({
   );
 }
 
-export function AcademyHeader({
+export function AcademyHeader(props: AcademyHeaderProps) {
+  return (
+    <Suspense fallback={<AcademyHeaderFallback />}>
+      <AcademyHeaderContent {...props} />
+    </Suspense>
+  );
+}
+
+function AcademyHeaderContent({
   mode,
   showThemeToggle = false,
   themeToggleClassName,
-}: {
-  mode: HeaderMode;
-  showThemeToggle?: boolean;
-  themeToggleClassName?: string;
-}) {
+}: AcademyHeaderProps) {
   const { t, isAdmin } = useAcademy();
   const router = useRouter();
   const pathname = usePathname();
