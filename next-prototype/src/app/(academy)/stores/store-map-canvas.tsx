@@ -66,7 +66,7 @@ export default function StoreMapCanvas({
   searchLocation?: GeocodedLocation | null;
 }) {
   const { language, t } = useAcademy();
-  const locale = { pl: "pl-PL", en: "en-US", de: "de-DE", cs: "cs-CZ", fr: "fr-FR" }[language];
+  const locale = { pl: "pl-PL", en: "en-US", de: "de-DE", cs: "cs-CZ", fr: "fr-FR", it: "it-IT" }[language];
   const center: LatLngExpression = [50, 15];
 
   return (

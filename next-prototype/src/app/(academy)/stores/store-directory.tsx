@@ -61,7 +61,7 @@ export function StoreDirectory({
   hasError: boolean;
 }) {
   const { language, t } = useAcademy();
-  const locale = { pl: "pl-PL", en: "en-US", de: "de-DE", cs: "cs-CZ", fr: "fr-FR" }[language];
+  const locale = { pl: "pl-PL", en: "en-US", de: "de-DE", cs: "cs-CZ", fr: "fr-FR", it: "it-IT" }[language];
   const [search, setSearch] = useState("");
   const [countryFilter, setCountryFilter] = useState("all");
   const [cityFilter, setCityFilter] = useState("all");
