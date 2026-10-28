@@ -2,11 +2,10 @@
 
 import Link from "next/link";
 import Image from "next/image";
-import { RiArrowRightLine, RiMapPin2Line } from "@remixicon/react";
+import { RiArrowRightLine } from "@remixicon/react";
 import { AcademyHeader } from "@/components/academy-header";
 import { PointsSummary } from "@/components/points-summary";
 import { useAcademy } from "@/components/academy-provider";
-import { RouteButton } from "@/components/route-button";
 import { LinkButton } from "@/components/base/buttons/link-button";
 import { cx } from "@/utils/cx";
 
@@ -33,7 +32,7 @@ export function DashboardPage({
   const greeting = name ? t("greetingNamed").replace("{name}", name) : t("greeting");
 
   return (
-    <div className="relative isolate min-h-screen bg-background-full">
+    <div className="relative isolate flex min-h-screen flex-col bg-background-full">
       {previewMode ? (
         <div role="note" className="relative z-30 bg-accent-300 px-4 py-1.5 text-center text-body-2-semibold text-accent-950 sm:px-8">
           <p className="mx-auto max-w-6xl">{t("userPreviewNotice")}</p>
@@ -51,7 +50,7 @@ export function DashboardPage({
         />
         <div className="absolute inset-0 bg-gradient-to-b from-background-full/20 via-background-full/60 to-background-full" />
       </div>
-      <main className="relative z-10 mx-auto w-full max-w-6xl px-4 pb-16 pt-12 sm:px-8 sm:pt-16">
+      <main className="relative z-10 mx-auto flex w-full max-w-6xl flex-1 flex-col px-4 pb-0 pt-12 sm:px-8 sm:pt-16">
         <section className="grid gap-6" aria-labelledby="dashboard-heading">
           <div>
             <p className="mb-2 text-body-semibold uppercase tracking-[0.16em] text-accent-300 sm:text-title-3-semibold">
@@ -118,27 +117,15 @@ export function DashboardPage({
           </section>
         ) : null}
 
-        <section className="mt-5 flex flex-col items-start justify-between gap-4 rounded-3xl border border-border-button-default bg-background-primary-default p-5 sm:flex-row sm:items-center sm:px-6">
-          <div>
-            <p className="text-body-medium text-text-primary">{t("finalTest")}</p>
-            <p className="mt-1 text-body-2-regular text-text-secondary">{t("quizDescription")}</p>
-          </div>
-          <RouteButton href={previewMode ? "/admin/user-preview/quiz" : "/quiz"} size="large" trailingIcon={RiArrowRightLine}>
-            {t("openQuiz")}
-          </RouteButton>
-        </section>
-
-        {!previewMode ? (
-          <section className="mt-5 flex flex-col items-start justify-between gap-4 rounded-3xl border border-border-button-default bg-background-primary-default p-5 sm:flex-row sm:items-center sm:px-6">
-            <div>
-              <p className="text-body-medium text-text-primary">{t("storeMapTitle")}</p>
-              <p className="mt-1 text-body-2-regular text-text-secondary">{t("storeMapDescription")}</p>
-            </div>
-            <RouteButton href="/stores" size="large" leadingIcon={RiMapPin2Line} trailingIcon={RiArrowRightLine}>
-              {t("storeMapButton")}
-            </RouteButton>
-          </section>
-        ) : null}
+        <footer className="mt-auto pt-20 text-center sm:pt-24">
+          <div
+            aria-hidden="true"
+            className="mx-auto mb-5 h-px w-20 bg-gradient-to-r from-transparent via-accent-300/50 to-transparent"
+          />
+          <p className="whitespace-nowrap font-display text-[clamp(1.875rem,9vw,8rem)] uppercase leading-[0.78] tracking-[0.025em] text-accent-300/20">
+            CLEAN #LIKEAPRO
+          </p>
+        </footer>
       </main>
     </div>
   );
