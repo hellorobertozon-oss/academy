@@ -39,6 +39,7 @@ export function TradeFairShowcase({ products }: { products: TradeFairProduct[] }
   const [staffPasswordError, setStaffPasswordError] = useState(false);
   const [activityVersion, setActivityVersion] = useState(0);
   const productCarouselRef = useRef<HTMLDivElement>(null);
+  const mainScrollRef = useRef<HTMLElement>(null);
   const settingsRef = useRef<HTMLDivElement>(null);
   const settingsTriggerRef = useRef<HTMLButtonElement>(null);
   const product = products.find((item) => item.id === selectedId) ?? products[0];
@@ -133,6 +134,14 @@ export function TradeFairShowcase({ products }: { products: TradeFairProduct[] }
   }, [revealProductCard, selectedNumber]);
 
   useEffect(() => {
+    const main = mainScrollRef.current;
+    if (!main) return;
+
+    main.scrollTo({ top: 0, behavior: "instant" });
+    main.parentElement?.style.setProperty("--trade-fair-scroll-fade", "0");
+  }, [selectedId]);
+
+  useEffect(() => {
     if (!autoAdvanceEnabled || products.length < 2) return;
 
     const timeout = window.setTimeout(() => {
@@ -206,7 +215,7 @@ export function TradeFairShowcase({ products }: { products: TradeFairProduct[] }
   }, [closeSettings, settingsOpen]);
 
   return (
-    <div className="flex min-h-svh flex-col bg-background-primary-default text-text-primary">
+    <div className="flex h-svh min-h-0 flex-col overflow-hidden bg-background-primary-default text-text-primary">
       <header className="relative flex min-h-16 shrink-0 items-center justify-between gap-4 border-b border-separator-border px-4 sm:min-h-20 sm:px-8">
         <Image
           src="/assets/xzone-logo-white.png"
@@ -337,102 +346,127 @@ export function TradeFairShowcase({ products }: { products: TradeFairProduct[] }
         ) : null}
       </header>
 
-      <main className="mx-auto grid w-full max-w-7xl flex-1 grid-cols-1 items-center gap-4 px-4 py-4 sm:px-8 sm:py-6 lg:grid-cols-[minmax(0,1.15fr)_minmax(0,0.85fr)] lg:gap-10 lg:py-3 2xl:max-w-[1600px]">
-        <div className="flex min-w-0 flex-col items-center justify-center gap-3">
-          <div className="relative flex w-full items-center justify-center">
-            {products.length > 1 ? (
-              <Button
-                type="button"
-                variant="primary"
-                size="large"
-                iconOnly
-                leadingIcon={RiArrowLeftLine}
-                aria-label={copy.previousProducts}
-                aria-controls="trade-fair-products"
-                onClick={() => changeProduct(-1)}
-                className="absolute start-0 top-1/2 z-20 size-12 -translate-y-1/2 rounded-full p-0 shadow-md sm:size-14 lg:size-16 [&_svg]:size-6 lg:[&_svg]:size-8"
-              />
-            ) : null}
-            <div
-              key={`stage-${product.id}`}
-              className={cx(
-                "relative isolate aspect-square w-full max-w-[min(82vw,38svh)] shrink-0 sm:max-w-[min(62vw,44svh)] lg:max-w-[min(55vw,58svh)]",
-              )}
-            >
-              <span aria-hidden="true" data-trade-fair-spotlight="" />
-              <div
-                key={`${product.id}-${selectedImageIndex}`}
-                data-trade-fair-product-enter=""
-                className="absolute inset-0 overflow-hidden rounded-3xl"
-              >
-                <Image
-                  src={selectedImage}
-                  alt={`${product.name}, photo ${selectedImageIndex + 1} of ${productImages.length}`}
-                  fill
-                  preload
-                  sizes="(max-width: 640px) min(82vw, 38svh), (min-width: 1024px) min(55vw, 58svh), min(62vw, 44svh)"
-                  className="z-10 object-contain"
-                />
-              </div>
-            </div>
-            {products.length > 1 ? (
-              <Button
-                type="button"
-                variant="primary"
-                size="large"
-                iconOnly
-                leadingIcon={RiArrowRightLine}
-                aria-label={copy.nextProducts}
-                aria-controls="trade-fair-products"
-                onClick={() => changeProduct(1)}
-                className="absolute end-0 top-1/2 z-20 size-12 -translate-y-1/2 rounded-full p-0 shadow-md sm:size-14 lg:size-16 [&_svg]:size-6 lg:[&_svg]:size-8"
-              />
-            ) : null}
-          </div>
-          <div role="group" aria-label={copy.productPhotos} className="mx-auto flex max-w-full snap-x snap-mandatory gap-2 overflow-x-auto overscroll-x-contain px-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-            {productImages.map((image, index) => {
-              const isSelected = index === selectedImageIndex;
-
-              return (
+      <div className="relative flex min-h-0 flex-1">
+        <main
+          ref={mainScrollRef}
+          onScroll={(event) => {
+            const fade = Math.min(event.currentTarget.scrollTop / 24, 1);
+            event.currentTarget.parentElement?.style.setProperty("--trade-fair-scroll-fade", String(fade));
+          }}
+          className="mx-auto grid h-full min-h-0 w-full max-w-7xl flex-1 grid-cols-1 items-center gap-4 overflow-y-auto overscroll-y-contain px-4 py-4 sm:px-8 sm:py-6 lg:grid-cols-[minmax(0,1.15fr)_minmax(0,0.85fr)] lg:gap-10 lg:py-3 2xl:max-w-[1600px]"
+          data-trade-fair-main=""
+        >
+          <div className="flex min-w-0 flex-col items-center justify-center gap-3">
+            <div className="relative flex w-full items-center justify-center">
+              {products.length > 1 ? (
                 <Button
-                  key={`${product.id}-${image}`}
                   type="button"
-                  variant="secondary"
-                  size="small"
-                  aria-label={copy.photoNumber(index + 1, productImages.length)}
-                  aria-pressed={isSelected}
-                  onClick={() => setSelectedImageIndex(index)}
-                  style={{ animationDelay: `${Math.min(index, 6) * 28}ms` }}
-                  data-trade-fair-thumbnail-enter=""
-                  className={cx(
-                    "size-14 shrink-0 snap-start rounded-xl p-1",
-                    isSelected && "border-accent-500 bg-accent-50 hover:bg-accent-50 active:bg-accent-50",
-                  )}
+                  variant="primary"
+                  size="large"
+                  iconOnly
+                  leadingIcon={RiArrowLeftLine}
+                  aria-label={copy.previousProducts}
+                  aria-controls="trade-fair-products"
+                  onClick={() => changeProduct(-1)}
+                  className="absolute start-0 top-1/2 z-20 size-12 -translate-y-1/2 rounded-full p-0 shadow-md sm:size-14 lg:size-16 [&_svg]:size-6 lg:[&_svg]:size-8"
+                />
+              ) : null}
+              <div
+                key={`stage-${product.id}`}
+                className={cx(
+                  "relative isolate aspect-square w-full max-w-[min(82vw,38svh)] shrink-0 sm:max-w-[min(62vw,44svh)] lg:max-w-[min(55vw,58svh)]",
+                )}
+                data-trade-fair-stage=""
+              >
+                <span aria-hidden="true" data-trade-fair-spotlight="" />
+                <div
+                  key={`${product.id}-${selectedImageIndex}`}
+                  data-trade-fair-product-enter=""
+                  className="absolute inset-0 overflow-hidden rounded-3xl"
                 >
-                  <span className="relative block size-11 shrink-0 overflow-hidden rounded-lg bg-background-secondary-default">
-                    <Image src={image} alt="" fill sizes="44px" className="object-contain" />
-                  </span>
-                </Button>
-              );
-            })}
-          </div>
-        </div>
+                  <Image
+                    src={selectedImage}
+                    alt={`${product.name}, photo ${selectedImageIndex + 1} of ${productImages.length}`}
+                    fill
+                    preload
+                    sizes="(max-width: 640px) min(82vw, 38svh), (min-width: 1024px) min(55vw, 58svh), min(62vw, 44svh)"
+                    className="z-10 object-contain"
+                  />
+                </div>
+              </div>
+              {products.length > 1 ? (
+                <Button
+                  type="button"
+                  variant="primary"
+                  size="large"
+                  iconOnly
+                  leadingIcon={RiArrowRightLine}
+                  aria-label={copy.nextProducts}
+                  aria-controls="trade-fair-products"
+                  onClick={() => changeProduct(1)}
+                  className="absolute end-0 top-1/2 z-20 size-12 -translate-y-1/2 rounded-full p-0 shadow-md sm:size-14 lg:size-16 [&_svg]:size-6 lg:[&_svg]:size-8"
+                />
+              ) : null}
+            </div>
+            <div role="group" aria-label={copy.productPhotos} className="mx-auto flex max-w-full snap-x snap-mandatory gap-2 overflow-x-auto overscroll-x-contain px-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+              {productImages.map((image, index) => {
+                const isSelected = index === selectedImageIndex;
 
-        <section key={`copy-${product.id}`} data-trade-fair-product-copy-enter="" aria-live="polite" aria-atomic="true" className="mx-auto w-full max-w-4xl lg:mx-0 lg:max-w-none">
-          <div className="mb-3 flex items-end justify-between gap-4">
-            <h1 className="text-balance text-title-1-semibold text-text-primary sm:text-display-3-bold">{product.name}</h1>
-            <span className="shrink-0 pb-1 text-body-2-medium tabular-nums text-text-tertiary">
-              {String(selectedNumber).padStart(2, "0")} / {String(products.length).padStart(2, "0")}
-            </span>
+                return (
+                  <Button
+                    key={`${product.id}-${image}`}
+                    type="button"
+                    variant="secondary"
+                    size="small"
+                    aria-label={copy.photoNumber(index + 1, productImages.length)}
+                    aria-pressed={isSelected}
+                    onClick={() => setSelectedImageIndex(index)}
+                    style={{ animationDelay: `${Math.min(index, 6) * 28}ms` }}
+                    data-trade-fair-thumbnail-enter=""
+                    className={cx(
+                      "size-14 shrink-0 snap-start rounded-xl p-1",
+                      isSelected && "border-accent-500 bg-accent-50 hover:bg-accent-50 active:bg-accent-50",
+                    )}
+                  >
+                    <span className="relative block size-11 shrink-0 overflow-hidden rounded-lg bg-background-secondary-default">
+                      <Image src={image} alt="" fill sizes="44px" className="object-contain" />
+                    </span>
+                  </Button>
+                );
+              })}
+            </div>
           </div>
-          <article className="border-s-2 border-accent-500 ps-4">
-            <p className="mb-1 text-caption-1-semibold uppercase tracking-wide text-text-tertiary">{copy.productDescription}</p>
-            <p className="text-pretty text-body-regular text-text-secondary">
-              {product.descriptionByLanguage[language]}
-            </p>
-          </article>
-        </section>
-      </main>
+
+          <section key={`copy-${product.id}`} data-trade-fair-product-copy-enter="" aria-live="polite" aria-atomic="true" className="mx-auto w-full max-w-4xl lg:mx-0 lg:max-w-none">
+            <div className="mb-3 flex items-end justify-between gap-4">
+              <h1 className="text-balance text-title-1-semibold text-text-primary sm:text-display-3-bold">{product.name}</h1>
+              <span className="shrink-0 pb-1 text-body-2-medium tabular-nums text-text-tertiary">
+                {String(selectedNumber).padStart(2, "0")} / {String(products.length).padStart(2, "0")}
+              </span>
+            </div>
+            <article className="border-s-2 border-accent-500 ps-4">
+              <p className="mb-1 text-caption-1-semibold uppercase tracking-wide text-text-tertiary">{copy.productDescription}</p>
+              <p className="text-pretty text-body-regular text-text-secondary">
+                {product.descriptionByLanguage[language]}
+              </p>
+            </article>
+          </section>
+        </main>
+        <div aria-hidden="true" className="pointer-events-none absolute inset-x-0 top-0 z-20 h-6">
+          <div
+            className="absolute inset-0 backdrop-blur-[1px] [mask-image:linear-gradient(to_bottom,black,transparent)]"
+            style={{ opacity: "var(--trade-fair-scroll-fade, 0)" }}
+          />
+          <div
+            className="absolute inset-x-0 top-0 h-4 backdrop-blur-[4px] [mask-image:linear-gradient(to_bottom,black,transparent)]"
+            style={{ opacity: "var(--trade-fair-scroll-fade, 0)" }}
+          />
+          <div
+            className="absolute inset-0 bg-gradient-to-b from-background-primary-default to-transparent"
+            style={{ opacity: "var(--trade-fair-scroll-fade, 0)" }}
+          />
+        </div>
+      </div>
 
       <nav aria-label={copy.exploreProducts} className="shrink-0 border-t border-separator-border bg-background-primary-default">
         <div className="mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-2 px-4 pb-2 pt-3 sm:gap-4 sm:px-8 sm:pt-4 2xl:max-w-[1600px]">
@@ -452,7 +486,7 @@ export function TradeFairShowcase({ products }: { products: TradeFairProduct[] }
             aria-controls="trade-fair-products"
             disabled={!canScrollProductsLeft}
             onClick={() => scrollProducts(-1)}
-            className="size-14 shrink-0 rounded-full p-0 text-text-primary shadow-sm sm:size-16 [&_svg]:size-7 sm:[&_svg]:size-8"
+            className="size-14 shrink-0 rounded-full p-0 text-text-white shadow-sm sm:size-16 [&_svg]:size-7 sm:[&_svg]:size-8"
           />
 
           <div
@@ -505,7 +539,7 @@ export function TradeFairShowcase({ products }: { products: TradeFairProduct[] }
             aria-controls="trade-fair-products"
             disabled={!canScrollProductsRight}
             onClick={() => scrollProducts(1)}
-            className="size-14 shrink-0 rounded-full p-0 text-text-primary shadow-sm sm:size-16 [&_svg]:size-7 sm:[&_svg]:size-8"
+            className="size-14 shrink-0 rounded-full p-0 text-text-white shadow-sm sm:size-16 [&_svg]:size-7 sm:[&_svg]:size-8"
           />
         </div>
       </nav>

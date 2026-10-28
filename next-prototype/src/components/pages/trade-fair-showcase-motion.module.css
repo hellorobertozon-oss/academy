@@ -32,6 +32,24 @@
   animation: trade-fair-spotlight 460ms cubic-bezier(0.22, 1, 0.36, 1) both;
 }
 
+@media (min-width: 64rem) and (max-height: 960px) {
+  [data-trade-fair-stage] {
+    max-width: min(55vw, 50svh);
+  }
+}
+
+@media (min-width: 64rem) and (max-height: 760px) {
+  [data-trade-fair-stage] {
+    max-width: min(55vw, 42svh);
+  }
+}
+
+@media (max-height: 760px) {
+  [data-trade-fair-main] {
+    align-items: start;
+  }
+}
+
 @keyframes trade-fair-product-in {
   from {
     opacity: 0;
