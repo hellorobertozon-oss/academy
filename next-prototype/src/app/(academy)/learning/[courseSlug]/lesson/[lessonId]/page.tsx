@@ -1,9 +1,9 @@
 import { Suspense } from "react";
 import { notFound, redirect } from "next/navigation";
-import { RiArrowLeftLine, RiArrowRightLine } from "@remixicon/react";
+import { RiArrowLeftLine, RiArrowRightLine, RiLockLine } from "@remixicon/react";
 import { AcademyHeader } from "@/components/academy-header";
 import { AcademyContentImage } from "@/components/academy-content-image";
-import { ButtonLink } from "@/components/base/buttons/button";
+import { Button, ButtonLink } from "@/components/base/buttons/button";
 import { LinkButton } from "@/components/base/buttons/link-button";
 import { LessonCompletion } from "@/components/pages/lesson-completion";
 import { LessonContentSections } from "@/components/pages/lesson-content-sections";
@@ -117,7 +117,32 @@ async function LessonContent({
                 {copy.previousLesson}
               </ButtonLink>
             ) : <span aria-hidden="true" />}
-            {result.data.nextLessonId ? (
+            {result.data.nextQuizId ? (
+              <div className="flex flex-col items-end gap-2">
+                {result.data.nextQuizUnlocked ? (
+                  <ButtonLink
+                    href={`/quiz/${result.data.nextQuizId}`}
+                    size="large"
+                    trailingIcon={RiArrowRightLine}
+                    className="w-full px-1 text-title-3-semibold sm:px-6 sm:text-title-2-semibold [&_svg]:size-[18px] sm:[&_svg]:size-6"
+                  >
+                    {copy.quizOpen}
+                  </ButtonLink>
+                ) : (
+                  <Button
+                    size="large"
+                    trailingIcon={RiLockLine}
+                    disabled
+                    className="w-full px-1 text-title-3-semibold sm:px-6 sm:text-title-2-semibold [&_svg]:size-[18px] sm:[&_svg]:size-6"
+                  >
+                    {copy.quizOpen}
+                  </Button>
+                )}
+                {!result.data.nextQuizUnlocked ? (
+                  <p className="text-end text-caption-1-regular text-text-tertiary">{copy.quizLocked}</p>
+                ) : null}
+              </div>
+            ) : result.data.nextLessonId ? (
               <ButtonLink
                 href={`/learning/${course.slug}/lesson/${result.data.nextLessonId}`}
                 size="large"

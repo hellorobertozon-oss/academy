@@ -38,6 +38,7 @@ export type LearningCourseOutline = {
     summary: string;
     imageUrl: string | null;
     lessons: Array<{ id: number; title: string; summary: string; imageUrl: string | null; completed: boolean }>;
+    quiz: { id: number; title: string; passed: boolean; unlocked: boolean } | null;
   }>;
 };
 
@@ -60,6 +61,8 @@ export type LearningLesson = {
   };
   previousLessonId: number | null;
   nextLessonId: number | null;
+  nextQuizId: number | null;
+  nextQuizUnlocked: boolean;
   lessonNumber: number;
   lessonCount: number;
 };
@@ -83,6 +86,9 @@ type ModuleRow = { id: number; course_version_id: number; sort_order: number };
 type ModuleTranslationRow = { module_id: number; title: string; summary: string; image_path: string | null };
 type LessonRow = { id: number; module_id: number; sort_order: number };
 type LessonCompletionRow = { lesson_id: number; points_awarded: number };
+type ModuleQuizRow = { id: number; module_id: number; pass_percentage: number };
+type ModuleQuizTranslationRow = { quiz_id: number; title: string };
+type ModuleQuizAttemptRow = { quiz_id: number };
 type LessonTranslationRow = {
   lesson_id: number;
   title: string;
@@ -399,21 +405,45 @@ async function readCourseOutlineWithClient(
 
   const lessons = (lessonsResult.data ?? []) as LessonRow[];
   const lessonIds = lessons.map((lesson) => lesson.id);
-  const [lessonTranslationsResult, completionsResult] = lessonIds.length
-    ? await Promise.all([
-        client
+  const [lessonTranslationsResult, completionsResult, quizzesResult] = await Promise.all([
+    lessonIds.length
+      ? client
           .from("lesson_translations")
           .select("lesson_id, title, summary, image_path")
           .in("lesson_id", lessonIds)
-          .eq("language_code", languageCode),
-        client
+          .eq("language_code", languageCode)
+      : Promise.resolve({ data: [], error: null }),
+    lessonIds.length
+      ? client
           .from("lesson_completions")
           .select("lesson_id")
           .eq("profile_id", profileId)
-          .in("lesson_id", lessonIds),
+          .in("lesson_id", lessonIds)
+      : Promise.resolve({ data: [], error: null }),
+    moduleIds.length
+      ? client.from("quizzes").select("id, module_id, pass_percentage").in("module_id", moduleIds)
+      : Promise.resolve({ data: [], error: null }),
+  ]);
+  if (lessonTranslationsResult.error || completionsResult.error || quizzesResult.error) return { status: "error" };
+
+  const quizRows = (quizzesResult.data ?? []) as ModuleQuizRow[];
+  const quizIds = quizRows.map((quiz) => quiz.id);
+  const [quizTranslationsResult, quizAttemptsResult] = quizIds.length
+    ? await Promise.all([
+        client
+          .from("quiz_translations")
+          .select("quiz_id, title")
+          .in("quiz_id", quizIds)
+          .eq("language_code", languageCode),
+        client
+          .from("quiz_attempts")
+          .select("quiz_id")
+          .eq("profile_id", profileId)
+          .eq("passed", true)
+          .in("quiz_id", quizIds),
       ])
     : [{ data: [], error: null }, { data: [], error: null }];
-  if (lessonTranslationsResult.error || completionsResult.error) return { status: "error" };
+  if (quizTranslationsResult.error || quizAttemptsResult.error) return { status: "error" };
 
   const moduleTranslationRows = (moduleTranslationsResult.data ?? []) as ModuleTranslationRow[];
   const lessonTranslationRows = (lessonTranslationsResult.data ?? []) as Array<Pick<LessonTranslationRow, "lesson_id" | "title" | "summary" | "image_path">>;
@@ -434,6 +464,36 @@ async function readCourseOutlineWithClient(
     ((completionsResult.data ?? []) as Array<Pick<LessonCompletionRow, "lesson_id">>)
       .map((completion) => completion.lesson_id),
   );
+  const translatedModuleIds = new Set(moduleTranslations.keys());
+  const availableLessons = lessons.filter((lesson) =>
+    translatedModuleIds.has(lesson.module_id) && lessonTranslations.has(lesson.id),
+  );
+  const quizUnlockedByModule = new Map<number, boolean>();
+  let previousLessonsCompleted = true;
+  for (const courseModule of modules) {
+    const moduleLessons = availableLessons.filter((lesson) => lesson.module_id === courseModule.id);
+    const currentModuleCompleted = moduleLessons.length > 0
+      && moduleLessons.every((lesson) => completedLessonIds.has(lesson.id));
+    quizUnlockedByModule.set(courseModule.id, previousLessonsCompleted && currentModuleCompleted);
+    previousLessonsCompleted = previousLessonsCompleted
+      && moduleLessons.every((lesson) => completedLessonIds.has(lesson.id));
+  }
+  const quizTranslations = (quizTranslationsResult.data ?? []) as ModuleQuizTranslationRow[];
+  const passedQuizIds = new Set(
+    ((quizAttemptsResult.data ?? []) as ModuleQuizAttemptRow[])
+      .map((attempt) => attempt.quiz_id),
+  );
+  const quizByModule = new Map(
+    quizRows.flatMap((quiz) => {
+      const translation = quizTranslations.find((item) => item.quiz_id === quiz.id);
+      return translation ? [[quiz.module_id, {
+        id: quiz.id,
+        title: translation.title,
+        passed: passedQuizIds.has(quiz.id),
+        unlocked: quizUnlockedByModule.get(quiz.module_id) ?? false,
+      }] as const] : [];
+    }),
+  );
   const outline: LearningCourseOutline = {
     id: courseRow.id,
     slug: courseRow.slug,
@@ -448,6 +508,7 @@ async function readCourseOutlineWithClient(
         title: moduleTranslation.title,
         summary: moduleTranslation.summary,
         imageUrl: moduleTranslation.image_path ? imageUrls.get(moduleTranslation.image_path) ?? null : null,
+        quiz: quizByModule.get(courseModule.id) ?? null,
         lessons: lessons.flatMap((lesson) => {
           if (lesson.module_id !== courseModule.id) return [];
           const lessonTranslation = lessonTranslations.get(lesson.id);
@@ -484,6 +545,7 @@ export async function readAdminPreviewCourseOutline(slug: string): Promise<Learn
         ...result.data,
         modules: result.data.modules.map((courseModule) => ({
           ...courseModule,
+          quiz: courseModule.quiz ? { ...courseModule.quiz, unlocked: false } : null,
           lessons: courseModule.lessons.map((lesson) => ({ ...lesson, completed: false })),
         })),
       },
@@ -503,10 +565,12 @@ async function readCourseLessonWithClient(
 
   let parentModule: LearningCourseOutline["modules"][number] | undefined;
   let lessonNumber = 0;
+  let lessonIndexInModule = -1;
   for (const courseModule of outlineResult.data.modules) {
     const index = courseModule.lessons.findIndex((lesson) => lesson.id === lessonId);
     if (index >= 0) {
       parentModule = courseModule;
+      lessonIndexInModule = index;
       lessonNumber += index + 1;
       break;
     }
@@ -525,6 +589,8 @@ async function readCourseLessonWithClient(
 
   const allLessons = outlineResult.data.modules.flatMap((courseModule) => courseModule.lessons);
   const lessonIndex = allLessons.findIndex((lesson) => lesson.id === lessonId);
+  const isLastLessonInModule = lessonIndexInModule === parentModule.lessons.length - 1;
+  const nextQuizId = isLastLessonInModule ? parentModule.quiz?.id ?? null : null;
   const lessonTranslation = translation as LessonTranslationRow;
   return {
     status: "ok",
@@ -552,6 +618,8 @@ async function readCourseLessonWithClient(
       },
       previousLessonId: lessonIndex > 0 ? allLessons[lessonIndex - 1].id : null,
       nextLessonId: lessonIndex >= 0 && lessonIndex < allLessons.length - 1 ? allLessons[lessonIndex + 1].id : null,
+      nextQuizId,
+      nextQuizUnlocked: nextQuizId !== null && parentModule.quiz?.unlocked === true,
       lessonNumber,
       lessonCount: allLessons.length,
     },

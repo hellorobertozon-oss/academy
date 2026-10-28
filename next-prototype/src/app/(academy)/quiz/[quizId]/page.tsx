@@ -1,7 +1,7 @@
 import { Suspense } from "react";
 import Image from "next/image";
 import { notFound, redirect } from "next/navigation";
-import { RiArrowLeftLine } from "@remixicon/react";
+import { RiArrowLeftLine, RiLockLine } from "@remixicon/react";
 import { AcademyHeader } from "@/components/academy-header";
 import { AcademyLoading } from "@/components/academy-loading";
 import { LinkButton } from "@/components/base/buttons/link-button";
@@ -16,7 +16,7 @@ async function QuizContent({ params }: { params: Promise<{ quizId: string }> }) 
   if (result.status === "forbidden") redirect("/admin/courses");
   if (result.status === "not-found") notFound();
 
-  const copy = getLearningCopy(result.status === "ok" ? result.languageCode : "pl");
+  const copy = getLearningCopy(result.status === "ok" || result.status === "locked" ? result.languageCode : "pl");
   return (
     <div className="relative isolate min-h-screen bg-background-full">
       <AcademyHeader mode="app" />
@@ -25,10 +25,17 @@ async function QuizContent({ params }: { params: Promise<{ quizId: string }> }) 
         <div className="absolute inset-0 bg-gradient-to-b from-background-full/20 via-background-full/60 to-background-full" />
       </div>
       <main className="relative z-10 mx-auto w-full max-w-4xl px-4 pb-16 pt-10 sm:px-8 sm:pt-14">
-        <LinkButton href="/quiz" size="medium" variant="secondary" leadingIcon={RiArrowLeftLine} className="mb-8">
-          {copy.quizBackToList}
+        <LinkButton href={result.status === "locked" ? "/learning" : "/quiz"} size="medium" variant="secondary" leadingIcon={RiArrowLeftLine} className="mb-8">
+          {result.status === "locked" ? copy.backToCourses : copy.quizBackToList}
         </LinkButton>
-        {result.status === "error" ? (
+        {result.status === "locked" ? (
+          <section role="status" className="flex items-center gap-4 rounded-3xl border border-border-button-default bg-background-primary-default p-6">
+            <span className="grid size-12 shrink-0 place-items-center rounded-full border-2 border-separator-border bg-background-secondary-default text-text-tertiary" aria-hidden="true">
+              <RiLockLine className="size-6" />
+            </span>
+            <p className="text-body-regular text-text-secondary">{copy.quizLocked}</p>
+          </section>
+        ) : result.status === "error" ? (
           <div role="alert" className="rounded-3xl border border-border-error-default bg-background-primary-default p-6 text-body-regular text-text-error-primary">
             {copy.loadError}
           </div>

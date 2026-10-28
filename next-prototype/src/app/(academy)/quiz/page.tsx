@@ -1,7 +1,7 @@
 import { Suspense } from "react";
 import Image from "next/image";
 import { redirect } from "next/navigation";
-import { RiArrowLeftLine, RiArrowRightLine } from "@remixicon/react";
+import { RiArrowLeftLine, RiArrowRightLine, RiLockLine } from "@remixicon/react";
 import { AcademyHeader } from "@/components/academy-header";
 import { AcademyLoading } from "@/components/academy-loading";
 import { Badge } from "@/components/base/badges/badge";
@@ -49,12 +49,18 @@ async function QuizListContent() {
                   </p>
                   <h2 className="text-title-1-medium text-text-primary">{quiz.title}</h2>
                   {quiz.instructions ? <p className="max-w-3xl text-body-regular text-text-secondary">{quiz.instructions}</p> : null}
+                  {!quiz.unlocked ? <p className="text-body-2-medium text-text-tertiary">{copy.quizLocked}</p> : null}
                   <div role="group" className="flex flex-wrap gap-2">
                     <Badge color="neutral">{fill(copy.quizQuestionCount, { count: quiz.questionCount })}</Badge>
                     <Badge color="neutral">{fill(copy.quizPassThreshold, { percentage: quiz.passPercentage })}</Badge>
                   </div>
                 </div>
-                <LinkButton href={`/quiz/${quiz.id}`} trailingIcon={RiArrowRightLine} className="self-start sm:self-center">
+                <LinkButton
+                  href={`/quiz/${quiz.id}`}
+                  disabled={!quiz.unlocked}
+                  trailingIcon={quiz.unlocked ? RiArrowRightLine : RiLockLine}
+                  className="self-start sm:self-center"
+                >
                   {copy.quizOpen}
                 </LinkButton>
               </article>

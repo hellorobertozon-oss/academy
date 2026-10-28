@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useTransition } from "react";
+import { useRouter } from "next/navigation";
 import { Button } from "@/components/base/buttons/button";
 import { completeLessonAction } from "@/app/(academy)/learning/actions";
 import { RiCheckLine } from "@remixicon/react";
@@ -24,6 +25,7 @@ export function LessonCompletion({
   errorMessage: string;
   previewOnly?: boolean;
 }) {
+  const router = useRouter();
   const [pending, startTransition] = useTransition();
   const [locallyCompletedLessonId, setLocallyCompletedLessonId] = useState<number | null>(null);
   const [completionFeedback, setCompletionFeedback] = useState<{
@@ -58,6 +60,7 @@ export function LessonCompletion({
             ? awardedMessage.replace("{points}", String(result.pointsAwarded))
             : completedLabel,
         });
+        router.refresh();
       } catch {
         setFailedLessonId(lessonId);
       }

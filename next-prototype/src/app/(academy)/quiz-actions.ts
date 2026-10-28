@@ -2,6 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { getCurrentAcademyProfile } from "@/lib/auth/profile";
+import { isLearningQuizUnlocked } from "@/lib/academy/quizzes";
 import { createAcademyServerClient } from "@/lib/supabase/server";
 
 export type QuizAttemptResult = {
@@ -49,6 +50,7 @@ export async function submitQuizAction(value: unknown): Promise<SubmitQuizResult
   }
 
   try {
+    if (!await isLearningQuizUnlocked(submission.quizId)) return { status: "error" };
     const supabase = await createAcademyServerClient();
     const { data, error } = await supabase.rpc("submit_academy_quiz", {
       p_quiz_id: submission.quizId,
@@ -78,6 +80,7 @@ export async function submitQuizAction(value: unknown): Promise<SubmitQuizResult
 
     revalidatePath("/quiz");
     revalidatePath(`/quiz/${submission.quizId}`);
+    revalidatePath("/learning", "layout");
     revalidatePath("/rewards");
     return { status: "success", attempt };
   } catch {

@@ -78,6 +78,17 @@ export function LearningQuizPage({ quiz, copy }: {
             <p className="mt-3 text-body-semibold text-accent-300">{fill(copy.quizPointsEarned, { points: result.pointsAwarded })}</p>
           ) : null}
           <div className="mt-7 flex flex-wrap justify-center gap-3">
+            {result.passed ? (
+              <ButtonLink
+                href={quiz.nextLessonId
+                  ? `/learning/${quiz.courseSlug}/lesson/${quiz.nextLessonId}`
+                  : `/learning/${quiz.courseSlug}`}
+                size="large"
+                trailingIcon={quiz.nextLessonId ? RiArrowRightLine : undefined}
+              >
+                {quiz.nextLessonId ? copy.nextLesson : copy.backToCourse}
+              </ButtonLink>
+            ) : null}
             <Button size="large" variant="secondary" onClick={tryAgain}>{copy.quizOpen}</Button>
             <ButtonLink href="/quiz" size="large" variant="secondary">{copy.quizBackToList}</ButtonLink>
           </div>
