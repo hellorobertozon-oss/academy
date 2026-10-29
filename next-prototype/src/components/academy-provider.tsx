@@ -1854,6 +1854,7 @@ type AcademyContextValue = {
 
 const AcademyContext = createContext<AcademyContextValue | null>(null);
 const LANGUAGE_EVENT = "xzone-academy-language-change";
+const LANGUAGE_STORAGE_KEY = "xzone-academy-language";
 const PROGRESS_EVENT = "xzone-academy-progress-change";
 const COMPLETED_LESSONS_STORAGE_KEY = "xzone-academy-completed-lessons";
 
@@ -1885,9 +1886,27 @@ function subscribeToLanguage(notify: () => void) {
 
 let memoryLanguage: AcademyLanguage | null = null;
 
+function hasStoredLanguageSelection(): boolean {
+  try {
+    return isAcademyLanguage(window.localStorage.getItem(LANGUAGE_STORAGE_KEY));
+  } catch {
+    return memoryLanguage !== null;
+  }
+}
+
+function storeSelectedLanguage(language: AcademyLanguage) {
+  memoryLanguage = language;
+  try {
+    window.localStorage.setItem(LANGUAGE_STORAGE_KEY, language);
+  } catch {
+    // Keep the selected language available for this session.
+  }
+  window.dispatchEvent(new Event(LANGUAGE_EVENT));
+}
+
 function getStoredLanguage(): AcademyLanguage {
   try {
-    const stored = window.localStorage.getItem("xzone-academy-language");
+    const stored = window.localStorage.getItem(LANGUAGE_STORAGE_KEY);
     return isAcademyLanguage(stored) ? stored : memoryLanguage ?? "pl";
   } catch {
     return memoryLanguage ?? "pl";
@@ -1911,10 +1930,6 @@ function AcademyPathnameSync({ onPathnameChange }: { onPathnameChange: (pathname
 export function AcademyProvider({ children }: { children: ReactNode }) {
   const router = useRouter();
   const [pathname, setPathname] = useState<string | null>(null);
-  const isTradeFairKiosk = pathname === "/targi"
-    || pathname?.startsWith("/targi/") === true
-    || pathname === "/targi-v2"
-    || pathname?.startsWith("/targi-v2/") === true;
   const language = useSyncExternalStore(subscribeToLanguage, getStoredLanguage, getServerLanguage);
   const [role, setRole] = useState<"admin" | "employee" | null>(null);
   const [completedLessons, setCompletedLessons] = useState<CopyKey[]>([]);
@@ -1927,24 +1942,18 @@ export function AcademyProvider({ children }: { children: ReactNode }) {
     void readAcademyViewerContextAction().then(({ preferredLanguage, previewLanguage, role: currentRole }) => {
       if (!active) return;
       setRole(currentRole);
-      if (isTradeFairKiosk || didChangeLanguage.current) return;
+      if (didChangeLanguage.current || hasStoredLanguageSelection()) return;
       const selectedLanguage = pathname.startsWith("/admin/user-preview") && isAcademyLanguage(previewLanguage)
         ? previewLanguage
         : preferredLanguage;
       if (!isAcademyLanguage(selectedLanguage)) return;
-      memoryLanguage = selectedLanguage;
-      try {
-        window.localStorage.setItem("xzone-academy-language", selectedLanguage);
-      } catch {
-        // Keep the profile language available for this session.
-      }
-      window.dispatchEvent(new Event(LANGUAGE_EVENT));
+      storeSelectedLanguage(selectedLanguage);
     }).catch(() => {});
 
     return () => {
       active = false;
     };
-  }, [isTradeFairKiosk, pathname]);
+  }, [pathname]);
 
   useEffect(() => {
     const syncCompletedLessons = () => setCompletedLessons(readCompletedLessons());
@@ -1960,27 +1969,15 @@ export function AcademyProvider({ children }: { children: ReactNode }) {
 
   const setLanguage = useCallback((nextLanguage: AcademyLanguage) => {
     didChangeLanguage.current = true;
+    storeSelectedLanguage(nextLanguage);
     void updatePreferredLanguageAction(nextLanguage).then((saved) => {
       if (!saved) return;
-      memoryLanguage = nextLanguage;
-      try {
-        window.localStorage.setItem("xzone-academy-language", nextLanguage);
-      } catch {
-        // Keep the selected profile language available for this session.
-      }
-      window.dispatchEvent(new Event(LANGUAGE_EVENT));
       router.refresh();
     }).catch(() => {});
   }, [router]);
   const setPreviewLanguage = useCallback((nextLanguage: AcademyLanguage) => {
     didChangeLanguage.current = true;
-    memoryLanguage = nextLanguage;
-    try {
-      window.localStorage.setItem("xzone-academy-language", nextLanguage);
-    } catch {
-      // Keep the current language for this session when browser storage is unavailable.
-    }
-    window.dispatchEvent(new Event(LANGUAGE_EVENT));
+    storeSelectedLanguage(nextLanguage);
     if (pathname?.startsWith("/admin/user-preview")) {
       void updateAcademyPreviewLanguageAction(nextLanguage)
         .catch(() => false)
@@ -1990,13 +1987,8 @@ export function AcademyProvider({ children }: { children: ReactNode }) {
     router.refresh();
   }, [pathname, router]);
   const setKioskLanguage = useCallback((nextLanguage: AcademyLanguage) => {
-    memoryLanguage = nextLanguage;
-    try {
-      window.localStorage.setItem("xzone-academy-language", nextLanguage);
-    } catch {
-      // Keep the current language for this session when browser storage is unavailable.
-    }
-    window.dispatchEvent(new Event(LANGUAGE_EVENT));
+    didChangeLanguage.current = true;
+    storeSelectedLanguage(nextLanguage);
     router.refresh();
   }, [router]);
   const completeLesson = useCallback((lesson: CopyKey) => {
