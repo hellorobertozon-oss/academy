@@ -33,7 +33,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
       <body className="flex min-h-full flex-col bg-background-full font-sans text-text-primary">
         <AcademyProvider>{children}</AcademyProvider>
         <Script id="academy-theme-bootstrap" strategy="beforeInteractive">
-          {`const path = location.pathname; const adminPanel = path.startsWith("/admin") && !path.startsWith("/admin/user-preview"); const tradeFairKiosk = path === "/targi" || path.startsWith("/targi/"); let savedTheme = "light"; try { savedTheme = localStorage.getItem("boardui:theme") === "dark" ? "dark" : "light"; } catch {} document.documentElement.classList.toggle("dark", adminPanel ? savedTheme === "dark" : !tradeFairKiosk);`}
+          {`const path = location.pathname; const adminPanel = path.startsWith("/admin") && !path.startsWith("/admin/user-preview"); const tradeFairKiosk = path === "/targi" || path.startsWith("/targi/") || path === "/targi-v2" || path.startsWith("/targi-v2/"); let savedTheme = "light"; try { savedTheme = localStorage.getItem("boardui:theme") === "dark" ? "dark" : "light"; } catch {} document.documentElement.classList.toggle("dark", adminPanel ? savedTheme === "dark" : !tradeFairKiosk);`}
         </Script>
       </body>
     </html>

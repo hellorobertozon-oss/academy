@@ -1,0 +1,138 @@
+{
+  "helmetFresheners": {
+    "pl": ["Spryskaj wyściółkę, aby odświeżyć kask między praniami. Preparat sprawdzi się też na rękawicach, butach i kurtce.", "To szybki krok pielęgnacji po jeździe, gdy chcesz przygotować wyposażenie do kolejnego użycia."],
+    "en": ["Spray the lining to freshen a helmet between washes. The formula can also be used on gloves, boots and jackets.", "It is a quick post-ride care step that helps keep your riding gear ready for its next use."],
+    "de": ["Sprühen Sie das Innenfutter zwischen den Wäschen ein. Das Spray eignet sich auch für Handschuhe, Stiefel und Jacken.", "So wird die Ausrüstung nach der Fahrt schnell aufgefrischt und ist für den nächsten Einsatz bereit."],
+    "cs": ["Sprej osvěží výstelku přilby mezi praním. Lze jej použít také na rukavice, boty a bundy.", "Je to rychlý krok péče po jízdě, který pomůže připravit výbavu na další použití."],
+    "fr": ["Vaporisez la doublure pour rafraîchir le casque entre deux lavages. Le produit convient aussi aux gants, bottes et vestes.", "C’est un geste rapide après la route pour garder votre équipement prêt pour la prochaine sortie."],
+    "it": ["Spruzza l'imbottitura per rinfrescare il casco tra un lavaggio e l'altro. Si può usare anche su guanti, stivali e giacche.", "È un rapido passaggio di cura dopo il viaggio, per tenere l'attrezzatura pronta all'uso." ]
+  },
+  "helmetLinerWash": {
+    "pl": ["Płyn służy do ręcznego prania wyjmowanej wyściółki kasku. Pomaga usunąć pot i codzienne zabrudzenia z tkaniny.", "Po praniu dokładnie wypłucz materiał i pozostaw go do pełnego wyschnięcia przed ponownym założeniem."],
+    "en": ["This wash is made for hand-cleaning a removable helmet liner. It helps lift sweat and everyday dirt from the fabric.", "Rinse the liner thoroughly after washing and let it dry completely before putting it back in the helmet."],
+    "de": ["Das Waschmittel ist für die Handwäsche eines herausnehmbaren Helmfutters gedacht. Es löst Schweiß und alltäglichen Schmutz.", "Spülen Sie das Futter nach dem Waschen gründlich aus und lassen Sie es vollständig trocknen, bevor Sie es wieder einsetzen."],
+    "cs": ["Přípravek je určen k ručnímu praní vyjímatelné výstelky přilby. Pomáhá odstranit pot a běžné nečistoty z látky.", "Po vyprání výstelku důkladně opláchněte a nechte úplně uschnout, než ji vrátíte do přilby."],
+    "fr": ["Cette lessive est conçue pour laver à la main une doublure de casque amovible. Elle aide à éliminer sueur et salissures.", "Rincez soigneusement la doublure après le lavage et laissez-la sécher complètement avant de la remettre dans le casque."],
+    "it": ["Questo detergente è pensato per il lavaggio a mano dell'imbottitura rimovibile del casco. Aiuta a rimuovere sudore e sporco quotidiano.", "Dopo il lavaggio, risciacqua bene l'imbottitura e lasciala asciugare completamente prima di rimetterla nel casco."]
+  },
+  "magicGloves": {
+    "pl": ["Nasączone bawełniane rękawiczki docierają do każdego palca bez moczenia właściwych rękawic. Czyszczenie odbywa się od środka.", "Jednorazowa saszetka przydaje się w podróży i po jeździe, gdy nie możesz wyprać sprzętu."],
+    "en": ["The infused cotton gloves reach into each finger without soaking the riding gloves themselves. Cleaning happens from the inside.", "A single-use sachet is handy on trips or after a ride when washing your gear is not an option."],
+    "de": ["Die getränkten Baumwollhandschuhe erreichen jeden Finger, ohne die Motorradhandschuhe einzuweichen. Die Reinigung erfolgt von innen.", "Die Einzeldosis ist unterwegs und nach der Fahrt praktisch, wenn keine Wäsche möglich ist."],
+    "cs": ["Naplněné bavlněné rukavice vyčistí každý prst, aniž byste motocyklové rukavice namáčeli. Čistí se zevnitř.", "Jednorázové balení se hodí na cestách i po jízdě, když není možné výbavu vyprat."],
+    "fr": ["Les gants en coton imprégnés atteignent chaque doigt sans tremper les gants de moto. Le nettoyage se fait de l’intérieur.", "La dose unique est pratique en voyage ou après une sortie, quand il n’est pas possible de laver l’équipement."],
+    "it": ["I guanti di cotone imbevuti raggiungono ogni dito senza bagnare i guanti da moto. La pulizia avviene dall'interno.", "La bustina monouso è pratica in viaggio o dopo un'uscita, quando non è possibile lavare l'attrezzatura."]
+  },
+  "helmetShellCare": {
+    "pl": ["Żel zmiękcza zaschnięte owady i brud drogowy, a detailer usuwa lekkie zabrudzenia oraz odciski palców.", "Użyj produktu odpowiedniego do etapu pielęgnacji skorupy lub wizjera i wytrzyj powierzchnię miękką mikrofibrą."],
+    "en": ["The gel softens dried insects and road grime, while the detailer removes light dirt and fingerprints.", "Choose the product for the shell-care step you need, then wipe the surface with a soft microfibre cloth."],
+    "de": ["Das Gel weicht angetrocknete Insekten und Straßenschmutz auf; der Detailer entfernt leichte Verschmutzungen und Fingerabdrücke.", "Wählen Sie das passende Produkt für die Pflege von Helm oder Visier und wischen Sie mit einem weichen Mikrofasertuch nach."],
+    "cs": ["Gel změkčuje zaschlý hmyz a silniční nečistoty, detailer odstraňuje lehké nečistoty a otisky prstů.", "Zvolte přípravek podle kroku péče o skořepinu nebo plexi a povrch otřete měkkou utěrkou z mikrovlákna."],
+    "fr": ["Le gel ramollit les insectes séchés et les salissures de la route ; le detailer élimine les traces légères et les empreintes de doigts.", "Choisissez le produit adapté à l’étape de soin de la coque ou de l’écran, puis essuyez avec une microfibre douce."],
+    "it": ["Il gel ammorbidisce insetti secchi e sporco stradale; il detailer rimuove lo sporco leggero e le impronte.", "Scegli il prodotto in base alla fase di cura di calotta o visiera e passa un panno morbido in microfibra."]
+  },
+  "leatherCare": {
+    "pl": ["Aktywna piana pomaga czyścić skórę bez jej moczenia, a mleczko odżywia materiał i wspiera zachowanie elastyczności.", "W rutynowej pielęgnacji użyj cleanera przed balsamem; szczotka pomaga dotrzeć do faktury skóry."],
+    "en": ["Active foam helps clean leather without soaking it, while conditioning balm nourishes the material and supports suppleness.", "For regular care, use the cleaner before the balm; a brush helps reach the leather's texture."],
+    "de": ["Aktivschaum reinigt Leder, ohne es zu durchnässen; die Pflegemilch nährt das Material und hält es geschmeidig.", "Verwenden Sie bei der regelmäßigen Pflege zuerst den Reiniger und danach die Milch; eine Bürste erreicht die Lederstruktur."],
+    "cs": ["Aktivní pěna pomáhá čistit kůži bez promočení, zatímco balzám materiál vyživuje a podporuje jeho pružnost.", "Při běžné péči použijte nejprve čistič a potom balzám; kartáč pomůže dosáhnout do struktury kůže."],
+    "fr": ["La mousse active aide à nettoyer le cuir sans le détremper, tandis que le lait nourrit la matière et préserve sa souplesse.", "Pour l’entretien courant, utilisez d’abord le nettoyant puis le lait ; une brosse aide à atteindre le grain du cuir."],
+    "it": ["La schiuma attiva aiuta a pulire la pelle senza bagnarla troppo, mentre il latte nutre il materiale e ne preserva la morbidezza.", "Per la cura regolare, usa prima il detergente e poi il latte; una spazzola aiuta a raggiungere la grana della pelle."]
+  },
+  "zipCare": {
+    "pl": ["Możesz stosować go do zamków metalowych i plastikowych w odzieży motocyklowej, torbach oraz akcesoriach.", "Preparat pomaga zamkom przesuwać się płynniej i nie zostawia tłustych śladów na materiale."],
+    "en": ["Use it on metal or plastic zips in motorcycle clothing, bags and other riding accessories.", "It helps zips move smoothly without leaving greasy marks on the surrounding fabric."],
+    "de": ["Verwenden Sie es für Metall- und Kunststoffreißverschlüsse an Motorradkleidung, Taschen und weiterem Zubehör.", "Es lässt Reißverschlüsse leichter laufen, ohne fettige Spuren auf dem umliegenden Stoff zu hinterlassen."],
+    "cs": ["Použijte jej na kovové i plastové zipy na motocyklovém oblečení, taškách a dalším vybavení.", "Pomáhá zipům hladce jezdit a nezanechává na okolní látce mastné stopy."],
+    "fr": ["Utilisez-le sur les fermetures métalliques ou en plastique des vêtements moto, sacs et accessoires.", "Il aide les fermetures à coulisser sans laisser de traces grasses sur le tissu."],
+    "it": ["Usalo sulle cerniere in metallo o plastica di abbigliamento da moto, borse e altri accessori.", "Aiuta le cerniere a scorrere senza lasciare tracce untuose sul tessuto circostante."]
+  },
+  "activeCareSportswear": {
+    "pl": ["Sprawdza się przy warstwach bazowych i odzieży noszonej podczas treningów oraz długich przejazdów, które gromadzą pot i zapachy.", "Do regularnego prania, gdy ważne jest zachowanie oddychalności i technicznych właściwości materiału."],
+    "en": ["It suits base layers and riding garments that collect sweat during workouts and long days on the road.", "Use it for regular washing when breathability and the fabric's technical performance need to be maintained."],
+    "de": ["Geeignet für Baselayer und Motorradkleidung, in denen sich bei Training und langen Fahrten Schweiß und Gerüche sammeln.", "Für die regelmäßige Wäsche, wenn Atmungsaktivität und technische Funktion des Materials erhalten bleiben sollen."],
+    "cs": ["Hodí se na základní vrstvy a oblečení, ve kterém se při tréninku a dlouhých jízdách hromadí pot a zápach.", "Pro pravidelné praní, když chcete zachovat prodyšnost a technické vlastnosti materiálu."],
+    "fr": ["Il convient aux sous-couches et vêtements qui accumulent sueur et odeurs pendant l’entraînement ou les longues sorties.", "À utiliser régulièrement pour préserver la respirabilité et les propriétés techniques du tissu."],
+    "it": ["È adatto a strati base e capi che accumulano sudore e odori durante gli allenamenti o i lunghi viaggi.", "Per il lavaggio regolare, quando è importante preservare traspirabilità e prestazioni tecniche del tessuto."]
+  },
+  "technicalLaundry": {
+    "pl": ["Linia obejmuje środki do tkanin technicznych, odzieży termicznej i sportowej, jeansu oraz delikatnych włókien.", "Dobierz formułę do rodzaju ubrania i przestrzegaj jego metki, aby wspierać oddychalność i właściwości materiału."],
+    "en": ["The range covers technical, thermal and sportswear, denim, and delicate fibres with formulas suited to each fabric.", "Choose the wash for the garment and follow its care label to help maintain breathability and fabric performance."],
+    "de": ["Die Pflegeserie umfasst Funktions-, Thermo- und Sportkleidung, Denim sowie empfindliche Fasern mit passenden Waschmitteln.", "Wählen Sie das Waschmittel passend zum Kleidungsstück und beachten Sie das Pflegeetikett, um Atmungsaktivität und Materialeigenschaften zu erhalten."],
+    "cs": ["Řada zahrnuje prostředky pro technické, termální a sportovní oblečení, denim i jemná vlákna.", "Zvolte prací prostředek podle oděvu a řiďte se štítkem péče, abyste pomohli zachovat prodyšnost a vlastnosti materiálu."],
+    "fr": ["La gamme couvre les vêtements techniques, thermiques et sportifs, le denim et les fibres délicates avec des formules adaptées.", "Choisissez la lessive selon le vêtement et suivez son étiquette d’entretien pour préserver respirabilité et propriétés du tissu."],
+    "it": ["La gamma comprende prodotti per capi tecnici, termici e sportivi, denim e fibre delicate, con formule specifiche.", "Scegli il detergente in base al capo e segui l'etichetta di lavaggio per preservare traspirabilità e prestazioni del tessuto."]
+  },
+  "laundryAdditives": {
+    "pl": ["Dodatki uzupełniają detergent na różnych etapach: płukanie przedłuża świeżość, a aktywny tlen wspiera usuwanie plam.", "Wybierz środek zależnie od potrzeb prania i stosuj go jako dodatek zgodnie z instrukcją na opakowaniu."],
+    "en": ["These additives support different wash stages: the rinse product extends freshness, while active oxygen helps with stains.", "Choose the one your laundry needs and use it alongside detergent as directed on the package."],
+    "de": ["Die Zusätze ergänzen verschiedene Waschschritte: Das Spülprodukt verlängert die Frische, Aktivsauerstoff hilft bei Flecken.", "Wählen Sie den passenden Zusatz und verwenden Sie ihn gemäß Packungsangabe zusammen mit dem Waschmittel."],
+    "cs": ["Doplňky podporují různé fáze praní: přípravek do máchání prodlužuje svěžest a aktivní kyslík pomáhá s skvrnami.", "Vyberte prostředek podle potřeby prádla a přidejte jej k pracímu prostředku podle pokynů na obalu."],
+    "fr": ["Ces additifs interviennent à différentes étapes : le produit de rinçage prolonge la fraîcheur, l’oxygène actif aide contre les taches.", "Choisissez celui qui convient au linge et utilisez-le avec la lessive selon les instructions de l’emballage."],
+    "it": ["Gli additivi supportano fasi diverse: il prodotto per il risciacquo prolunga la freschezza, l'ossigeno attivo aiuta sulle macchie.", "Scegli quello adatto al bucato e usalo insieme al detergente secondo le indicazioni sulla confezione."]
+  },
+  "textileKit": {
+    "pl": ["Każdy element zestawu ma inną rolę: pranie, przedłużenie świeżości i wsparcie przy trudniejszych plamach.", "Komplet pozwala dobrać pielęgnację do stanu odzieży technicznej, zamiast polegać na jednym środku do wszystkiego."],
+    "en": ["Each item has a different role: washing, extending freshness and helping tackle tougher stains.", "Together they let you tailor care to the condition of technical clothing instead of relying on one product for every task."],
+    "de": ["Jedes Produkt erfüllt eine eigene Aufgabe: Waschen, Frische verlängern und hartnäckige Flecken behandeln.", "Zusammen lässt sich die Pflege auf den Zustand der Funktionskleidung abstimmen, statt ein Mittel für alles zu verwenden."],
+    "cs": ["Každý přípravek má jinou roli: praní, prodloužení svěžesti a pomoc s odolnějšími skvrnami.", "Dohromady umožňují přizpůsobit péči stavu technického oblečení místo používání jediného prostředku na všechno."],
+    "fr": ["Chaque produit a un rôle distinct : laver, prolonger la fraîcheur et aider à traiter les taches tenaces.", "Ensemble, ils adaptent le soin à l’état des vêtements techniques au lieu d’utiliser un seul produit pour tout."],
+    "it": ["Ogni prodotto ha un ruolo diverso: lavare, prolungare la freschezza e aiutare sulle macchie più difficili.", "Insieme permettono di adattare la cura alle condizioni dei capi tecnici, invece di usare un solo prodotto per tutto."]
+  },
+  "microfibreCloths": {
+    "pl": ["Miękkie włókna pomagają zebrać wodę i zabrudzenia z delikatnych powierzchni, ograniczając smugi i pylenie.", "Dobierz ściereczkę do zadania: czyszczenia wizjera i ekranów, osuszania lakieru albo codziennego przecierania."],
+    "en": ["Soft fibres lift water and dirt from delicate surfaces while helping reduce streaks and lint.", "Choose a cloth for the job: cleaning visors and screens, drying paintwork or everyday wipe-downs."],
+    "de": ["Weiche Fasern nehmen Wasser und Schmutz von empfindlichen Oberflächen auf und helfen, Streifen und Fusseln zu vermeiden.", "Wählen Sie das Tuch für den jeweiligen Zweck: Visier und Displays reinigen, Lack trocknen oder täglich abwischen."],
+    "cs": ["Měkká vlákna pomáhají setřít vodu a nečistoty z citlivých povrchů a omezují šmouhy i žmolky.", "Zvolte utěrku podle úkolu: čištění plexi a displejů, sušení laku nebo každodenní otírání."],
+    "fr": ["Les fibres douces enlèvent l’eau et la saleté des surfaces délicates tout en limitant traces et peluches.", "Choisissez le chiffon selon l’usage : nettoyer visières et écrans, sécher la peinture ou essuyer au quotidien."],
+    "it": ["Le fibre morbide aiutano a rimuovere acqua e sporco dalle superfici delicate, limitando aloni e pelucchi.", "Scegli il panno in base all'uso: pulire visiere e schermi, asciugare la vernice o passare le superfici ogni giorno."]
+  },
+  "motorcycleCleaning": {
+    "pl": ["W tej linii znajdziesz środki do mycia motocykla, usuwania owadów i pyłu z felg oraz szybkiego odświeżenia.", "Każdy produkt odpowiada innemu etapowi pielęgnacji; dobierz go do zadania i postępuj według instrukcji na opakowaniu."],
+    "en": ["This range includes motorcycle wash, insect removal, wheel cleaning and quick surface refreshers.", "Each product serves a different care step; choose it for the task and follow the directions on the package."],
+    "de": ["Die Serie umfasst Motorradwäsche, Insektenentferner, Felgenreiniger und Produkte zum schnellen Auffrischen.", "Jedes Produkt ist für einen anderen Pflegeschritt gedacht. Wählen Sie es passend zur Aufgabe und beachten Sie die Packungsangaben."],
+    "cs": ["Řada zahrnuje mytí motocyklu, odstranění hmyzu, čištění kol a rychlé osvěžení povrchu.", "Každý přípravek slouží k jinému kroku péče; vyberte jej podle úkolu a postupujte podle pokynů na obalu."],
+    "fr": ["La gamme comprend le lavage moto, le retrait des insectes, le nettoyage des roues et des produits de rafraîchissement rapide.", "Chaque produit répond à une étape différente ; choisissez-le selon le besoin et suivez les instructions de l’emballage."],
+    "it": ["La linea include prodotti per lavare la moto, rimuovere insetti, pulire le ruote e rinfrescare rapidamente le superfici.", "Ogni prodotto serve a una fase diversa: scegli quello adatto e segui le istruzioni riportate sulla confezione."]
+  },
+  "motorcycleTools": {
+    "pl": ["Szczotki pomagają czyścić koła, łańcuch oraz trudno dostępne miejsca z większą kontrolą.", "Dobierz kształt i twardość włosia do czyszczonej części, by dotrzeć do zabrudzeń bez agresywnego szorowania."],
+    "en": ["These brushes help clean wheels, chains and hard-to-reach areas with greater control.", "Choose the shape and bristle stiffness for the part you are cleaning to reach dirt without aggressive scrubbing."],
+    "de": ["Diese Bürsten erleichtern die kontrollierte Reinigung von Rädern, Kette und schwer erreichbaren Stellen.", "Wählen Sie Form und Härte der Borsten passend zum Bauteil, um Schmutz ohne starkes Schrubben zu erreichen."],
+    "cs": ["Tyto kartáče pomáhají lépe kontrolovat čištění kol, řetězu a hůře dostupných míst.", "Zvolte tvar a tvrdost štětin podle čištěné části, abyste odstranili nečistoty bez hrubého drhnutí."],
+    "fr": ["Ces brosses facilitent le nettoyage précis des roues, de la chaîne et des zones difficiles d’accès.", "Choisissez la forme et la souplesse des poils selon la pièce à nettoyer, sans frotter trop fort."],
+    "it": ["Queste spazzole aiutano a pulire con precisione ruote, catena e punti difficili da raggiungere.", "Scegli forma e rigidità delle setole in base alla parte da pulire, così da raggiungere lo sporco senza strofinare con forza."]
+  },
+  "fiberHand": {
+    "pl": ["Pięciopalczasty krój zapewnia swobodę ruchu podczas mycia motocykla, a regulowany mankiet pomaga utrzymać rękawicę na miejscu.", "Używaj jej z wodą i szamponem, prowadząc dłoń po powierzchni z równomiernym naciskiem."],
+    "en": ["The five-finger shape allows natural movement while washing a motorcycle, and the adjustable cuff helps keep the mitt secure.", "Use it with water and shampoo, guiding your hand across the surface with even pressure."],
+    "de": ["Die Fünf-Finger-Form ermöglicht natürliche Bewegungen beim Waschen; die verstellbare Manschette hält den Waschhandschuh sicher.", "Verwenden Sie ihn mit Wasser und Shampoo und führen Sie die Hand mit gleichmäßigem Druck über die Oberfläche."],
+    "cs": ["Pět prstů umožňuje přirozený pohyb při mytí motocyklu a nastavitelná manžeta pomáhá rukavici bezpečně držet.", "Používejte ji s vodou a šamponem a veďte ruku po povrchu rovnoměrným tlakem."],
+    "fr": ["La forme à cinq doigts facilite les mouvements pendant le lavage ; le poignet réglable maintient le gant en place.", "Utilisez-le avec de l’eau et du shampoing, en passant la main sur la surface avec une pression régulière."],
+    "it": ["La forma a cinque dita permette movimenti naturali durante il lavaggio; il polsino regolabile mantiene il guanto saldo.", "Usalo con acqua e shampoo, facendo scorrere la mano sulla superficie con una pressione uniforme."]
+  },
+  "powerShaker": {
+    "pl": ["Butelka pozwala przygotować roztwór z proszku i dopasować atomizer do wybranego sposobu aplikacji.", "Ustaw mgiełkę do równomiernego pokrycia powierzchni albo strumień, gdy chcesz precyzyjnie nanieść preparat."],
+    "en": ["The bottle mixes powder into a ready-to-use solution and lets you adjust the sprayer to the way you want to apply it.", "Choose a mist to cover a surface evenly or a stream to target a specific area."],
+    "de": ["Die Flasche mischt Pulver zu einer gebrauchsfertigen Lösung; der Sprühkopf lässt sich an die Anwendung anpassen.", "Wählen Sie einen feinen Sprühnebel für gleichmäßiges Auftragen oder einen Strahl für gezielte Bereiche."],
+    "cs": ["Láhev rozmíchá prášek na roztok připravený k použití a umožňuje nastavit rozprašovač podle způsobu aplikace.", "Zvolte mlhu pro rovnoměrné pokrytí povrchu nebo proud pro přesné nanesení na konkrétní místo."],
+    "fr": ["Le flacon permet de mélanger la poudre et de régler le pulvérisateur selon l’application souhaitée.", "Choisissez une brume pour couvrir une surface uniformément ou un jet pour viser une zone précise."],
+    "it": ["Il flacone permette di miscelare la polvere e regolare lo spruzzatore in base all'applicazione desiderata.", "Scegli una nebulizzazione per coprire la superficie o un getto per trattare un punto preciso."]
+  },
+  "offroadSet": {
+    "pl": ["Mud Breaker to pre-wash, który zmiękcza błoto, piasek i osady mineralne przed spłukaniem.", "Dirt Finisher pomaga doczyścić powierzchnię przy mniejszej ilości wody i zostawia lekką warstwę ochronną. Ściereczką z mikrofibry przetrzyj i wykończ powierzchnię."],
+    "en": ["Mud Breaker is a pre-wash that loosens mud, sand and mineral deposits before rinsing.", "Dirt Finisher helps clean the surface with less water and leaves a light protective layer. Use the microfibre cloth to wipe and finish."],
+    "de": ["Mud Breaker ist ein Vorreiniger, der Schlamm, Sand und mineralische Ablagerungen vor dem Abspülen löst.", "Dirt Finisher reinigt mit weniger Wasser und hinterlässt eine leichte Schutzschicht. Wischen und finishen Sie die Oberfläche mit dem Mikrofasertuch."],
+    "cs": ["Mud Breaker je předmytí, které před opláchnutím uvolňuje bláto, písek a minerální usazeniny.", "Dirt Finisher pomáhá čistit povrch s menším množstvím vody a zanechává lehkou ochrannou vrstvu. Povrch otřete a dokončete utěrkou z mikrovlákna."],
+    "fr": ["Mud Breaker est un prélavage qui décolle boue, sable et dépôts minéraux avant le rinçage.", "Dirt Finisher aide à nettoyer la surface avec moins d’eau et laisse une légère protection. Utilisez le chiffon microfibre pour essuyer et finir."],
+    "it": ["Mud Breaker è un prelavaggio che scioglie fango, sabbia e depositi minerali prima del risciacquo.", "Dirt Finisher aiuta a pulire la superficie con meno acqua e lascia una leggera protezione. Usa il panno in microfibra per asciugare e rifinire."]
+  },
+  "offroad": {
+    "pl": ["Pre-wash rozluźnia błoto i piasek przed spłukaniem, a preparat wykańczający pomaga ograniczyć ponowne osadzanie brudu.", "Stosuj je w tej kolejności po jeździe terenowej: najpierw mycie wstępne, potem szybkie wykończenie powierzchni."],
+    "en": ["The pre-wash loosens mud and sand before rinsing; the finishing product helps reduce fresh dirt build-up.", "Use them in sequence after off-road riding: start with the pre-wash, then finish the surface."],
+    "de": ["Der Vorreiniger löst Schlamm und Sand vor dem Abspülen; das Finish hilft, neue Schmutzanhaftung zu verringern.", "Verwenden Sie die Produkte nach der Offroad-Fahrt nacheinander: zuerst die Vorwäsche, dann das Finish."],
+    "cs": ["Předmytí uvolní bláto a písek před opláchnutím; závěrečný přípravek pomáhá omezit nové ulpívání nečistot.", "Po jízdě v terénu je použijte postupně: nejprve předmytí a poté závěrečné ošetření povrchu."],
+    "fr": ["Le prélavage décolle boue et sable avant le rinçage ; le produit de finition aide à limiter les nouveaux dépôts.", "Après une sortie tout-terrain, utilisez-les dans cet ordre : prélavage, puis finition de la surface."],
+    "it": ["Il prelavaggio scioglie fango e sabbia prima del risciacquo; il prodotto finale aiuta a limitare nuovi depositi di sporco.", "Dopo l'off-road usali in sequenza: prima il prelavaggio, poi la finitura della superficie."]
+  }
+}

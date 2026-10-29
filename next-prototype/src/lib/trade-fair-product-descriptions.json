@@ -1,0 +1,378 @@
+{
+  "interior-refresher-man": {
+    "pl": "Odświeżacz z jonami srebra do wnętrza kasku, rękawic i butów między praniami. Pomaga ograniczać nieprzyjemne zapachy; wariant Man.",
+    "en": "A silver-ion spray to freshen helmet liners, gloves and boots between washes. Man fragrance.",
+    "de": "Ein Spray mit Silberionen für Helm-Innenfutter, Handschuhe und Stiefel zwischen den Wäschen. Duftvariante Man.",
+    "cs": "Sprej se stříbrnými ionty osvěží vnitřek přilby, rukavice i boty mezi praním. Varianta s vůní Man.",
+    "fr": "Un spray aux ions d’argent pour rafraîchir l’intérieur du casque, les gants et les bottes entre deux lavages. Parfum Man.",
+    "it": "Spray agli ioni d'argento per rinfrescare l'interno di caschi, guanti e stivali tra un lavaggio e l'altro. Fragranza Man."
+  },
+  "leather-care-balm": {
+    "pl": "Mleczko odżywia i nawilża skórzaną odzież, pomagając zachować jej elastyczność. Wchłania się bez tłustego filmu i nie zmienia matowego wykończenia.",
+    "en": "A conditioning balm that nourishes leather and helps keep it supple. It absorbs without a greasy film or changing a matte finish.",
+    "de": "Die Pflegemilch nährt das Leder und hilft, es geschmeidig zu halten. Sie zieht ohne Fettfilm ein und verändert matte Oberflächen nicht.",
+    "cs": "Balzám vyživuje kůži a pomáhá zachovat její pružnost. Vstřebá se bez mastného filmu a nemění matný vzhled.",
+    "fr": "Ce lait nourrit le cuir et l’aide à rester souple. Il pénètre sans laisser de film gras ni modifier une finition mate.",
+    "it": "Il latte nutre la pelle e aiuta a mantenerla morbida. Si assorbe senza lasciare una patina grassa né alterare la finitura opaca."
+  },
+  "leather-cleaner": {
+    "pl": "Aktywna piana usuwa codzienny brud ze skóry bez jej przemoczenia. Odpowiednie pH pomaga chronić miękkość i kolor odzieży.",
+    "en": "Active foam lifts everyday dirt from leather without soaking it. Balanced pH helps preserve the material’s softness and colour.",
+    "de": "Aktivschaum löst alltäglichen Schmutz von Leder, ohne es zu durchnässen. Der pH-Wert hilft, Farbe und Geschmeidigkeit zu erhalten.",
+    "cs": "Aktivní pěna odstraňuje běžné nečistoty z kůže, aniž by ji promočila. Vyvážené pH pomáhá zachovat barvu a měkkost.",
+    "fr": "La mousse active élimine les salissures courantes sans détremper le cuir. Son pH équilibré aide à préserver sa souplesse et sa couleur.",
+    "it": "La schiuma attiva rimuove lo sporco quotidiano senza bagnare eccessivamente la pelle. Il pH bilanciato aiuta a preservarne morbidezza e colore."
+  },
+  "leather-cleaning-brush": {
+    "pl": "Szczotka z naturalnym włosiem dociera do porów skóry i pomaga równomiernie rozprowadzić cleaner. Drewniany uchwyt ułatwia precyzyjną pracę.",
+    "en": "Natural bristles reach into leather pores and help spread cleaner evenly. The wooden handle gives a steady, precise grip.",
+    "de": "Naturborsten erreichen die Poren des Leders und verteilen Reiniger gleichmäßig. Der Holzgriff liegt sicher und präzise in der Hand.",
+    "cs": "Přírodní štětiny proniknou do pórů kůže a pomáhají rovnoměrně rozetřít čistič. Dřevěná rukojeť usnadňuje přesnou práci.",
+    "fr": "Les poils naturels atteignent les pores du cuir et répartissent le nettoyant uniformément. Le manche en bois assure une prise précise.",
+    "it": "Le setole naturali raggiungono i pori della pelle e aiutano a distribuire il detergente in modo uniforme. Il manico in legno offre una presa precisa."
+  },
+  "interior-refresher-woman": {
+    "pl": "Odświeżacz z jonami srebra do wnętrza kasku, rękawic i butów między praniami. Pomaga ograniczać nieprzyjemne zapachy; wariant Woman.",
+    "en": "A silver-ion spray to freshen helmet liners, gloves and boots between washes. Woman fragrance.",
+    "de": "Ein Spray mit Silberionen für Helm-Innenfutter, Handschuhe und Stiefel zwischen den Wäschen. Duftvariante Woman.",
+    "cs": "Sprej se stříbrnými ionty osvěží vnitřek přilby, rukavice i boty mezi praním. Varianta s vůní Woman.",
+    "fr": "Un spray aux ions d’argent pour rafraîchir l’intérieur du casque, les gants et les bottes entre deux lavages. Parfum Woman.",
+    "it": "Spray agli ioni d'argento per rinfrescare l'interno di caschi, guanti e stivali tra un lavaggio e l'altro. Fragranza Woman."
+  },
+  "interior-refresher-neptun": {
+    "pl": "Odświeżacz z jonami srebra do wnętrza kasku, rękawic i butów między praniami. Pomaga ograniczać nieprzyjemne zapachy; wariant Neptun.",
+    "en": "A silver-ion spray to freshen helmet liners, gloves and boots between washes. Neptun fragrance.",
+    "de": "Ein Spray mit Silberionen für Helm-Innenfutter, Handschuhe und Stiefel zwischen den Wäschen. Duftvariante Neptun.",
+    "cs": "Sprej se stříbrnými ionty osvěží vnitřek přilby, rukavice i boty mezi praním. Varianta s vůní Neptun.",
+    "fr": "Un spray aux ions d’argent pour rafraîchir l’intérieur du casque, les gants et les bottes entre deux lavages. Parfum Neptun.",
+    "it": "Spray agli ioni d'argento per rinfrescare l'interno di caschi, guanti e stivali tra un lavaggio e l'altro. Fragranza Neptun."
+  },
+  "helmet-freshener-mint": {
+    "pl": "Kompaktowy odświeżacz z jonami srebra do wnętrza kasku. Miętowy zapach pomaga odświeżyć wyściółkę między czyszczeniami.",
+    "en": "A compact silver-ion spray for freshening helmet liners between cleanings. Leaves a light mint scent.",
+    "de": "Ein kompakter Spray mit Silberionen für frisches Helm-Innenfutter zwischen den Reinigungen. Mit leichtem Minzduft.",
+    "cs": "Kompaktní sprej se stříbrnými ionty osvěží vnitřek přilby mezi čištěním. Zanechá jemnou mátovou vůni.",
+    "fr": "Un spray compact aux ions d’argent pour rafraîchir la doublure du casque entre deux nettoyages. Parfum menthe léger.",
+    "it": "Spray compatto agli ioni d'argento per rinfrescare l'interno del casco tra una pulizia e l'altra. Lascia una leggera nota di menta."
+  },
+  "helmet-interior-care": {
+    "pl": "Płyn do ręcznego prania wyściółki usuwa pot, brud i zapachy, pomagając przywrócić świeżość oraz oddychalność. Pozostawia miętowy zapach.",
+    "en": "A hand-wash for helmet liners that removes sweat, dirt and odours while helping restore freshness and breathability. Leaves a mint scent.",
+    "de": "Handwaschmittel für Helmfutter: entfernt Schweiß, Schmutz und Gerüche und unterstützt Frische und Atmungsaktivität. Mit Minzduft.",
+    "cs": "Přípravek na ruční praní výstelky odstraňuje pot, nečistoty a zápach a pomáhá obnovit svěžest i prodyšnost. S mátovou vůní.",
+    "fr": "Une lessive à la main pour doublures de casque qui élimine sueur, salissures et odeurs tout en aidant à retrouver fraîcheur et respirabilité. Parfum menthe.",
+    "it": "Detergente per il lavaggio a mano delle imbottiture: rimuove sudore, sporco e odori, aiutando a ritrovare freschezza e traspirabilità. Profumo alla menta."
+  },
+  "helmet-cleaning-gel": {
+    "pl": "Gęsty żel zmiękcza owady i zabrudzenia drogowe na skorupie oraz wizjerze, ograniczając potrzebę szorowania. Bezpieczny pierwszy krok czyszczenia.",
+    "en": "The thick gel softens insects and road grime on helmet shells and visors, reducing the need to scrub. A safer first step in cleaning.",
+    "de": "Das dickflüssige Gel weicht Insekten und Straßenschmutz auf Helm und Visier auf und verringert den nötigen Abrieb. Der erste Reinigungsschritt.",
+    "cs": "Hustý gel změkčuje hmyz a silniční nečistoty na skořepině i plexi a omezuje nutnost drhnutí. Bezpečný první krok čištění.",
+    "fr": "Le gel épais ramollit les insectes et la saleté de la route sur la coque et l’écran, pour limiter le frottement. Première étape du nettoyage.",
+    "it": "Il gel denso ammorbidisce insetti e sporco stradale su calotta e visiera, riducendo la necessità di strofinare. Primo passaggio della pulizia."
+  },
+  "helmet-detailer": {
+    "pl": "Detailer odświeża skorupę i wizjer, usuwa lekkie zabrudzenia oraz ślady palców bez smug. Do powierzchni matowych i błyszczących.",
+    "en": "A finishing spray for helmet shells and visors that removes light dirt and fingerprints without streaks. Suitable for matte and gloss finishes.",
+    "de": "Das Finish-Spray für Helm und Visier entfernt leichten Schmutz und Fingerabdrücke streifenfrei. Für matte und glänzende Oberflächen.",
+    "cs": "Detailer na skořepinu a plexi odstraňuje lehké nečistoty i otisky bez šmouh. Vhodný pro matné i lesklé povrchy.",
+    "fr": "Un spray de finition pour coque et écran qui élimine les salissures légères et les traces de doigts sans laisser de traces. Finition mate ou brillante.",
+    "it": "Spray di finitura per calotta e visiera: rimuove sporco leggero e impronte senza aloni. Adatto a superfici opache e lucide."
+  },
+  "helmet-cleaning-gel-mini": {
+    "pl": "Podróżny żel do skorupy i wizjera zmiękcza owady oraz brud bez intensywnego pocierania. Mały format łatwo zabrać w trasę.",
+    "en": "A travel-size gel for shells and visors that softens insects and grime without hard scrubbing. Easy to carry on the road.",
+    "de": "Reisegel für Helm und Visier: weicht Insekten und Schmutz ohne starkes Reiben auf. Passt in jedes Reisegepäck.",
+    "cs": "Cestovní gel na skořepinu a plexi změkčuje hmyz i nečistoty bez silného drhnutí. Praktické balení na cesty.",
+    "fr": "Un gel de voyage pour coque et écran qui ramollit les insectes et la saleté sans frotter fort. Format facile à emporter.",
+    "it": "Gel da viaggio per calotta e visiera: ammorbidisce insetti e sporco senza strofinare con forza. Formato pratico da portare con sé."
+  },
+  "helmet-detailer-mini": {
+    "pl": "Kompaktowy detailer do szybkiego odświeżenia skorupy i wizjera. Usuwa lekki brud oraz odciski i zostawia czyste wykończenie bez smug.",
+    "en": "A compact detailer for quickly refreshing helmet shells and visors. Removes light dirt and fingerprints for a clean, streak-free finish.",
+    "de": "Kompakter Detailer zum schnellen Auffrischen von Helm und Visier. Entfernt leichten Schmutz und Fingerabdrücke streifenfrei.",
+    "cs": "Kompaktní detailer rychle osvěží skořepinu i plexi. Odstraní lehké nečistoty a otisky a zanechá povrch beze šmouh.",
+    "fr": "Un detailer compact pour rafraîchir rapidement la coque et l’écran. Il retire salissures légères et traces de doigts sans laisser de traces.",
+    "it": "Detailer compatto per rinfrescare rapidamente calotta e visiera. Rimuove sporco leggero e impronte lasciando una finitura senza aloni."
+  },
+  "helmet-care-kit": {
+    "pl": "Dwustopniowy zestaw Giga: żel zmiękcza brud, a detailer wykańcza skorupę i wizjer bez smug. W komplecie ściereczki do bezpiecznego czyszczenia.",
+    "en": "A two-step Giga kit: gel softens grime, then detailer finishes the shell and visor without streaks. Includes cloths for safe cleaning.",
+    "de": "Das Giga-Set mit zwei Schritten: Gel weicht Schmutz auf, der Detailer sorgt für streifenfreies Finish an Helm und Visier. Tücher inklusive.",
+    "cs": "Dvoudílná sada Giga: gel změkčí nečistoty a detailer dokončí skořepinu i plexi beze šmouh. Součástí jsou čisticí utěrky.",
+    "fr": "Un kit Giga en deux étapes : le gel ramollit la saleté, puis le detailer finit coque et écran sans traces. Chiffons inclus.",
+    "it": "Kit Giga in due passaggi: il gel ammorbidisce lo sporco, poi il detailer rifinisce calotta e visiera senza aloni. Panni inclusi."
+  },
+  "helmet-care-trip-kit": {
+    "pl": "Podróżny zestaw łączy czyszczenie skorupy i wizjera z odświeżeniem wnętrza kasku jonami srebra. Działa bez potrzeby użycia wody.",
+    "en": "A travel kit for cleaning the shell and visor and freshening the liner with silver ions. Designed for use without water.",
+    "de": "Das Reiseset reinigt Helm und Visier und erfrischt das Innenfutter mit Silberionen. Die Anwendung benötigt kein Wasser.",
+    "cs": "Cestovní sada čistí skořepinu i plexi a osvěžuje výstelku pomocí stříbrných iontů. Používá se bez vody.",
+    "fr": "Un kit de voyage pour nettoyer coque et écran et rafraîchir la doublure aux ions d’argent. S’utilise sans eau.",
+    "it": "Kit da viaggio per pulire calotta e visiera e rinfrescare l'imbottitura con ioni d'argento. Si usa senza acqua."
+  },
+  "helmet-cleaning-trip-kit": {
+    "pl": "Podręczny zestaw do dwuetapowego czyszczenia kasku bez wody. Żel usuwa brud, a detailer pomaga uzyskać czyste wykończenie bez smug.",
+    "en": "A compact kit for two-step helmet cleaning without water. Gel lifts grime; detailer leaves a clean, streak-free finish.",
+    "de": "Kompaktes Set für die zweistufige Helmpflege ohne Wasser. Gel löst Schmutz, der Detailer sorgt für ein streifenfreies Finish.",
+    "cs": "Kompaktní sada pro dvoufázové čištění přilby bez vody. Gel uvolní nečistoty, detailer zanechá čistý povrch beze šmouh.",
+    "fr": "Un kit compact pour nettoyer le casque en deux étapes sans eau. Le gel décolle la saleté, le detailer laisse un fini net sans traces.",
+    "it": "Kit compatto per la pulizia del casco in due fasi senza acqua. Il gel stacca lo sporco e il detailer lascia una finitura pulita senza aloni."
+  },
+  "zip-service-agent": {
+    "pl": "Preparat pomaga przywrócić płynne działanie zamków metalowych i plastikowych. Nie zostawia tłustych plam na odzieży ani akcesoriach.",
+    "en": "Helps zips move smoothly again, including metal and plastic types. The formula is designed not to leave greasy marks on clothing or gear.",
+    "de": "Hilft Metall- und Kunststoffreißverschlüssen wieder leicht zu gleiten. Die Formel hinterlässt keine Fettflecken auf Kleidung oder Ausrüstung.",
+    "cs": "Pomáhá obnovit hladký chod kovových i plastových zipů. Složení nezanechává mastné skvrny na oblečení ani výbavě.",
+    "fr": "Aide les fermetures métalliques ou plastiques à coulisser de nouveau. Sa formule ne laisse pas de traces grasses sur les vêtements ni les accessoires.",
+    "it": "Aiuta le cerniere in metallo o plastica a scorrere meglio. La formula non lascia macchie oleose su abbigliamento e accessori."
+  },
+  "textile-washing-liquid": {
+    "pl": "Płyn do prania odzieży motocyklowej i technicznej usuwa pot oraz codzienny brud, pomagając zachować oddychalność membran i tkanin.",
+    "en": "A detergent for motorcycle and technical clothing that removes sweat and everyday dirt while helping preserve fabric and membrane breathability.",
+    "de": "Waschmittel für Motorrad- und Funktionskleidung: entfernt Schweiß und Alltagsschmutz und hilft, die Atmungsaktivität von Stoffen und Membranen zu erhalten.",
+    "cs": "Prací prostředek na motocyklové a funkční oblečení odstraňuje pot i běžné nečistoty a pomáhá zachovat prodyšnost tkanin a membrán.",
+    "fr": "Une lessive pour vêtements moto et techniques qui élimine sueur et salissures tout en aidant à préserver la respirabilité des tissus et membranes.",
+    "it": "Detergente per abbigliamento da moto e tecnico: rimuove sudore e sporco quotidiano aiutando a preservare la traspirabilità di tessuti e membrane."
+  },
+  "fabric-protect-freshness-extender": {
+    "pl": "Dodatek do płukania przedłuża świeżość odzieży technicznej, nie działając jak zwykły zmiękczacz. Wspiera higienę i nie obciąża membran.",
+    "en": "A rinse-cycle additive that extends freshness in technical clothing without acting like a standard softener. Helps care for membranes and fabrics.",
+    "de": "Ein Spülzusatz, der Funktionskleidung länger frisch hält, ohne wie ein herkömmlicher Weichspüler zu wirken. Für Membranen und technische Stoffe.",
+    "cs": "Přísada do máchání prodlužuje svěžest funkčního oblečení, ale nepůsobí jako běžná aviváž. Pomáhá šetrně pečovat o membrány.",
+    "fr": "Un additif de rinçage qui prolonge la fraîcheur des vêtements techniques sans agir comme un assouplissant classique. Respecte les membranes.",
+    "it": "Additivo per il risciacquo che prolunga la freschezza dei capi tecnici senza fare da ammorbidente tradizionale. Aiuta a proteggere membrane e tessuti."
+  },
+  "active-care-sportswear-wash": {
+    "pl": "Płyn do odzieży termoaktywnej, sportowej i mikrofibry usuwa pot oraz zapachy, pomagając zachować oddychalność i właściwości tkanin.",
+    "en": "A wash for thermal, sports and technical clothing, including microfibre. Removes sweat and odours while helping preserve fabric performance.",
+    "de": "Waschmittel für Thermo-, Sport- und Funktionskleidung sowie Mikrofaser. Entfernt Schweiß und Gerüche und hilft, die Funktion der Stoffe zu erhalten.",
+    "cs": "Prací prostředek na termoprádlo, sportovní oblečení a mikrovlákno. Odstraňuje pot a zápach a pomáhá zachovat funkční vlastnosti tkanin.",
+    "fr": "Une lessive pour vêtements thermiques, sportifs et techniques, y compris la microfibre. Élimine sueur et odeurs tout en préservant les tissus.",
+    "it": "Detergente per capi termici, sportivi e tecnici, inclusa la microfibra. Rimuove sudore e odori aiutando a mantenere le prestazioni dei tessuti."
+  },
+  "merino-care-wash": {
+    "pl": "Delikatny płyn do merino, kaszmiru, jedwabiu i innych wrażliwych włókien. Pomaga prać bez filcowania i utraty miękkości.",
+    "en": "A gentle wash for merino, cashmere, silk and other delicate fibres. Helps prevent felting and keeps natural fabrics soft.",
+    "de": "Schonwaschmittel für Merino, Kaschmir, Seide und andere empfindliche Fasern. Hilft Verfilzen vorzubeugen und erhält die Weichheit.",
+    "cs": "Jemný prací prostředek na merino, kašmír, hedvábí a další citlivá vlákna. Pomáhá předcházet plstnatění a zachovat měkkost.",
+    "fr": "Une lessive douce pour mérinos, cachemire, soie et autres fibres délicates. Aide à éviter le feutrage et préserve leur douceur.",
+    "it": "Detergente delicato per lana merino, cashmere, seta e altre fibre fini. Aiuta a evitare l'infeltrimento e a conservare la morbidezza."
+  },
+  "jeans-care-liquid": {
+    "pl": "Specjalistyczny płyn do jeansów motocyklowych i odzieży z włóknami aramidowymi. Czyści, pomagając chronić kolor oraz strukturę materiału.",
+    "en": "A specialist wash for motorcycle denim and aramid-reinforced clothing. Cleans while helping protect colour and fabric structure.",
+    "de": "Spezialwaschmittel für Motorradjeans und Kleidung mit Aramidfasern. Reinigt und hilft, Farbe und Materialstruktur zu schützen.",
+    "cs": "Speciální prací prostředek na motocyklové džíny a oblečení s aramidovými vlákny. Čistí a pomáhá chránit barvu i strukturu látky.",
+    "fr": "Une lessive spéciale pour denim moto et vêtements renforcés à l’aramide. Nettoie tout en aidant à protéger la couleur et la structure du tissu.",
+    "it": "Detergente specifico per jeans da moto e capi rinforzati con fibre aramidiche. Lava aiutando a proteggere colore e struttura del tessuto."
+  },
+  "textile-care-kit": {
+    "pl": "Kompletny zestaw do odzieży technicznej: detergent, dodatek przedłużający świeżość i booster tlenowy na trudniejsze plamy.",
+    "en": "A complete textile-care set: technical-clothing detergent, freshness rinse additive and active-oxygen booster for tougher stains.",
+    "de": "Komplettset für Funktionskleidung: Waschmittel, Frische-Spülzusatz und Aktivsauerstoff-Booster für hartnäckigere Flecken.",
+    "cs": "Kompletní sada na funkční oblečení: prací prostředek, přísada pro delší svěžest a kyslíkový booster na odolnější skvrny.",
+    "fr": "Un ensemble complet pour textiles techniques : lessive, additif de rinçage fraîcheur et booster à oxygène actif contre les taches tenaces.",
+    "it": "Un set completo per i tessuti tecnici: detergente, additivo per il risciacquo e booster all'ossigeno attivo contro le macchie ostinate."
+  },
+  "leather-care-kit": {
+    "pl": "Zestaw do skórzanej odzieży łączy cleaner w wybranej mocy z mleczkiem pielęgnacyjnym. Czyści, odżywia i pomaga chronić skórę.",
+    "en": "A leather-care set pairing a cleaner in the selected strength with conditioning balm. Cleans, nourishes and helps protect riding gear.",
+    "de": "Das Lederpflegeset kombiniert einen Reiniger in der gewählten Stärke mit Pflegemilch. Es reinigt, nährt und schützt die Ausrüstung.",
+    "cs": "Sada péče o kůži kombinuje čistič ve zvolené síle s balzámem. Čistí, vyživuje a pomáhá chránit kožené oblečení.",
+    "fr": "Un ensemble cuir associant un nettoyant au niveau choisi et un lait nourrissant. Il nettoie, nourrit et aide à protéger l’équipement.",
+    "it": "Set per la pelle con detergente della forza scelta e latte nutriente. Pulisce, nutre e aiuta a proteggere l'abbigliamento."
+  },
+  "helmet-interior-care-sachet": {
+    "pl": "Jednorazowa saszetka do ręcznego prania wyściółki kasku, kominiarki lub odzieży technicznej. Wygodna porcja na podróż.",
+    "en": "A single-use hand-wash dose for helmet liners, balaclavas or technical clothing. A convenient portion for travel.",
+    "de": "Einzeldosis für die Handwäsche von Helmfutter, Sturmhauben oder Funktionskleidung. Praktisch für unterwegs.",
+    "cs": "Jednorázová dávka na ruční praní výstelky přilby, kukly nebo funkčního oblečení. Praktická na cesty.",
+    "fr": "Une dose de lavage à la main pour doublure de casque, cagoule ou vêtement technique. Format pratique en déplacement.",
+    "it": "Dose monouso per il lavaggio a mano di imbottiture, sottocaschi o capi tecnici. Pratica da portare in viaggio."
+  },
+  "magic-gloves-cleaner": {
+    "pl": "Nasączone bawełniane rękawiczki pomagają oczyścić wnętrze rękawic bez prania i namaczania. Jednorazowa saszetka odświeża także trudno dostępne palce.",
+    "en": "Pre-moistened cotton gloves clean the inside of riding gloves without washing or soaking them. A single-use sachet reaches into each finger.",
+    "de": "Getränkte Baumwollhandschuhe reinigen das Innenfutter von Motorradhandschuhen ohne Waschen oder Einweichen. Die Einzeldosis erreicht auch die Finger.",
+    "cs": "Navlhčené bavlněné rukavice čistí vnitřek motocyklových rukavic bez praní a namáčení. Jednorázové balení dosáhne i do prstů.",
+    "fr": "Des gants en coton imprégnés nettoient l’intérieur des gants moto sans lavage ni trempage. La dose unique atteint aussi les doigts.",
+    "it": "Guanti di cotone imbevuti puliscono l'interno dei guanti da moto senza lavarli né metterli a bagno. La dose monouso raggiunge anche le dita."
+  },
+  "premium-microfiber": {
+    "pl": "Miękka, bezszwowa mikrofibra 550 g/m² do kasku, wizjera i lakieru. Pomaga czyścić delikatne powierzchnie bez smug i mikrozarysowań.",
+    "en": "Soft, seamless 550 gsm microfibre for helmets, visors and paintwork. Cleans delicate surfaces with less risk of streaks or fine scratches.",
+    "de": "Weiches, nahtloses Mikrofasertuch mit 550 g/m² für Helm, Visier und Lack. Reinigt empfindliche Flächen streifenarm und schonend.",
+    "cs": "Měkká bezešvá mikrovláknová utěrka 550 g/m² na přilbu, plexi i lak. Čistí citlivé povrchy s menším rizikem šmouh a jemných škrábanců.",
+    "fr": "Une microfibre douce et sans couture de 550 g/m² pour casque, écran et peinture. Nettoie les surfaces délicates sans traces ni micro-rayures.",
+    "it": "Microfibra morbida senza cuciture da 550 g/m² per casco, visiera e vernice. Pulisce le superfici delicate senza aloni né micrograffi."
+  },
+  "motorcycle-detailing-set": {
+    "pl": "Zestaw prowadzi przez cały detailing motocykla: od pre-washu i mycia po osuszanie oraz ceramiczne wykończenie. Sprawdzi się także u początkujących.",
+    "en": "A complete motorcycle-care routine, from pre-wash and shampoo to drying and ceramic finishing. Straightforward for beginners, too.",
+    "de": "Ein kompletter Pflegeablauf fürs Motorrad: von Vorwäsche und Shampoo bis zum Trocknen und Keramik-Finish. Auch für Einsteiger geeignet.",
+    "cs": "Kompletní péče o motocykl od předmytí a šamponu po sušení a keramické dokončení. Jednoduché i pro začátečníky.",
+    "fr": "Une routine complète pour la moto, du prélavage et du shampoing au séchage et à la finition céramique. Accessible aux débutants.",
+    "it": "Un ciclo completo per la moto, dal prelavaggio e shampoo all'asciugatura e alla finitura ceramica. Facile anche per chi inizia."
+  },
+  "power-powder-moto-wash": {
+    "pl": "Skoncentrowany proszek po rozpuszczeniu tworzy aktywną pianę do mycia motocykla. Kompaktowa forma zastępuje dużą butelkę szamponu.",
+    "en": "A concentrated powder that dissolves into active foam for washing motorcycles. Compact sachets replace a bulky shampoo bottle.",
+    "de": "Konzentriertes Pulver, das in Wasser einen Aktivschaum für die Motorradwäsche bildet. Kompakte Sachets statt großer Shampoo-Flasche.",
+    "cs": "Koncentrovaný prášek po rozpuštění vytvoří aktivní pěnu na mytí motocyklu. Kompaktní sáčky nahrazují objemnou láhev šamponu.",
+    "fr": "Une poudre concentrée qui se dissout en mousse active pour laver la moto. Les sachets compacts remplacent une grande bouteille de shampoing.",
+    "it": "Polvere concentrata che, sciolta in acqua, crea schiuma attiva per lavare la moto. Le bustine compatte sostituiscono una bottiglia ingombrante."
+  },
+  "fiber-hand": {
+    "pl": "Pięciopalczasta rękawica z mikrofibry ułatwia kontrolowane, mokre mycie motocykla. Dopasowany mankiet pomaga pewnie trzymać ją podczas pracy.",
+    "en": "A five-finger microfibre mitt for controlled wet washing. Its adjustable wrist closure helps keep it securely in place while cleaning.",
+    "de": "Ein Fünf-Finger-Mikrofasermitt für kontrollierte Nasswäsche. Der verstellbare Bund hält den Waschhandschuh beim Reinigen sicher am Handgelenk.",
+    "cs": "Pět prstů z mikrovlákna usnadňuje přesné mokré mytí motocyklu. Nastavitelná manžeta pomáhá rukavici bezpečně držet na ruce.",
+    "fr": "Un gant microfibre à cinq doigts pour un lavage humide précis. Le poignet réglable aide à le maintenir en place pendant le nettoyage.",
+    "it": "Guanto in microfibra a cinque dita per un lavaggio controllato. Il polsino regolabile aiuta a tenerlo saldo durante la pulizia."
+  },
+  "active-care-sportswear-sachet": {
+    "pl": "Jednorazowa porcja Active Care do prania odzieży termicznej, sportowej i mikrofibry. Poręczna saszetka na wyjazd lub próbę produktu.",
+    "en": "A single-use Active Care dose for thermal, sports and microfibre clothing. Handy for trips or trying the detergent before buying a bottle.",
+    "de": "Einzeldosis Active Care für Thermo-, Sportkleidung und Mikrofaser. Praktisch für Reisen oder zum Ausprobieren des Waschmittels.",
+    "cs": "Jednorázová dávka Active Care na termoprádlo, sportovní oblečení a mikrovlákno. Praktická na cesty nebo vyzkoušení prostředku.",
+    "fr": "Une dose unique d’Active Care pour vêtements thermiques, sportifs et microfibre. Pratique en voyage ou pour tester la lessive.",
+    "it": "Dose monouso di Active Care per capi termici, sportivi e in microfibra. Comoda in viaggio o per provare il detergente."
+  },
+  "power-powder-bug-killer": {
+    "pl": "Proszkowy koncentrat pre-wash zmiękcza owady i inne zabrudzenia organiczne przed myciem. Pięć saszetek przygotowuje łącznie 2,5 l płynu.",
+    "en": "A powder pre-wash concentrate that softens insects and other organic residue before cleaning. Five sachets make 2.5 litres of solution.",
+    "de": "Pulverförmiger Vorreiniger, der Insekten und organische Rückstände vor dem Waschen aufweicht. Fünf Sachets ergeben 2,5 Liter Lösung.",
+    "cs": "Práškový koncentrát na předmytí změkčuje hmyz a organické nečistoty před mytím. Pět sáčků připraví celkem 2,5 litru roztoku.",
+    "fr": "Un prélavage en poudre qui ramollit les insectes et résidus organiques avant le lavage. Cinq sachets donnent 2,5 litres de solution.",
+    "it": "Prelavaggio concentrato in polvere che ammorbidisce insetti e residui organici prima del lavaggio. Cinque bustine preparano 2,5 litri di soluzione."
+  },
+  "power-powder-wheelixir": {
+    "pl": "Koncentrat do felg pomaga usuwać pył hamulcowy, tłuste osady i brud drogowy. Pięć saszetek pozwala przygotować 2,5 l gotowego płynu.",
+    "en": "A wheel-cleaning concentrate for brake dust, greasy deposits and road grime. Five sachets make 2.5 litres of ready-to-use solution.",
+    "de": "Konzentrat für Felgen gegen Bremsstaub, fettige Ablagerungen und Straßenschmutz. Fünf Sachets ergeben 2,5 Liter fertige Lösung.",
+    "cs": "Koncentrát na kola pomáhá odstraňovat brzdový prach, mastné usazeniny a silniční nečistoty. Pět sáčků připraví 2,5 litru roztoku.",
+    "fr": "Un concentré pour jantes contre poussière de frein, dépôts gras et saleté de la route. Cinq sachets donnent 2,5 litres de solution prête.",
+    "it": "Concentrato per cerchi contro polvere dei freni, residui oleosi e sporco stradale. Cinque bustine preparano 2,5 litri di soluzione pronta."
+  },
+  "motorcycle-ceramic-detailer": {
+    "pl": "Ceramiczny detailer podbija kolor, odpycha wodę i ogranicza przywieranie brudu. Szybkie wykończenie po myciu ułatwia kolejną pielęgnację.",
+    "en": "A ceramic detailer that boosts colour, repels water and helps dirt release more easily. Quick finishing after a wash simplifies future care.",
+    "de": "Der Keramik-Detailer frischt die Farbe auf, weist Wasser ab und erschwert das Anhaften von Schmutz. Schnelles Finish nach der Wäsche.",
+    "cs": "Keramický detailer zvýrazní barvu, odpuzuje vodu a pomáhá omezit ulpívání nečistot. Rychlá ochranná úprava po umytí.",
+    "fr": "Un detailer céramique qui ravive la couleur, repousse l’eau et limite l’adhérence de la saleté. Finition rapide après le lavage.",
+    "it": "Detailer ceramico che ravviva il colore, respinge l'acqua e limita l'adesione dello sporco. Finitura rapida dopo il lavaggio."
+  },
+  "detailing-fiber": {
+    "pl": "Gruba mikrofibra 850 g/m² dobrze chłonie wodę i pomaga osuszać lakier bez smug. Nadaje się też do plastiku, chromu, szyb i kasku.",
+    "en": "Thick 850 gsm microfibre absorbs water well and dries paintwork without streaks. Also suited to plastic, chrome, screens and helmets.",
+    "de": "Das dicke Mikrofasertuch mit 850 g/m² nimmt Wasser gut auf und trocknet Lack streifenfrei. Auch für Kunststoff, Chrom, Scheiben und Helme.",
+    "cs": "Silná mikrovláknová utěrka 850 g/m² dobře saje vodu a suší lak beze šmouh. Vhodná také na plast, chrom, skla a přilby.",
+    "fr": "Cette microfibre épaisse de 850 g/m² absorbe bien l’eau et sèche la peinture sans traces. Convient aussi au plastique, chrome, écrans et casques.",
+    "it": "La microfibra spessa da 850 g/m² assorbe bene l'acqua e asciuga la vernice senza aloni. Adatta anche a plastica, cromo, vetri e caschi."
+  },
+  "wheel-brush": {
+    "pl": "Szczotka pomaga czyścić felgi, opony i trudno dostępne miejsca przy kole. Przydaje się podczas pracy z preparatem Wheelixir.",
+    "en": "A dedicated brush for cleaning wheels, tyres and hard-to-reach areas around the rims. Useful when working with Wheelixir.",
+    "de": "Spezialbürste für Felgen, Reifen und schwer erreichbare Stellen am Rad. Praktisch bei der Anwendung von Wheelixir.",
+    "cs": "Kartáč na čištění kol, pneumatik a hůře dostupných míst kolem ráfku. Hodí se při použití přípravku Wheelixir.",
+    "fr": "Une brosse dédiée aux roues, pneus et zones difficiles d’accès autour des jantes. Pratique avec le nettoyant Wheelixir.",
+    "it": "Spazzola specifica per ruote, pneumatici e zone difficili vicino ai cerchi. Utile insieme al detergente Wheelixir."
+  },
+  "power-powder-shaker": {
+    "pl": "Butelka 500 ml z regulowanym atomizerem do mieszania i aplikacji Power Powder. Ustawisz delikatną mgiełkę lub mocniejszy strumień.",
+    "en": "A 500 ml bottle with adjustable sprayer for mixing and applying Power Powder. Switch from a fine mist to a focused stream.",
+    "de": "500-ml-Flasche mit verstellbarem Sprühkopf zum Mischen und Auftragen von Power Powder. Wählbar zwischen feinem Nebel und Strahl.",
+    "cs": "Pětisetmililitrová láhev s nastavitelným rozprašovačem na míchání a aplikaci Power Powder. Zvolíte jemnou mlhu nebo proud.",
+    "fr": "Un flacon de 500 ml à pulvérisateur réglable pour mélanger et appliquer Power Powder. Choisissez une brume fine ou un jet ciblé.",
+    "it": "Flacone da 500 ml con spruzzatore regolabile per miscelare e applicare Power Powder. Scegli tra nebulizzazione e getto mirato."
+  },
+  "freshener-orange-spritz": {
+    "pl": "Odświeżacz z jonami srebra do wnętrza kasku, rękawic i butów między praniami. Pomaga ograniczać zapachy; wariant Orange Spritz.",
+    "en": "A silver-ion spray to freshen helmet liners, gloves and boots between washes and help limit odours. Orange Spritz fragrance.",
+    "de": "Ein Spray mit Silberionen für Helm-Innenfutter, Handschuhe und Stiefel zwischen den Wäschen. Orange-Spritz-Duft.",
+    "cs": "Sprej se stříbrnými ionty osvěží výstelku přilby, rukavice i boty mezi praním a pomáhá omezovat zápach. Vůně Orange Spritz.",
+    "fr": "Un spray aux ions d’argent pour rafraîchir doublures, gants et bottes entre les lavages et limiter les odeurs. Parfum Orange Spritz.",
+    "it": "Spray agli ioni d'argento per rinfrescare imbottiture, guanti e stivali tra i lavaggi e limitare gli odori. Fragranza Orange Spritz."
+  },
+  "wash-and-ride-cleaner": {
+    "pl": "Szybki cleaner do odświeżenia motocykla bez wody: spryskaj i wytrzyj mikrofibrą. Pozostawia lekką warstwę ochronną między pełnymi myciami.",
+    "en": "A quick, waterless motorcycle cleaner: spray and wipe with microfibre. Leaves a light protective layer between full washes.",
+    "de": "Schnellreiniger ohne Wasser: aufsprühen und mit Mikrofasertuch abwischen. Hinterlässt zwischen gründlichen Wäschen eine leichte Schutzschicht.",
+    "cs": "Rychlý čistič motocyklu bez vody: nastříkejte a setřete mikrovláknem. Mezi důkladným mytím zanechá lehkou ochrannou vrstvu.",
+    "fr": "Un nettoyant moto rapide sans eau : vaporisez puis essuyez avec une microfibre. Laisse une légère protection entre deux lavages complets.",
+    "it": "Detergente rapido per la moto senza acqua: spruzza e passa la microfibra. Lascia un leggero strato protettivo tra i lavaggi completi."
+  },
+  "microfiber-cloths-roll": {
+    "pl": "Rolka zawiera 20 ściereczek z mikrofibry do codziennego czyszczenia i detailingu. Praktyczny zapas do garażu lub zabrania w trasę.",
+    "en": "A roll of 20 microfibre cloths for everyday cleaning and detailing. A handy supply for the garage or the road.",
+    "de": "Eine Rolle mit 20 Mikrofasertüchern für tägliche Reinigung und Detailpflege. Praktischer Vorrat für Garage oder unterwegs.",
+    "cs": "Role obsahuje 20 mikrovláknových utěrek na běžné čištění a detailing. Praktická zásoba do garáže i na cesty.",
+    "fr": "Un rouleau de 20 chiffons microfibre pour le nettoyage et le detailing au quotidien. Pratique au garage comme en déplacement.",
+    "it": "Rotolo da 20 panni in microfibra per pulizia e detailing quotidiani. Una scorta pratica in garage o da portare in viaggio."
+  },
+  "mud-breaker": {
+    "pl": "Preparat pre-wash do pojazdów off-road zmiękcza błoto, piasek i mineralne zabrudzenia przed spłukaniem. Ułatwia czyszczenie po jeździe w terenie.",
+    "en": "An off-road pre-wash that loosens mud, sand and mineral dirt before rinsing. Makes post-ride cleaning easier.",
+    "de": "Vorreiniger für Offroad-Fahrzeuge, der Schlamm, Sand und mineralische Verschmutzungen vor dem Abspülen löst. Erleichtert die Reinigung nach der Fahrt.",
+    "cs": "Předmytí pro off-road vozidla uvolňuje bláto, písek a minerální nečistoty před oplachem. Usnadní čištění po jízdě v terénu.",
+    "fr": "Un prélavage pour véhicules tout-terrain qui décolle boue, sable et saletés minérales avant rinçage. Facilite le nettoyage après la sortie.",
+    "it": "Prelavaggio per veicoli off-road che scioglie fango, sabbia e residui minerali prima del risciacquo. Facilita la pulizia dopo il giro."
+  },
+  "dirt-finisher": {
+    "pl": "Szybki cleaner do powierzchni off-road usuwa bieżący brud bez dużej ilości wody. Zostawia lekką warstwę, która ogranicza przywieranie kurzu i błota.",
+    "en": "A quick cleaner for off-road surfaces that works without much water. Leaves a light layer to help reduce new dust and mud build-up.",
+    "de": "Schnellreiniger für Offroad-Oberflächen, der mit wenig Wasser auskommt. Eine leichte Schutzschicht hilft, neue Staub- und Schmutzanhaftung zu verringern.",
+    "cs": "Rychlý čistič off-road povrchů funguje bez velkého množství vody. Lehká vrstva pomáhá omezit další ulpívání prachu a bláta.",
+    "fr": "Un nettoyant rapide pour surfaces tout-terrain, utilisable avec peu d’eau. Laisse une protection légère qui aide à limiter les dépôts de poussière et de boue.",
+    "it": "Detergente rapido per superfici off-road che richiede poca acqua. Lascia una protezione leggera che aiuta a ridurre l'adesione di polvere e fango."
+  },
+  "offroad-set": {
+    "pl": "Zestaw Offroad zawiera Mud Breaker, Dirt Finisher i ściereczkę z mikrofibry; całość jest zapakowana w karton.",
+    "en": "Offroad Set includes Mud Breaker, Dirt Finisher and a microfibre cloth, all packed together in a carton.",
+    "de": "Das Offroad-Set enthält Mud Breaker, Dirt Finisher und ein Mikrofasertuch, gemeinsam in einem Karton verpackt.",
+    "cs": "Sada Offroad obsahuje Mud Breaker, Dirt Finisher a utěrku z mikrovlákna; vše je zabaleno v kartonové krabici.",
+    "fr": "Le coffret Offroad réunit Mud Breaker, Dirt Finisher et un chiffon microfibre, le tout emballé dans un carton.",
+    "it": "Il set Offroad contiene Mud Breaker, Dirt Finisher e un panno in microfibra, confezionati insieme in un cartone."
+  },
+  "evolon-detailing-cloths": {
+    "pl": "Dwie ściereczki Evolon® do wizjerów, lusterek i ekranów. Miękki materiał nie pyli i nie strzępi się, pomagając uzyskać czyste wykończenie.",
+    "en": "Two Evolon® cloths for visors, mirrors and screens. The soft material does not lint or fray, helping leave a clean finish.",
+    "de": "Zwei Evolon®-Tücher für Visiere, Spiegel und Bildschirme. Das weiche Material fusselt und franst nicht aus und sorgt für ein sauberes Finish.",
+    "cs": "Dvě utěrky Evolon® na plexi, zrcátka a displeje. Měkký materiál nepouští vlákna ani se netřepí a pomáhá dosáhnout čistého výsledku.",
+    "fr": "Deux chiffons Evolon® pour écrans, rétroviseurs et visières. Le tissu doux ne peluche pas et ne s’effiloche pas, pour une finition nette.",
+    "it": "Due panni Evolon® per visiere, specchi e schermi. Il tessuto morbido non lascia pelucchi né si sfilaccia, per una finitura pulita."
+  },
+  "washing-booster-active-oxygen": {
+    "pl": "Dodatek z aktywnym tlenem wzmacnia działanie detergentu i pomaga usuwać trudne plamy z odzieży technicznej oraz sportowej.",
+    "en": "An active-oxygen laundry booster that strengthens detergent performance and helps tackle tougher stains on technical and sports clothing.",
+    "de": "Ein Wasch-Booster mit Aktivsauerstoff, der die Waschleistung unterstützt und hartnäckige Flecken aus Funktions- und Sportkleidung löst.",
+    "cs": "Prací booster s aktivním kyslíkem posiluje účinek detergentu a pomáhá odstraňovat odolnější skvrny z funkčního a sportovního oblečení.",
+    "fr": "Un booster de lavage à oxygène actif qui renforce l’action de la lessive et aide à éliminer les taches tenaces des vêtements techniques et sportifs.",
+    "it": "Booster al ossigeno attivo che potenzia il detergente e aiuta a rimuovere le macchie ostinate da capi tecnici e sportivi."
+  },
+  "jeans-care-sachet": {
+    "pl": "Jednorazowa saszetka Jeans Care wystarcza na jedno pranie jeansów i odzieży motocyklowej z Kevlarem. Chroni kolor; wygodna w podróży.",
+    "en": "A single-use Jeans Care dose for one wash of denim and Kevlar motorcycle clothing. Helps protect colour and travels easily.",
+    "de": "Einzeldosis Jeans Care für eine Wäsche von Denim und Kevlar-Motorradkleidung. Schont die Farbe und ist praktisch für unterwegs.",
+    "cs": "Jednorázová dávka Jeans Care vystačí na jedno praní džínů a motocyklového oblečení s Kevlarem. Pomáhá chránit barvu a hodí se na cesty.",
+    "fr": "Une dose Jeans Care pour un lavage de denim et de vêtements moto en Kevlar. Aide à préserver la couleur et s’emporte facilement.",
+    "it": "Dose monouso Jeans Care per un lavaggio di denim e abbigliamento da moto in Kevlar. Aiuta a proteggere il colore, ideale in viaggio."
+  },
+  "motorcycle-detailing-soft-brush": {
+    "pl": "Miękkie włosie pomaga czyścić szczeliny, detale i trudno dostępne miejsca motocykla bez agresywnego szorowania.",
+    "en": "Soft bristles clean motorcycle crevices, details and hard-to-reach areas without aggressive scrubbing.",
+    "de": "Weiche Borsten reinigen Spalten, Details und schwer erreichbare Stellen am Motorrad ohne starkes Schrubben.",
+    "cs": "Měkké štětiny čistí spáry, detaily a hůře dostupná místa motocyklu bez agresivního drhnutí.",
+    "fr": "Les poils souples nettoient les recoins, détails et zones difficiles d’accès de la moto sans frotter agressivement.",
+    "it": "Le setole morbide puliscono fessure, dettagli e punti difficili della moto senza strofinare con forza."
+  },
+  "chain-brush": {
+    "pl": "Trójstronna szczotka ułatwia czyszczenie łańcucha i napędu bez zdejmowania ich z motocykla. Dociera do kilku stron ogniw jednocześnie.",
+    "en": "A three-sided brush for cleaning the chain and drivetrain without removing them. Reaches several sides of the links at once.",
+    "de": "Die dreiseitige Bürste reinigt Kette und Antrieb, ohne sie auszubauen. Sie erreicht mehrere Seiten der Kettenglieder zugleich.",
+    "cs": "Třístranný kartáč čistí řetěz a pohon bez demontáže. Dostane se k několika stranám článků najednou.",
+    "fr": "Une brosse à trois côtés pour nettoyer chaîne et transmission sans démontage. Elle atteint plusieurs faces des maillons à la fois.",
+    "it": "Spazzola a tre lati per pulire catena e trasmissione senza smontarle. Raggiunge più lati delle maglie in un solo passaggio."
+  }
+}

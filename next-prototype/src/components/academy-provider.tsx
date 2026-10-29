@@ -1911,7 +1911,10 @@ function AcademyPathnameSync({ onPathnameChange }: { onPathnameChange: (pathname
 export function AcademyProvider({ children }: { children: ReactNode }) {
   const router = useRouter();
   const [pathname, setPathname] = useState<string | null>(null);
-  const isTradeFairKiosk = pathname === "/targi" || pathname?.startsWith("/targi/") === true;
+  const isTradeFairKiosk = pathname === "/targi"
+    || pathname?.startsWith("/targi/") === true
+    || pathname === "/targi-v2"
+    || pathname?.startsWith("/targi-v2/") === true;
   const language = useSyncExternalStore(subscribeToLanguage, getStoredLanguage, getServerLanguage);
   const [role, setRole] = useState<"admin" | "employee" | null>(null);
   const [completedLessons, setCompletedLessons] = useState<CopyKey[]>([]);

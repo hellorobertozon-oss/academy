@@ -1,0 +1,61 @@
+.catalogCard {
+  transition:
+    border-color 160ms ease,
+    box-shadow 160ms ease,
+    transform 160ms cubic-bezier(0.23, 1, 0.32, 1);
+}
+
+.catalogImage {
+  transition: transform 220ms cubic-bezier(0.23, 1, 0.32, 1);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .catalogCard:hover .catalogImage {
+    transform: scale(1.035);
+  }
+}
+
+.productDialog::backdrop {
+  background: color-mix(in srgb, var(--color-text-primary) 62%, transparent);
+  backdrop-filter: blur(3px);
+}
+
+.scrollFade {
+  position: absolute;
+  z-index: 20;
+  inset: 0 0 auto;
+  height: 24px;
+  pointer-events: none;
+}
+
+.scrollFadeSoft,
+.scrollFadeStrong,
+.scrollFadeSurface {
+  position: absolute;
+  inset: 0;
+  mask-image: linear-gradient(to bottom, black, transparent);
+  transition: opacity 180ms ease-out;
+}
+
+.scrollFadeSoft {
+  backdrop-filter: blur(1px);
+}
+
+.scrollFadeStrong {
+  height: 16px;
+  backdrop-filter: blur(4px);
+}
+
+.scrollFadeSurface {
+  background: linear-gradient(to bottom, var(--color-background-primary-default), transparent);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .catalogCard,
+  .catalogImage,
+  .scrollFadeSoft,
+  .scrollFadeStrong,
+  .scrollFadeSurface {
+    transition-duration: 0ms;
+  }
+}

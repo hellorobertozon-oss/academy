@@ -1,12 +1,11 @@
 import type { Metadata } from "next";
-import { TradeFairShowcase } from "@/components/pages/trade-fair-showcase";
-import { TRADE_FAIR_PRODUCTS } from "@/lib/trade-fair-products";
+import { TradeFairCatalog } from "@/components/pages/trade-fair-catalog";
 
 export const metadata: Metadata = {
-  title: "Xzone products | Xzone Academy",
-  description: "Explore the Xzone product collection in English and Italian.",
+  title: "Produkty Xzone | Xzone Academy",
+  description: "Poznaj produkty Xzone do pielęgnacji kasku, odzieży i motocykla.",
 };
 
 export default function TradeFairPage() {
-  return <TradeFairShowcase products={TRADE_FAIR_PRODUCTS} />;
+  return <TradeFairCatalog />;
 }

@@ -1,6 +1,7 @@
-// Current Xzone24 shop assortment and local packshots, summarized and translated
-// for the kiosk: https://xzone24.com/shop/
+// Short, translated trade-fair descriptions adapted from robertozon.com/sklep.
 import { TRADE_FAIR_PRODUCT_GALLERIES } from "@/lib/trade-fair-product-galleries";
+import tradeFairProductDescriptions from "@/lib/trade-fair-product-descriptions.json";
+import tradeFairProductDetailCopy from "@/lib/trade-fair-product-detail-copy.json";
 import polishProductDescriptions from "../../supabase/translations/trade-fair-products.pl.json";
 import germanProductDescriptions from "../../supabase/translations/trade-fair-products.de.json";
 import czechProductDescriptions from "../../supabase/translations/trade-fair-products.cs.json";
@@ -15,10 +16,11 @@ export type TradeFairProduct = {
   descriptionEn: string;
   descriptionIt: string;
   descriptionByLanguage: Record<TradeFairLanguage, string>;
+  detailDescriptionByLanguage: Record<TradeFairLanguage, string[]>;
   galleryImages: string[];
 };
 
-const tradeFairProductInfo: Omit<TradeFairProduct, "galleryImages" | "descriptionByLanguage">[] = [
+const tradeFairProductInfo: Omit<TradeFairProduct, "galleryImages" | "descriptionByLanguage" | "detailDescriptionByLanguage">[] = [
   {
     id: "interior-refresher-man",
     name: "Xzone® Interior Refresher with Silver Ions Man 100ml",
@@ -307,6 +309,13 @@ const tradeFairProductInfo: Omit<TradeFairProduct, "galleryImages" | "descriptio
     descriptionIt: "Un prodotto per la pulizia rapida e la finitura, per rinfrescare e proteggere le superfici dei veicoli fuoristrada.",
   },
   {
+    id: "offroad-set",
+    name: "Offroad Set",
+    image: "/assets/xzone-products/offroad-set.png",
+    descriptionEn: "",
+    descriptionIt: "",
+  },
+  {
     id: "evolon-detailing-cloths",
     name: "Set of 2 Evolon® Detailing Cloths",
     image: "/assets/xzone-products/Evolon_01.webp",
@@ -364,15 +373,84 @@ const additionalDescriptions: Record<"pl" | "de" | "cs" | "fr", Record<string, s
   fr: frenchProductDescriptions,
 };
 
-export const TRADE_FAIR_PRODUCTS: TradeFairProduct[] = tradeFairProductInfo.map((product) => ({
-  ...product,
-  descriptionByLanguage: {
-    pl: additionalDescriptions.pl[product.id],
-    en: product.descriptionEn,
-    de: additionalDescriptions.de[product.id],
-    cs: additionalDescriptions.cs[product.id],
-    fr: additionalDescriptions.fr[product.id],
-    it: product.descriptionIt,
-  },
-  galleryImages: TRADE_FAIR_PRODUCT_GALLERIES[product.id] ?? [product.image],
-}));
+type TradeFairProductDetailGroup = keyof typeof tradeFairProductDetailCopy;
+
+const productDetailGroups: Record<string, TradeFairProductDetailGroup> = {
+  "interior-refresher-man": "helmetFresheners",
+  "interior-refresher-woman": "helmetFresheners",
+  "interior-refresher-neptun": "helmetFresheners",
+  "helmet-freshener-mint": "helmetFresheners",
+  "freshener-orange-spritz": "helmetFresheners",
+  "helmet-interior-care": "helmetLinerWash",
+  "helmet-interior-care-sachet": "helmetLinerWash",
+  "magic-gloves-cleaner": "magicGloves",
+  "helmet-cleaning-gel": "helmetShellCare",
+  "helmet-cleaning-gel-mini": "helmetShellCare",
+  "helmet-detailer": "helmetShellCare",
+  "helmet-detailer-mini": "helmetShellCare",
+  "helmet-care-kit": "helmetShellCare",
+  "helmet-care-trip-kit": "helmetShellCare",
+  "helmet-cleaning-trip-kit": "helmetShellCare",
+  "leather-care-balm": "leatherCare",
+  "leather-cleaner": "leatherCare",
+  "leather-cleaning-brush": "leatherCare",
+  "leather-care-kit": "leatherCare",
+  "zip-service-agent": "zipCare",
+  "textile-washing-liquid": "technicalLaundry",
+  "active-care-sportswear-wash": "activeCareSportswear",
+  "active-care-sportswear-sachet": "technicalLaundry",
+  "merino-care-wash": "technicalLaundry",
+  "jeans-care-liquid": "technicalLaundry",
+  "jeans-care-sachet": "technicalLaundry",
+  "fabric-protect-freshness-extender": "laundryAdditives",
+  "washing-booster-active-oxygen": "laundryAdditives",
+  "textile-care-kit": "textileKit",
+  "premium-microfiber": "microfibreCloths",
+  "detailing-fiber": "microfibreCloths",
+  "microfiber-cloths-roll": "microfibreCloths",
+  "evolon-detailing-cloths": "microfibreCloths",
+  "motorcycle-detailing-set": "motorcycleCleaning",
+  "power-powder-moto-wash": "motorcycleCleaning",
+  "power-powder-bug-killer": "motorcycleCleaning",
+  "power-powder-wheelixir": "motorcycleCleaning",
+  "motorcycle-ceramic-detailer": "motorcycleCleaning",
+  "wash-and-ride-cleaner": "motorcycleCleaning",
+  "wheel-brush": "motorcycleTools",
+  "motorcycle-detailing-soft-brush": "motorcycleTools",
+  "chain-brush": "motorcycleTools",
+  "fiber-hand": "fiberHand",
+  "power-powder-shaker": "powerShaker",
+  "mud-breaker": "offroad",
+  "dirt-finisher": "offroad",
+  "offroad-set": "offroadSet",
+};
+
+export const TRADE_FAIR_PRODUCTS: TradeFairProduct[] = tradeFairProductInfo.map((product) => {
+  const kioskDescriptions = Object.prototype.hasOwnProperty.call(tradeFairProductDescriptions, product.id)
+    ? tradeFairProductDescriptions[product.id as keyof typeof tradeFairProductDescriptions]
+    : undefined;
+  const detailGroup = productDetailGroups[product.id];
+  const detailCopy = detailGroup ? tradeFairProductDetailCopy[detailGroup] : undefined;
+  const descriptionByLanguage = {
+    pl: kioskDescriptions?.pl ?? additionalDescriptions.pl[product.id] ?? product.descriptionEn,
+    en: kioskDescriptions?.en ?? product.descriptionEn,
+    de: kioskDescriptions?.de ?? additionalDescriptions.de[product.id] ?? product.descriptionEn,
+    cs: kioskDescriptions?.cs ?? additionalDescriptions.cs[product.id] ?? product.descriptionEn,
+    fr: kioskDescriptions?.fr ?? additionalDescriptions.fr[product.id] ?? product.descriptionEn,
+    it: kioskDescriptions?.it ?? product.descriptionIt,
+  };
+
+  return {
+    ...product,
+    descriptionByLanguage,
+    detailDescriptionByLanguage: {
+      pl: [descriptionByLanguage.pl, ...(detailCopy?.pl ?? [])],
+      en: [descriptionByLanguage.en, ...(detailCopy?.en ?? [])],
+      de: [descriptionByLanguage.de, ...(detailCopy?.de ?? [])],
+      cs: [descriptionByLanguage.cs, ...(detailCopy?.cs ?? [])],
+      fr: [descriptionByLanguage.fr, ...(detailCopy?.fr ?? [])],
+      it: [descriptionByLanguage.it, ...(detailCopy?.it ?? [])],
+    },
+    galleryImages: TRADE_FAIR_PRODUCT_GALLERIES[product.id] ?? (product.image ? [product.image] : []),
+  };
+});
