@@ -5,6 +5,23 @@
     transform 160ms cubic-bezier(0.23, 1, 0.32, 1);
 }
 
+.categoryResults .catalogCard {
+  animation: category-card-enter 260ms cubic-bezier(0.23, 1, 0.32, 1) both;
+  animation-delay: var(--catalog-card-delay, 0ms);
+}
+
+@keyframes category-card-enter {
+  from {
+    opacity: 0;
+    translate: 0 14px;
+  }
+
+  to {
+    opacity: 1;
+    translate: 0 0;
+  }
+}
+
 .catalogImage {
   transition: transform 220ms cubic-bezier(0.23, 1, 0.32, 1);
 }
@@ -15,9 +32,37 @@
   }
 }
 
+@media (hover: none) and (pointer: coarse) {
+  .catalogCard:active {
+    transform: scale(0.99);
+    transition-duration: 120ms;
+  }
+}
+
+.productDialog {
+  transform-origin: center;
+}
+
 .productDialog::backdrop {
   background: color-mix(in srgb, var(--color-text-primary) 62%, transparent);
   backdrop-filter: blur(3px);
+  opacity: 0;
+  transition: opacity 280ms cubic-bezier(0.23, 1, 0.32, 1);
+}
+
+.productDialog[open]::backdrop {
+  opacity: 1;
+}
+
+.productDialog[open][data-closing]::backdrop {
+  opacity: 0;
+  transition-duration: 180ms;
+}
+
+@starting-style {
+  .productDialog[open]::backdrop {
+    opacity: 0;
+  }
 }
 
 .scrollFade {
@@ -53,9 +98,19 @@
 @media (prefers-reduced-motion: reduce) {
   .catalogCard,
   .catalogImage,
+  .productDialog::backdrop,
   .scrollFadeSoft,
   .scrollFadeStrong,
   .scrollFadeSurface {
     transition-duration: 0ms;
   }
+
+  .catalogCard:active {
+    transform: none;
+  }
+
+  .categoryResults .catalogCard {
+    animation: none;
+  }
+
 }

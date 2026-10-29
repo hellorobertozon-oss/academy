@@ -2,13 +2,22 @@
 
 import Image from "next/image";
 import { useEffect, useMemo, useRef, useState } from "react";
-import type { FormEvent } from "react";
+import type { CSSProperties, FormEvent } from "react";
 import {
+  RiApps2Line,
   RiArrowLeftLine,
   RiArrowRightLine,
+  RiBrushLine,
+  RiHandbagLine,
+  RiMotorbikeLine,
+  RiRoadMapLine,
   RiPlayFill,
-  RiSearchLine,
+  RiShieldCheckLine,
+  RiSparkling2Line,
   RiSettings3Line,
+  RiToolsLine,
+  RiTShirtLine,
+  type RemixiconComponentType,
 } from "@remixicon/react";
 import { AcademyLanguagePicker } from "@/components/academy-header";
 import { Button } from "@/components/base/buttons/button";
@@ -40,24 +49,25 @@ type CatalogCopy = {
   brandSubtitle: string;
   title: string;
   description: string;
-  search: string;
-  searchLabel: string;
   categoriesLabel: string;
   all: string;
   helmet: string;
+  fresheners: string;
   leather: string;
   textile: string;
   accessories: string;
   motorcycle: string;
   offRoad: string;
   openDetails: string;
+  detailsButton: string;
   details: string;
   productDescription: string;
-  videos: string;
   video: string;
+  watchVideo: string;
   playVideo: string;
   photos: string;
   close: string;
+  closeVideo: string;
   noResultsTitle: string;
   noResultsDescription: string;
   previousPhoto: string;
@@ -71,26 +81,27 @@ const CATALOG_COPY: Record<AcademyLanguage, CatalogCopy> = {
     brandSubtitle: "Prezentacja produktów",
     title: "Produkty Xzone",
     description: "Poznaj produkty do pielęgnacji kasku, odzieży i motocykla.",
-    search: "Szukaj produktu lub opisu…",
-    searchLabel: "Szukaj produktu",
     categoriesLabel: "Kategorie produktów",
     all: "Wszystkie",
     helmet: "Pielęgnacja kasku",
+    fresheners: "Odświeżacze",
     leather: "Odzież skórzana",
     textile: "Odzież tekstylna",
     accessories: "Akcesoria",
     motorcycle: "Pielęgnacja motocykla",
     offRoad: "Off-road",
     openDetails: "Zobacz szczegóły",
+    detailsButton: "Szczegóły",
     details: "Szczegóły produktu",
     productDescription: "Opis produktu",
-    videos: "Filmy produktowe",
     video: "Film instruktażowy",
+    watchVideo: "Zobacz film",
     playVideo: "Odtwórz film",
     photos: "Zdjęcia produktu",
     close: "Zamknij szczegóły produktu",
+    closeVideo: "Zamknij film",
     noResultsTitle: "Nie znaleźliśmy produktów",
-    noResultsDescription: "Zmień kategorię lub wpisz inne hasło.",
+    noResultsDescription: "Nie znaleźliśmy produktów w tej kategorii.",
     previousPhoto: "Poprzednie zdjęcie",
     nextPhoto: "Następne zdjęcie",
     photo: (current, total) => `Zdjęcie ${current} z ${total}`,
@@ -100,26 +111,27 @@ const CATALOG_COPY: Record<AcademyLanguage, CatalogCopy> = {
     brandSubtitle: "Product showcase",
     title: "Xzone products",
     description: "Explore products for caring for helmets, riding gear and motorcycles.",
-    search: "Search product or description…",
-    searchLabel: "Search products",
     categoriesLabel: "Product categories",
     all: "All products",
     helmet: "Helmet care",
+    fresheners: "Fresheners",
     leather: "Leather gear",
     textile: "Textile gear",
     accessories: "Accessories",
     motorcycle: "Motorcycle care",
     offRoad: "Off-road",
     openDetails: "View details",
+    detailsButton: "Details",
     details: "Product details",
     productDescription: "Product description",
-    videos: "Product videos",
     video: "Product video",
+    watchVideo: "Watch video",
     playVideo: "Play video",
     photos: "Product photos",
     close: "Close product details",
+    closeVideo: "Close video",
     noResultsTitle: "No products found",
-    noResultsDescription: "Choose another category or try a different search.",
+    noResultsDescription: "No products are listed in this category.",
     previousPhoto: "Previous photo",
     nextPhoto: "Next photo",
     photo: (current, total) => `Photo ${current} of ${total}`,
@@ -129,26 +141,27 @@ const CATALOG_COPY: Record<AcademyLanguage, CatalogCopy> = {
     brandSubtitle: "Produktpräsentation",
     title: "Xzone Produkte",
     description: "Produkte für die Pflege von Helmen, Motorradbekleidung und Motorrädern.",
-    search: "Produkt oder Beschreibung suchen…",
-    searchLabel: "Produkte suchen",
     categoriesLabel: "Produktkategorien",
     all: "Alle Produkte",
     helmet: "Helmpflege",
+    fresheners: "Lufterfrischer",
     leather: "Lederbekleidung",
     textile: "Textilbekleidung",
     accessories: "Zubehör",
     motorcycle: "Motorradpflege",
     offRoad: "Off-road",
     openDetails: "Details ansehen",
+    detailsButton: "Details",
     details: "Produktdetails",
     productDescription: "Produktbeschreibung",
-    videos: "Produktvideos",
     video: "Produktvideo",
+    watchVideo: "Video ansehen",
     playVideo: "Video abspielen",
     photos: "Produktfotos",
     close: "Produktdetails schließen",
+    closeVideo: "Video schließen",
     noResultsTitle: "Keine Produkte gefunden",
-    noResultsDescription: "Wähle eine andere Kategorie oder ändere den Suchbegriff.",
+    noResultsDescription: "In dieser Kategorie sind keine Produkte gelistet.",
     previousPhoto: "Vorheriges Foto",
     nextPhoto: "Nächstes Foto",
     photo: (current, total) => `Foto ${current} von ${total}`,
@@ -158,26 +171,27 @@ const CATALOG_COPY: Record<AcademyLanguage, CatalogCopy> = {
     brandSubtitle: "Představení produktů",
     title: "Produkty Xzone",
     description: "Prozkoumejte produkty pro péči o helmy, motorkářské oblečení a motocykly.",
-    search: "Hledat produkt nebo popis…",
-    searchLabel: "Hledat produkty",
     categoriesLabel: "Kategorie produktů",
     all: "Všechny produkty",
     helmet: "Péče o helmy",
+    fresheners: "Osvěžovače",
     leather: "Kožené oblečení",
     textile: "Textilní oblečení",
     accessories: "Příslušenství",
     motorcycle: "Péče o motocykly",
     offRoad: "Off-road",
     openDetails: "Zobrazit podrobnosti",
+    detailsButton: "Podrobnosti",
     details: "Podrobnosti o produktu",
     productDescription: "Popis produktu",
-    videos: "Produktová videa",
     video: "Produktové video",
+    watchVideo: "Zobrazit video",
     playVideo: "Přehrát video",
     photos: "Fotografie produktu",
     close: "Zavřít podrobnosti o produktu",
+    closeVideo: "Zavřít video",
     noResultsTitle: "Nenašli jsme žádné produkty",
-    noResultsDescription: "Vyberte jinou kategorii nebo zkuste jiné hledání.",
+    noResultsDescription: "V této kategorii nejsou žádné produkty.",
     previousPhoto: "Předchozí fotografie",
     nextPhoto: "Další fotografie",
     photo: (current, total) => `Fotografie ${current} z ${total}`,
@@ -187,26 +201,27 @@ const CATALOG_COPY: Record<AcademyLanguage, CatalogCopy> = {
     brandSubtitle: "Présentation des produits",
     title: "Produits Xzone",
     description: "Découvrez les produits pour l’entretien des casques, des vêtements et des motos.",
-    search: "Rechercher un produit ou une description…",
-    searchLabel: "Rechercher des produits",
     categoriesLabel: "Catégories de produits",
     all: "Tous les produits",
     helmet: "Entretien du casque",
+    fresheners: "Désodorisants",
     leather: "Vêtements en cuir",
     textile: "Vêtements textiles",
     accessories: "Accessoires",
     motorcycle: "Entretien de la moto",
     offRoad: "Tout-terrain",
     openDetails: "Voir les détails",
+    detailsButton: "Détails",
     details: "Détails du produit",
     productDescription: "Description du produit",
-    videos: "Vidéos produits",
     video: "Vidéo produit",
+    watchVideo: "Voir la vidéo",
     playVideo: "Lire la vidéo",
     photos: "Photos du produit",
     close: "Fermer les détails du produit",
+    closeVideo: "Fermer la vidéo",
     noResultsTitle: "Aucun produit trouvé",
-    noResultsDescription: "Choisissez une autre catégorie ou modifiez votre recherche.",
+    noResultsDescription: "Aucun produit dans cette catégorie.",
     previousPhoto: "Photo précédente",
     nextPhoto: "Photo suivante",
     photo: (current, total) => `Photo ${current} sur ${total}`,
@@ -216,26 +231,27 @@ const CATALOG_COPY: Record<AcademyLanguage, CatalogCopy> = {
     brandSubtitle: "Presentazione dei prodotti",
     title: "Prodotti Xzone",
     description: "Scopri i prodotti per la cura di caschi, abbigliamento e moto.",
-    search: "Cerca un prodotto o una descrizione…",
-    searchLabel: "Cerca prodotti",
     categoriesLabel: "Categorie di prodotti",
     all: "Tutti i prodotti",
     helmet: "Cura del casco",
+    fresheners: "Deodoranti",
     leather: "Abbigliamento in pelle",
     textile: "Abbigliamento in tessuto",
     accessories: "Accessori",
     motorcycle: "Cura della moto",
     offRoad: "Off-road",
     openDetails: "Scopri i dettagli",
+    detailsButton: "Dettagli",
     details: "Dettagli del prodotto",
     productDescription: "Descrizione del prodotto",
-    videos: "Video dei prodotti",
     video: "Video del prodotto",
+    watchVideo: "Guarda il video",
     playVideo: "Riproduci il video",
     photos: "Foto del prodotto",
     close: "Chiudi i dettagli del prodotto",
+    closeVideo: "Chiudi il video",
     noResultsTitle: "Nessun prodotto trovato",
-    noResultsDescription: "Scegli un’altra categoria o prova una ricerca diversa.",
+    noResultsDescription: "Nessun prodotto in questa categoria.",
     previousPhoto: "Foto precedente",
     nextPhoto: "Foto successiva",
     photo: (current, total) => `Foto ${current} di ${total}`,
@@ -245,12 +261,81 @@ const CATALOG_COPY: Record<AcademyLanguage, CatalogCopy> = {
 const CATEGORY_IDS: CategoryId[] = [
   "all",
   "helmet",
+  "fresheners",
   "leather",
   "textile",
   "accessories",
   "motorcycle",
   "off-road",
 ];
+
+const CATEGORY_ICONS: Record<CategoryId, RemixiconComponentType> = {
+  all: RiApps2Line,
+  helmet: RiShieldCheckLine,
+  fresheners: RiSparkling2Line,
+  leather: RiHandbagLine,
+  textile: RiTShirtLine,
+  accessories: RiBrushLine,
+  motorcycle: RiMotorbikeLine,
+  "off-road": RiRoadMapLine,
+};
+
+const MODAL_MOTION_PREFERENCE = "(prefers-reduced-motion: reduce)";
+const modalEntryAnimations = new WeakMap<HTMLDialogElement, Animation>();
+
+function showAnimatedDialog(dialog: HTMLDialogElement) {
+  dialog.showModal();
+  dialog.removeAttribute("data-closing");
+
+  if (window.matchMedia(MODAL_MOTION_PREFERENCE).matches) return;
+
+  const animation = dialog.animate(
+    [
+      { opacity: 0, transform: "translateY(32px) scale(0.92)" },
+      { opacity: 1, transform: "translateY(0) scale(1)" },
+    ],
+    { duration: 280, easing: "cubic-bezier(0.23, 1, 0.32, 1)", fill: "both" },
+  );
+
+  modalEntryAnimations.set(dialog, animation);
+}
+
+function closeAnimatedDialog(dialog: HTMLDialogElement) {
+  if (!dialog.open) return;
+
+  if (window.matchMedia(MODAL_MOTION_PREFERENCE).matches) {
+    dialog.close();
+    return;
+  }
+
+  if (dialog.dataset.closing === "true") return;
+
+  const currentStyle = window.getComputedStyle(dialog);
+  const startOpacity = currentStyle.opacity;
+  const startTransform = currentStyle.transform;
+  modalEntryAnimations.get(dialog)?.cancel();
+  modalEntryAnimations.delete(dialog);
+  dialog.dataset.closing = "true";
+
+  const animation = dialog.animate(
+    [
+      { opacity: startOpacity, transform: startTransform },
+      { opacity: 0, transform: "translateY(18px) scale(0.97)" },
+    ],
+    { duration: 180, easing: "cubic-bezier(0.23, 1, 0.32, 1)", fill: "forwards" },
+  );
+
+  animation.onfinish = () => {
+    if (dialog.open) dialog.close();
+    dialog.removeAttribute("data-closing");
+  };
+}
+
+function clearDialogEntryAnimation(dialog: HTMLDialogElement | null) {
+  if (!dialog) return;
+  modalEntryAnimations.get(dialog)?.cancel();
+  modalEntryAnimations.delete(dialog);
+}
 
 const PRICE_COPY: Record<AcademyLanguage, { label: string; unavailable: string; locale: string }> = {
   pl: { label: "Cena katalogowa", unavailable: "Brak w cenniku", locale: "pl-PL" },
@@ -315,10 +400,12 @@ function TradeFairProductVideoPlayer({
   video,
   videoLabel,
   playLabel,
+  poster,
 }: {
   video: TradeFairProductVideo;
   videoLabel: string;
   playLabel: string;
+  poster: string;
 }) {
   const videoRef = useRef<HTMLVideoElement>(null);
   const [isPlaying, setIsPlaying] = useState(false);
@@ -344,9 +431,10 @@ function TradeFairProductVideoPlayer({
         ref={videoRef}
         controls
         playsInline
-        preload="metadata"
+        preload="none"
+        poster={poster}
         title={videoLabel}
-        className="size-full object-contain"
+        className="size-full bg-white object-contain"
         onPlay={() => setIsPlaying(true)}
         onPause={() => setIsPlaying(false)}
         onEnded={() => setIsPlaying(false)}
@@ -373,6 +461,7 @@ function categoryLabel(category: CategoryId, copy: CatalogCopy) {
   switch (category) {
     case "all": return copy.all;
     case "helmet": return copy.helmet;
+    case "fresheners": return copy.fresheners;
     case "leather": return copy.leather;
     case "textile": return copy.textile;
     case "accessories": return copy.accessories;
@@ -381,19 +470,78 @@ function categoryLabel(category: CategoryId, copy: CatalogCopy) {
   }
 }
 
-function productCategory(product: TradeFairProduct): TradeFairCatalogCategory {
-  return TRADE_FAIR_PRODUCT_CATEGORIES[product.id] ?? "accessories";
+function productCategories(product: TradeFairProduct): TradeFairCatalogCategory[] {
+  const assignedCategories = TRADE_FAIR_PRODUCT_CATEGORIES[product.id] ?? "accessories";
+  return Array.isArray(assignedCategories) ? assignedCategories : [assignedCategories];
 }
 
-const CATALOG_PRODUCTS = TRADE_FAIR_PRODUCTS.filter(
-  (product) => product.id !== "wooden-knee-sliders" && product.id !== "need-speed-hoodie",
+function productCategory(product: TradeFairProduct): TradeFairCatalogCategory {
+  return productCategories(product)[0] ?? "accessories";
+}
+
+function productPoster(product: TradeFairProduct): string {
+  return product.galleryImages[0] ?? product.image ?? "/assets/xzone-logo.png";
+}
+
+const FEATURED_PRODUCT_IDS = [
+  "offroad-set",
+  "motorcycle-detailing-set",
+  "helmet-care-kit",
+  "leather-care-kit",
+  "textile-care-kit",
+  "helmet-care-trip-kit",
+  "helmet-cleaning-trip-kit",
+  "magic-gloves-cleaner",
+  "wash-and-ride-cleaner",
+  "motorcycle-ceramic-detailer",
+  "mud-breaker",
+  "dirt-finisher",
+  "power-powder-moto-wash",
+  "power-powder-bug-killer",
+  "power-powder-wheelixir",
+  "interior-refresher-man",
+  "interior-refresher-woman",
+  "interior-refresher-neptun",
+  "helmet-freshener-mint",
+  "freshener-orange-spritz",
+] as const;
+
+const FEATURED_PRODUCT_PRIORITY = new Map<string, number>(
+  FEATURED_PRODUCT_IDS.map((productId, index) => [productId, index] as const),
 );
+const LAST_PRODUCT_IDS = [
+  "leather-cleaning-brush",
+  "wheel-brush",
+  "motorcycle-detailing-soft-brush",
+  "chain-brush",
+] as const;
+const LAST_PRODUCT_PRIORITY = new Map<string, number>(
+  LAST_PRODUCT_IDS.map((productId, index) => [productId, index] as const),
+);
+
+const CATALOG_PRODUCTS = TRADE_FAIR_PRODUCTS
+  .filter((product) => product.id !== "wooden-knee-sliders" && product.id !== "need-speed-hoodie")
+  .sort((first, second) => {
+    const firstPriority = FEATURED_PRODUCT_PRIORITY.get(first.id);
+    const secondPriority = FEATURED_PRODUCT_PRIORITY.get(second.id);
+    if (firstPriority !== undefined || secondPriority !== undefined) {
+      if (firstPriority === undefined) return 1;
+      if (secondPriority === undefined) return -1;
+      return firstPriority - secondPriority;
+    }
+
+    const firstLastPriority = LAST_PRODUCT_PRIORITY.get(first.id);
+    const secondLastPriority = LAST_PRODUCT_PRIORITY.get(second.id);
+    if (firstLastPriority === undefined) return secondLastPriority === undefined ? 0 : -1;
+    if (secondLastPriority === undefined) return 1;
+    return firstLastPriority - secondLastPriority;
+  });
 
 export function TradeFairCatalog() {
   const { language, setKioskLanguage } = useAcademy();
   const copy = CATALOG_COPY[language];
   const [activeCategory, setActiveCategory] = useState<CategoryId>("all");
-  const [searchQuery, setSearchQuery] = useState("");
+  const [animateCategoryResults, setAnimateCategoryResults] = useState(false);
   const [showProductVideos, setShowProductVideos] = useState(true);
   const [productGridColumns, setProductGridColumns] = useState<ProductGridColumns>(4);
   const [videoSettingsDialogOpen, setVideoSettingsDialogOpen] = useState(false);
@@ -401,23 +549,26 @@ export function TradeFairCatalog() {
   const [videoPassword, setVideoPassword] = useState("");
   const [videoPasswordError, setVideoPasswordError] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState<TradeFairProduct | null>(null);
+  const [selectedVideoProduct, setSelectedVideoProduct] = useState<TradeFairProduct | null>(null);
   const [selectedImageIndex, setSelectedImageIndex] = useState(0);
   const [detailsScrolled, setDetailsScrolled] = useState(false);
   const detailsDialogRef = useRef<HTMLDialogElement>(null);
+  const videoDialogRef = useRef<HTMLDialogElement>(null);
   const videoSettingsDialogRef = useRef<HTMLDialogElement>(null);
   const detailsScrollRef = useRef<HTMLDivElement>(null);
 
-  const filteredProducts = useMemo(() => {
-    const query = searchQuery.trim().toLocaleLowerCase(language);
+  const filteredProducts = useMemo(
+    () => CATALOG_PRODUCTS.filter(
+      (product) => activeCategory === "all" || productCategories(product).includes(activeCategory),
+    ),
+    [activeCategory],
+  );
 
-    return CATALOG_PRODUCTS.filter((product) => {
-      const matchesCategory = activeCategory === "all" || productCategory(product) === activeCategory;
-      const matchesQuery = !query || `${product.name} ${product.descriptionByLanguage[language]}`
-        .toLocaleLowerCase(language)
-        .includes(query);
-      return matchesCategory && matchesQuery;
-    });
-  }, [activeCategory, language, searchQuery]);
+  function selectCategory(category: CategoryId, shouldAnimate: boolean) {
+    if (category === activeCategory) return;
+    setAnimateCategoryResults(shouldAnimate);
+    setActiveCategory(category);
+  }
 
   useEffect(() => {
     const applyLanguage = (value: unknown) => {
@@ -452,19 +603,27 @@ export function TradeFairCatalog() {
     const dialog = detailsDialogRef.current;
     if (!dialog) return;
 
-    if (selectedProduct && !dialog.open) dialog.showModal();
-    if (!selectedProduct && dialog.open) dialog.close();
+    if (selectedProduct && !dialog.open) showAnimatedDialog(dialog);
+    if (!selectedProduct && dialog.open) closeAnimatedDialog(dialog);
   }, [selectedProduct]);
+
+  useEffect(() => {
+    const dialog = videoDialogRef.current;
+    if (!dialog) return;
+
+    if (selectedVideoProduct && !dialog.open) showAnimatedDialog(dialog);
+    if (!selectedVideoProduct && dialog.open) closeAnimatedDialog(dialog);
+  }, [selectedVideoProduct]);
 
   useEffect(() => {
     const dialog = videoSettingsDialogRef.current;
     if (!dialog) return;
 
     if (videoSettingsDialogOpen && !dialog.open) {
-      dialog.showModal();
+      showAnimatedDialog(dialog);
       dialog.querySelector<HTMLInputElement>("#trade-fair-video-password")?.focus();
     }
-    if (!videoSettingsDialogOpen && dialog.open) dialog.close();
+    if (!videoSettingsDialogOpen && dialog.open) closeAnimatedDialog(dialog);
   }, [videoSettingsDialogOpen]);
 
   function openProduct(product: TradeFairProduct) {
@@ -474,8 +633,19 @@ export function TradeFairCatalog() {
   }
 
   function closeProduct() {
-    detailsDialogRef.current?.close();
-    setSelectedProduct(null);
+    const dialog = detailsDialogRef.current;
+    if (dialog?.open) closeAnimatedDialog(dialog);
+    else setSelectedProduct(null);
+  }
+
+  function openProductVideo(product: TradeFairProduct) {
+    setSelectedVideoProduct(product);
+  }
+
+  function closeProductVideo() {
+    const dialog = videoDialogRef.current;
+    if (dialog?.open) closeAnimatedDialog(dialog);
+    else setSelectedVideoProduct(null);
   }
 
   function openVideoSettings() {
@@ -485,7 +655,14 @@ export function TradeFairCatalog() {
     setVideoSettingsDialogOpen(true);
   }
 
+  function closeVideoSettings() {
+    const dialog = videoSettingsDialogRef.current;
+    if (dialog?.open) closeAnimatedDialog(dialog);
+    else persistVideoSettingsOnClose();
+  }
+
   function persistVideoSettingsOnClose() {
+    clearDialogEntryAnimation(videoSettingsDialogRef.current);
     window.localStorage.setItem(VIDEO_SETTINGS_STORAGE_KEY, String(showProductVideos));
     window.localStorage.setItem(PRODUCT_GRID_COLUMNS_STORAGE_KEY, String(productGridColumns));
     setVideoSettingsDialogOpen(false);
@@ -509,7 +686,7 @@ export function TradeFairCatalog() {
       return;
     }
 
-    videoSettingsDialogRef.current?.close();
+    closeVideoSettings();
   }
 
   function changeVideoVisibility(shouldShow: boolean) {
@@ -527,8 +704,8 @@ export function TradeFairCatalog() {
   const selectedDescriptionParagraphs = selectedProduct
     ? selectedProduct.detailDescriptionByLanguage[language].filter((paragraph) => paragraph.trim().length > 0)
     : [];
-  const selectedVideos = showProductVideos && selectedProduct
-    ? TRADE_FAIR_PRODUCT_VIDEOS[selectedProduct.id] ?? []
+  const previewVideos = showProductVideos && selectedVideoProduct
+    ? TRADE_FAIR_PRODUCT_VIDEOS[selectedVideoProduct.id] ?? []
     : [];
   const selectedImage = selectedImages[selectedImageIndex] ?? selectedImages[0];
 
@@ -538,12 +715,12 @@ export function TradeFairCatalog() {
         <header className="flex min-h-[76px] items-center justify-between gap-4 border-b border-separator-border bg-background-primary-default px-4 py-3 sm:px-8">
           <div className="flex min-w-0 items-center gap-3 sm:gap-5">
             <Image
-              src="/assets/xzone-logo.png"
+              src="/assets/xzone-strefa-pro-logo.png"
               alt="Xzone"
-              width={1024}
-              height={930}
+              width={845}
+              height={472}
               priority
-              className="h-12 w-24 shrink-0 object-contain brightness-0 sm:h-16 sm:w-36"
+              className="h-12 w-24 shrink-0 object-contain sm:h-16 sm:w-36"
             />
             <div className="hidden border-s border-separator-border ps-4 sm:block">
               <p className="text-caption-1-semibold uppercase tracking-[0.14em] text-text-secondary">EICMA</p>
@@ -582,10 +759,15 @@ export function TradeFairCatalog() {
         </section>
 
         <main className="bg-background-secondary-default p-4 sm:p-6 lg:p-8">
-          <div className="mb-5 flex flex-col gap-4 xl:flex-row xl:items-end xl:justify-between">
-            <div role="group" aria-label={copy.categoriesLabel} className="flex min-w-0 gap-2 overflow-x-auto pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+          <div className="mb-5">
+            <div
+              role="group"
+              aria-label={copy.categoriesLabel}
+              className="grid min-w-0 grid-cols-2 gap-2.5 sm:grid-cols-4 xl:grid-cols-8"
+            >
               {CATEGORY_IDS.map((category) => {
                 const selected = activeCategory === category;
+                const CategoryIcon = CATEGORY_ICONS[category];
                 return (
                   <Button
                     key={category}
@@ -593,94 +775,139 @@ export function TradeFairCatalog() {
                     variant="secondary"
                     size="small"
                     aria-pressed={selected}
-                    onClick={() => setActiveCategory(category)}
+                    onClick={(event) => selectCategory(category, event.detail > 0)}
                     className={cx(
-                      "h-10 shrink-0 rounded-full px-4 text-caption-1-semibold",
-                      selected && "border-accent-500 bg-accent-500 text-text-primary hover:border-accent-400 hover:bg-accent-400 active:bg-accent-500",
+                      "h-28 min-w-0 flex-col justify-center gap-2 rounded-2xl px-2.5 py-3 text-center text-caption-1-semibold leading-snug shadow-sm transition-colors duration-150",
+                      "[&>span]:flex [&>span]:h-full [&>span]:w-full [&>span]:min-w-0 [&>span]:shrink [&>span]:flex-col [&>span]:items-center [&>span]:justify-center [&>span]:gap-2 [&>span]:px-0 [&>span]:whitespace-normal",
+                      selected
+                        ? "border-accent-500 bg-accent-500 text-text-primary hover:border-accent-400 hover:bg-accent-400 active:bg-accent-500"
+                        : "border-border-button-default bg-background-primary-default text-text-secondary hover:border-accent-400 hover:bg-background-secondary-default hover:text-text-primary",
                     )}
                   >
-                    {categoryLabel(category, copy)}
+                    <span
+                      className={cx(
+                        "grid size-11 shrink-0 place-items-center rounded-xl transition-colors duration-150",
+                        selected ? "bg-white/15 text-text-primary" : "bg-background-secondary-default text-accent-800",
+                      )}
+                      aria-hidden="true"
+                    >
+                      <CategoryIcon className="size-6" />
+                    </span>
+                    <span className="max-w-full whitespace-normal text-balance">
+                      {categoryLabel(category, copy)}
+                    </span>
                   </Button>
                 );
               })}
             </div>
-
-            <div className="flex w-full flex-col gap-2 sm:flex-row sm:items-center xl:w-auto">
-              <InputBase
-                type="search"
-                size="medium"
-                aria-label={copy.searchLabel}
-                placeholder={copy.search}
-                leadingIcon={RiSearchLine}
-                value={searchQuery}
-                onChange={(event) => setSearchQuery(event.target.value)}
-                fieldClassName="h-11 rounded-xl border border-border-button-default bg-background-primary-default px-3 sm:w-72"
-              />
-            </div>
           </div>
 
           {filteredProducts.length > 0 ? (
-            <div className={cx("grid grid-cols-2 gap-3 sm:gap-4 2xl:gap-5", PRODUCT_GRID_COLUMN_CLASSES[productGridColumns])}>
-              {filteredProducts.map((product) => {
+            <div
+              key={activeCategory}
+              className={cx(
+                "grid grid-cols-2 gap-3 sm:gap-4 2xl:gap-5",
+                PRODUCT_GRID_COLUMN_CLASSES[productGridColumns],
+                animateCategoryResults && styles.categoryResults,
+              )}
+            >
+              {filteredProducts.map((product, index) => {
                 const productImages = product.galleryImages.length > 0
                   ? product.galleryImages
                   : product.image
                     ? [product.image]
                     : [];
+                const productVideos = showProductVideos
+                  ? TRADE_FAIR_PRODUCT_VIDEOS[product.id] ?? []
+                  : [];
+                const productActionColumns = productVideos.length > 0
+                  ? productGridColumns === 5
+                    ? "min-[1750px]:grid-cols-2"
+                    : "xl:grid-cols-2"
+                  : "";
                 return (
-                  <Button
+                  <article
                     key={product.id}
-                    type="button"
-                    variant="secondary"
-                    aria-haspopup="dialog"
-                    onClick={() => openProduct(product)}
+                    style={{ "--catalog-card-delay": `${(index % 4) * 35}ms` } as CSSProperties}
                     className={cx(
-                      "group/card h-auto min-h-full w-full flex-col items-stretch overflow-hidden rounded-xl p-0 text-start whitespace-normal",
-                      "border-border-button-default bg-background-primary-default text-text-primary shadow-sm",
-                      "[&>span]:flex [&>span]:w-full [&>span]:flex-col [&>span]:items-stretch [&>span]:justify-start [&>span]:px-0 [&>span]:whitespace-normal",
-                      "hover:border-accent-500 active:scale-[0.99]",
+                      "group/card flex min-h-full flex-col overflow-hidden rounded-xl border border-border-button-default bg-background-primary-default text-text-primary shadow-sm hover:border-accent-500 focus-within:border-accent-500",
                       styles.catalogCard,
                     )}
                   >
-                    <span className="relative block h-36 w-full overflow-hidden bg-background-primary-default sm:h-44 lg:h-48">
-                      {productImages[0] ? (
-                        <Image
-                          src={productImages[0]}
-                          alt=""
-                          fill
-                          sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
-                          className={cx("object-contain p-5 sm:p-6", styles.catalogImage)}
-                        />
-                      ) : null}
-                      <span className="absolute left-2 top-2 rounded-md border border-separator-border bg-background-primary-default px-2 py-1 text-caption-1-semibold text-text-secondary sm:left-3 sm:top-3">
-                        {categoryLabel(productCategory(product), copy)}
-                      </span>
-                    </span>
-                    <span className="flex min-h-44 w-full flex-1 flex-col p-3 sm:p-4">
-                      <span className="line-clamp-2 min-h-12 text-body-2-medium text-text-primary sm:text-body-medium">
-                        {product.name}
-                      </span>
-                      {product.descriptionByLanguage[language] ? (
-                        <span className="mt-2 line-clamp-3 text-body-2-regular text-text-secondary">
-                          {product.descriptionByLanguage[language]}
+                    <Button
+                      type="button"
+                      variant="secondary"
+                      aria-label={`${copy.openDetails}: ${product.name}`}
+                      aria-haspopup="dialog"
+                      onClick={() => openProduct(product)}
+                      className={cx(
+                        "h-auto min-h-0 w-full flex-1 flex-col items-stretch rounded-none border-0 bg-transparent p-0 text-start whitespace-normal shadow-none hover:border-transparent hover:bg-transparent active:scale-100",
+                        "[&>span]:flex [&>span]:w-full [&>span]:flex-col [&>span]:items-stretch [&>span]:justify-start [&>span]:px-0 [&>span]:whitespace-normal",
+                      )}
+                    >
+                      <span className="relative block h-36 w-full overflow-hidden bg-background-primary-default sm:h-44 lg:h-48">
+                        {productImages[0] ? (
+                          <Image
+                            src={productImages[0]}
+                            alt=""
+                            fill
+                            sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
+                            className={cx("object-contain p-5 sm:p-6", styles.catalogImage)}
+                          />
+                        ) : null}
+                        <span className="absolute left-2 top-2 rounded-md border border-separator-border bg-background-primary-default px-2 py-1 text-caption-1-semibold text-text-secondary sm:left-3 sm:top-3">
+                          {categoryLabel(activeCategory === "all" ? productCategory(product) : activeCategory, copy)}
                         </span>
-                      ) : null}
-                      <span className="mt-auto flex items-end justify-between gap-2 pt-4">
-                        <span className="flex min-w-0 flex-col items-start gap-0.5">
-                          <span className="text-caption-2-medium uppercase tracking-wide text-text-tertiary">
-                            {PRICE_COPY[language].label}
+                      </span>
+                      <span className="flex min-h-44 w-full flex-1 flex-col p-3 sm:p-4">
+                        <span className="line-clamp-2 min-h-12 text-body-2-medium text-text-primary sm:text-body-medium">
+                          {product.name}
+                        </span>
+                        {product.descriptionByLanguage[language] ? (
+                          <span className="mt-2 line-clamp-3 text-body-2-regular text-text-secondary">
+                            {product.descriptionByLanguage[language]}
                           </span>
-                          <span className="text-title-3-semibold tabular-nums text-text-primary">
-                            {formatCatalogPrice(product.id, language)}
+                        ) : null}
+                        <span className="mt-auto flex items-end justify-between gap-2 pt-4">
+                          <span className="flex min-w-0 flex-col items-start gap-0.5">
+                            <span className="text-caption-2-medium uppercase tracking-wide text-text-tertiary">
+                              {PRICE_COPY[language].label}
+                            </span>
+                            <span className="text-title-3-semibold tabular-nums text-text-primary">
+                              {formatCatalogPrice(product.id, language)}
+                            </span>
                           </span>
                         </span>
-                        <span className="flex shrink-0 items-center gap-2 pb-0.5 text-caption-1-semibold uppercase tracking-wide text-text-primary">
-                          {copy.openDetails}
-                          <RiArrowRightLine className="size-4 shrink-0 text-accent-800" aria-hidden="true" />
-                        </span>
                       </span>
-                    </span>
-                  </Button>
+                    </Button>
+
+                    <div className={cx("grid grid-cols-1 gap-2 p-3 pt-0 sm:p-4 sm:pt-0", productActionColumns)}>
+                      <Button
+                        type="button"
+                        variant="secondary"
+                        size="small"
+                        leadingIcon={RiArrowRightLine}
+                        aria-haspopup="dialog"
+                        onClick={() => openProduct(product)}
+                        className="h-11 min-w-0 w-full justify-center gap-1 rounded-lg px-2 text-caption-1-semibold"
+                      >
+                        {copy.detailsButton}
+                      </Button>
+                      {productVideos.length > 0 ? (
+                        <Button
+                          type="button"
+                          variant="primary"
+                          size="small"
+                          leadingIcon={RiPlayFill}
+                          aria-haspopup="dialog"
+                          onClick={() => openProductVideo(product)}
+                          className="h-11 min-w-0 w-full justify-center gap-1 rounded-lg px-2 text-caption-1-semibold"
+                        >
+                          {copy.watchVideo}
+                        </Button>
+                      ) : null}
+                    </div>
+                  </article>
                 );
               })}
             </div>
@@ -700,7 +927,10 @@ export function TradeFairCatalog() {
           "m-auto w-[calc(100vw-1.5rem)] max-w-6xl overflow-hidden rounded-2xl border border-separator-border bg-background-primary-default p-0 text-text-primary shadow-2xl backdrop:backdrop-blur-sm sm:w-[calc(100vw-3rem)] sm:rounded-3xl",
           styles.productDialog,
         )}
-        onClose={() => setSelectedProduct(null)}
+        onClose={() => {
+          clearDialogEntryAnimation(detailsDialogRef.current);
+          setSelectedProduct(null);
+        }}
         onClick={(event) => {
           if (event.target === event.currentTarget) closeProduct();
         }}
@@ -715,7 +945,12 @@ export function TradeFairCatalog() {
               <header className="sticky top-0 z-10 flex items-start justify-between gap-4 border-b border-separator-border bg-background-primary-default px-4 py-4 sm:px-7 sm:py-5">
                 <div className="min-w-0">
                   <p className="mb-1 text-caption-1-semibold uppercase tracking-[0.15em] text-accent-800">
-                    {categoryLabel(productCategory(selectedProduct), copy)} · {copy.details}
+                    {categoryLabel(
+                      activeCategory !== "all" && productCategories(selectedProduct).includes(activeCategory)
+                        ? activeCategory
+                        : productCategory(selectedProduct),
+                      copy,
+                    )} · {copy.details}
                   </p>
                   <h2 id="trade-fair-product-title" className="text-balance text-title-2-semibold text-text-primary sm:text-title-1-semibold">
                     {selectedProduct.name}
@@ -814,22 +1049,6 @@ export function TradeFairCatalog() {
                     </section>
                   ) : null}
 
-                  {selectedVideos.length > 0 ? (
-                    <section aria-label={copy.videos} className="mt-7 border-t border-separator-border pt-6">
-                      <h3 className="text-title-3-semibold text-text-primary">{copy.videos}</h3>
-                      <div className="mt-4 grid w-full gap-4">
-                        {selectedVideos.map((video, index) => (
-                          <article key={`${video.src}-${index}`} className="min-w-0">
-                            <TradeFairProductVideoPlayer
-                              video={video}
-                              videoLabel={`${copy.video}: ${video.title}`}
-                              playLabel={copy.playVideo}
-                            />
-                          </article>
-                        ))}
-                      </div>
-                    </section>
-                  ) : null}
                 </div>
               </div>
             </div>
@@ -844,13 +1063,65 @@ export function TradeFairCatalog() {
       </dialog>
 
       <dialog
+        ref={videoDialogRef}
+        aria-labelledby="trade-fair-video-preview-title"
+        className={cx(
+          "m-auto w-[calc(100vw-1.5rem)] max-w-2xl overflow-hidden rounded-2xl border border-separator-border bg-background-primary-default p-0 text-text-primary shadow-2xl backdrop:backdrop-blur-sm sm:rounded-3xl",
+          styles.productDialog,
+        )}
+        onClose={() => {
+          clearDialogEntryAnimation(videoDialogRef.current);
+          setSelectedVideoProduct(null);
+        }}
+        onClick={(event) => {
+          if (event.target === event.currentTarget) closeProductVideo();
+        }}
+      >
+        {selectedVideoProduct ? (
+          <div className="max-h-[calc(100dvh-1.5rem)] overflow-y-auto overscroll-contain sm:max-h-[calc(100dvh-3rem)]">
+            <header className="sticky top-0 z-10 flex items-start justify-between gap-4 border-b border-separator-border bg-background-primary-default px-4 py-4 sm:px-7 sm:py-5">
+              <div className="min-w-0">
+                <p className="mb-1 text-caption-1-semibold uppercase tracking-[0.15em] text-accent-800">
+                  {copy.video}
+                </p>
+                <h2 id="trade-fair-video-preview-title" className="text-balance text-title-2-semibold text-text-primary">
+                  {selectedVideoProduct.name}
+                </h2>
+              </div>
+              <CloseButton
+                aria-label={copy.closeVideo}
+                size="md"
+                onClick={closeProductVideo}
+                className="shrink-0"
+              />
+            </header>
+            <div className="flex flex-wrap items-start justify-center gap-6 p-4 sm:p-7">
+              {previewVideos.map((video, index) => (
+                <article key={`${video.src}-${index}`} className="min-w-0">
+                  <TradeFairProductVideoPlayer
+                    video={video}
+                    videoLabel={`${copy.video}: ${selectedVideoProduct.name} - ${video.title}`}
+                    playLabel={copy.playVideo}
+                    poster={productPoster(selectedVideoProduct)}
+                  />
+                </article>
+              ))}
+            </div>
+          </div>
+        ) : null}
+      </dialog>
+
+      <dialog
         ref={videoSettingsDialogRef}
         aria-labelledby="trade-fair-video-settings-title"
         aria-describedby="trade-fair-video-settings-description"
-        className="m-auto w-[calc(100vw-2rem)] max-w-lg rounded-2xl border border-separator-border bg-background-primary-default p-0 text-text-primary shadow-2xl backdrop:backdrop-blur-sm"
+        className={cx(
+          "m-auto w-[calc(100vw-2rem)] max-w-lg rounded-2xl border border-separator-border bg-background-primary-default p-0 text-text-primary shadow-2xl backdrop:backdrop-blur-sm",
+          styles.productDialog,
+        )}
         onClose={persistVideoSettingsOnClose}
         onClick={(event) => {
-          if (event.target === event.currentTarget) videoSettingsDialogRef.current?.close();
+          if (event.target === event.currentTarget) closeVideoSettings();
         }}
       >
         <form onSubmit={submitVideoSettings} className="p-6 sm:p-7">
@@ -865,7 +1136,7 @@ export function TradeFairCatalog() {
               type="button"
               aria-label={KIOSK_SETTINGS_COPY.close}
               size="sm"
-              onClick={() => videoSettingsDialogRef.current?.close()}
+              onClick={closeVideoSettings}
             />
           </div>
 

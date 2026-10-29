@@ -1,5 +1,6 @@
 export type TradeFairCatalogCategory =
   | "helmet"
+  | "fresheners"
   | "leather"
   | "textile"
   | "accessories"
@@ -11,11 +12,11 @@ export type TradeFairProductVideo = {
   title: string;
 };
 
-export const TRADE_FAIR_PRODUCT_CATEGORIES: Record<string, TradeFairCatalogCategory> = {
-  "interior-refresher-man": "helmet",
-  "interior-refresher-woman": "helmet",
-  "interior-refresher-neptun": "helmet",
-  "helmet-freshener-mint": "helmet",
+export const TRADE_FAIR_PRODUCT_CATEGORIES: Record<string, TradeFairCatalogCategory | TradeFairCatalogCategory[]> = {
+  "interior-refresher-man": "fresheners",
+  "interior-refresher-woman": "fresheners",
+  "interior-refresher-neptun": "fresheners",
+  "helmet-freshener-mint": ["helmet", "fresheners"],
   "helmet-interior-care": "helmet",
   "helmet-cleaning-gel": "helmet",
   "helmet-detailer": "helmet",
@@ -25,14 +26,14 @@ export const TRADE_FAIR_PRODUCT_CATEGORIES: Record<string, TradeFairCatalogCateg
   "helmet-care-trip-kit": "helmet",
   "helmet-cleaning-trip-kit": "helmet",
   "helmet-interior-care-sachet": "helmet",
-  "freshener-orange-spritz": "helmet",
+  "freshener-orange-spritz": "fresheners",
 
   "leather-care-balm": "leather",
   "leather-cleaner": "leather",
-  "leather-cleaning-brush": "leather",
+  "leather-cleaning-brush": ["leather", "accessories"],
   "leather-care-kit": "leather",
 
-  "zip-service-agent": "textile",
+  "zip-service-agent": ["leather", "accessories"],
   "textile-washing-liquid": "textile",
   "fabric-protect-freshness-extender": "textile",
   "active-care-sportswear-wash": "textile",
@@ -43,29 +44,29 @@ export const TRADE_FAIR_PRODUCT_CATEGORIES: Record<string, TradeFairCatalogCateg
   "washing-booster-active-oxygen": "textile",
   "jeans-care-sachet": "textile",
 
-  "magic-gloves-cleaner": "accessories",
-  "premium-microfiber": "accessories",
-  "evolon-detailing-cloths": "accessories",
+  "magic-gloves-cleaner": "leather",
+  "premium-microfiber": ["accessories", "motorcycle", "off-road"],
+  "evolon-detailing-cloths": ["accessories", "motorcycle"],
   "wooden-knee-sliders": "accessories",
   "need-speed-hoodie": "accessories",
 
   "motorcycle-detailing-set": "motorcycle",
-  "power-powder-moto-wash": "motorcycle",
-  "fiber-hand": "motorcycle",
-  "power-powder-bug-killer": "motorcycle",
-  "power-powder-wheelixir": "motorcycle",
+  "power-powder-moto-wash": ["motorcycle", "off-road"],
+  "fiber-hand": ["motorcycle", "accessories", "off-road"],
+  "power-powder-bug-killer": ["motorcycle", "off-road"],
+  "power-powder-wheelixir": ["motorcycle", "off-road"],
   "motorcycle-ceramic-detailer": "motorcycle",
-  "detailing-fiber": "motorcycle",
-  "wheel-brush": "motorcycle",
-  "power-powder-shaker": "motorcycle",
+  "detailing-fiber": ["motorcycle", "accessories", "off-road"],
+  "wheel-brush": ["motorcycle", "accessories", "off-road"],
+  "power-powder-shaker": ["motorcycle", "accessories", "off-road"],
   "wash-and-ride-cleaner": "motorcycle",
-  "microfiber-cloths-roll": "motorcycle",
-  "motorcycle-detailing-soft-brush": "motorcycle",
-  "chain-brush": "motorcycle",
+  "microfiber-cloths-roll": ["motorcycle", "accessories", "off-road"],
+  "motorcycle-detailing-soft-brush": ["motorcycle", "accessories", "off-road"],
+  "chain-brush": ["motorcycle", "accessories", "off-road"],
 
-  "mud-breaker": "off-road",
-  "dirt-finisher": "off-road",
-  "offroad-set": "off-road",
+  "mud-breaker": ["off-road", "motorcycle"],
+  "dirt-finisher": ["off-road", "motorcycle"],
+  "offroad-set": ["off-road", "motorcycle"],
 };
 
 // Recommended retail prices from Seweryn's EICMA catalogue; prices are in EUR.
@@ -92,11 +93,13 @@ export const TRADE_FAIR_PRODUCT_PRICES_EUR: Record<string, number> = {
   "active-care-sportswear-wash": 11.9,
   "merino-care-wash": 11.9,
   "jeans-care-liquid": 11.9,
+  "washing-booster-active-oxygen": 1.5,
   "textile-care-kit": 29.9,
   "leather-care-kit": 34.9,
   "helmet-interior-care-sachet": 3.5,
   "magic-gloves-cleaner": 7.5,
   "premium-microfiber": 6.9,
+  "evolon-detailing-cloths": 2.25,
   "motorcycle-detailing-set": 54.9,
   "power-powder-moto-wash": 11.9,
   "fiber-hand": 11.9,
