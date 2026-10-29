@@ -6,6 +6,7 @@ import type { FormEvent } from "react";
 import {
   RiArrowLeftLine,
   RiArrowRightLine,
+  RiPlayFill,
   RiSearchLine,
   RiSettings3Line,
 } from "@remixicon/react";
@@ -19,12 +20,20 @@ import {
   TRADE_FAIR_PRODUCT_PRICES_EUR,
   TRADE_FAIR_PRODUCT_VIDEOS,
   type TradeFairCatalogCategory,
+  type TradeFairProductVideo,
 } from "@/lib/trade-fair-catalog-content";
 import { TRADE_FAIR_PRODUCTS, type TradeFairProduct } from "@/lib/trade-fair-products";
 import { cx } from "@/utils/cx";
 import styles from "./trade-fair-catalog.module.css";
 
 type CategoryId = "all" | TradeFairCatalogCategory;
+type ProductGridColumns = 3 | 4 | 5;
+
+const PRODUCT_GRID_COLUMN_CLASSES: Record<ProductGridColumns, string> = {
+  3: "lg:grid-cols-3",
+  4: "lg:grid-cols-4",
+  5: "lg:grid-cols-5",
+};
 
 type CatalogCopy = {
   kicker: string;
@@ -46,6 +55,7 @@ type CatalogCopy = {
   productDescription: string;
   videos: string;
   video: string;
+  playVideo: string;
   photos: string;
   close: string;
   noResultsTitle: string;
@@ -76,6 +86,7 @@ const CATALOG_COPY: Record<AcademyLanguage, CatalogCopy> = {
     productDescription: "Opis produktu",
     videos: "Filmy produktowe",
     video: "Film instruktażowy",
+    playVideo: "Odtwórz film",
     photos: "Zdjęcia produktu",
     close: "Zamknij szczegóły produktu",
     noResultsTitle: "Nie znaleźliśmy produktów",
@@ -104,6 +115,7 @@ const CATALOG_COPY: Record<AcademyLanguage, CatalogCopy> = {
     productDescription: "Product description",
     videos: "Product videos",
     video: "Product video",
+    playVideo: "Play video",
     photos: "Product photos",
     close: "Close product details",
     noResultsTitle: "No products found",
@@ -132,6 +144,7 @@ const CATALOG_COPY: Record<AcademyLanguage, CatalogCopy> = {
     productDescription: "Produktbeschreibung",
     videos: "Produktvideos",
     video: "Produktvideo",
+    playVideo: "Video abspielen",
     photos: "Produktfotos",
     close: "Produktdetails schließen",
     noResultsTitle: "Keine Produkte gefunden",
@@ -160,6 +173,7 @@ const CATALOG_COPY: Record<AcademyLanguage, CatalogCopy> = {
     productDescription: "Popis produktu",
     videos: "Produktová videa",
     video: "Produktové video",
+    playVideo: "Přehrát video",
     photos: "Fotografie produktu",
     close: "Zavřít podrobnosti o produktu",
     noResultsTitle: "Nenašli jsme žádné produkty",
@@ -188,6 +202,7 @@ const CATALOG_COPY: Record<AcademyLanguage, CatalogCopy> = {
     productDescription: "Description du produit",
     videos: "Vidéos produits",
     video: "Vidéo produit",
+    playVideo: "Lire la vidéo",
     photos: "Photos du produit",
     close: "Fermer les détails du produit",
     noResultsTitle: "Aucun produit trouvé",
@@ -216,6 +231,7 @@ const CATALOG_COPY: Record<AcademyLanguage, CatalogCopy> = {
     productDescription: "Descrizione del prodotto",
     videos: "Video dei prodotti",
     video: "Video del prodotto",
+    playVideo: "Riproduci il video",
     photos: "Foto del prodotto",
     close: "Chiudi i dettagli del prodotto",
     noResultsTitle: "Nessun prodotto trovato",
@@ -245,11 +261,29 @@ const PRICE_COPY: Record<AcademyLanguage, { label: string; unavailable: string; 
   it: { label: "Prezzo di catalogo", unavailable: "Non indicato", locale: "it-IT" },
 };
 
-const VIDEO_TOGGLE_COPY: Record<AcademyLanguage, {
+const KIOSK_SETTINGS_COPY = {
+  settings: "Ustawienia kiosku",
+  description: "Wpisz hasło, aby otworzyć ustawienia kiosku. Zmiany zapiszą się po zamknięciu okna.",
+  unlockedDescription: "Ustaw widoczność filmów i liczbę kolumn produktów. Zmiany zapiszą się po zamknięciu okna.",
+  videoLabel: "Filmy produktowe",
+  gridColumnsLabel: "Kolumny siatki produktów",
+  gridColumnsOptions: { 3: "3 kolumny", 4: "4 kolumny", 5: "5 kolumn" },
+  enabled: "Włączone",
+  disabled: "Wyłączone",
+  passwordLabel: "Hasło do ustawień",
+  passwordPrompt: "Wpisz hasło kiosk, aby odblokować ustawienia filmów i siatki produktów.",
+  passwordPlaceholder: "Hasło",
+  unlock: "Odblokuj ustawienia",
+  save: "Zapisz i zamknij",
+  close: "Zamknij ustawienia",
+  incorrectPassword: "Nieprawidłowe hasło.",
+} satisfies {
   settings: string;
   description: string;
   unlockedDescription: string;
   videoLabel: string;
+  gridColumnsLabel: string;
+  gridColumnsOptions: Record<ProductGridColumns, string>;
   enabled: string;
   disabled: string;
   passwordLabel: string;
@@ -259,100 +293,10 @@ const VIDEO_TOGGLE_COPY: Record<AcademyLanguage, {
   save: string;
   close: string;
   incorrectPassword: string;
-}> = {
-  pl: {
-    settings: "Ustawienia filmów",
-    description: "Wpisz hasło, aby otworzyć ustawienia filmów. Zmiany zapiszą się po zamknięciu okna.",
-    unlockedDescription: "Ustaw widoczność filmów. Zmiany zapiszą się po zamknięciu okna.",
-    videoLabel: "Filmy produktowe",
-    enabled: "Włączone",
-    disabled: "Wyłączone",
-    passwordLabel: "Hasło do ustawień",
-    passwordPrompt: "Wpisz hasło kiosk, aby odblokować przełącznik filmów.",
-    passwordPlaceholder: "Hasło",
-    unlock: "Odblokuj ustawienia",
-    save: "Zapisz i zamknij",
-    close: "Zamknij ustawienia",
-    incorrectPassword: "Nieprawidłowe hasło.",
-  },
-  en: {
-    settings: "Video settings",
-    description: "Enter the password to open video settings. Changes are saved when you close this window.",
-    unlockedDescription: "Choose whether product videos are on or off. Your choice is saved when you close this window.",
-    videoLabel: "Product videos",
-    enabled: "On",
-    disabled: "Off",
-    passwordLabel: "Settings password",
-    passwordPrompt: "Enter the kiosk password to unlock the video switch.",
-    passwordPlaceholder: "Password",
-    unlock: "Unlock settings",
-    save: "Save and close",
-    close: "Close settings",
-    incorrectPassword: "Incorrect password.",
-  },
-  de: {
-    settings: "Videoeinstellungen",
-    description: "Geben Sie das Passwort ein, um die Videoeinstellungen zu öffnen. Änderungen werden beim Schließen gespeichert.",
-    unlockedDescription: "Legen Sie fest, ob Produktvideos ein- oder ausgeschaltet sind. Ihre Auswahl wird beim Schließen gespeichert.",
-    videoLabel: "Produktvideos",
-    enabled: "Ein",
-    disabled: "Aus",
-    passwordLabel: "Passwort für die Einstellungen",
-    passwordPrompt: "Geben Sie das Kiosk-Passwort ein, um den Videoschalter freizuschalten.",
-    passwordPlaceholder: "Passwort",
-    unlock: "Einstellungen freischalten",
-    save: "Speichern und schließen",
-    close: "Einstellungen schließen",
-    incorrectPassword: "Falsches Passwort.",
-  },
-  cs: {
-    settings: "Nastavení videí",
-    description: "Zadejte heslo pro otevření nastavení videí. Změny se uloží při zavření okna.",
-    unlockedDescription: "Zvolte, zda mají být produktová videa zapnutá nebo vypnutá. Volba se uloží při zavření okna.",
-    videoLabel: "Produktová videa",
-    enabled: "Zapnuto",
-    disabled: "Vypnuto",
-    passwordLabel: "Heslo k nastavení",
-    passwordPrompt: "Zadejte heslo kiosku pro odemknutí přepínače videí.",
-    passwordPlaceholder: "Heslo",
-    unlock: "Odemknout nastavení",
-    save: "Uložit a zavřít",
-    close: "Zavřít nastavení",
-    incorrectPassword: "Nesprávné heslo.",
-  },
-  fr: {
-    settings: "Réglages vidéo",
-    description: "Saisissez le mot de passe pour accéder aux réglages vidéo. Les changements sont enregistrés à la fermeture.",
-    unlockedDescription: "Choisissez d’activer ou non les vidéos produits. Votre choix sera enregistré à la fermeture.",
-    videoLabel: "Vidéos produits",
-    enabled: "Activées",
-    disabled: "Désactivées",
-    passwordLabel: "Mot de passe des réglages",
-    passwordPrompt: "Saisissez le mot de passe kiosque pour déverrouiller le contrôle vidéo.",
-    passwordPlaceholder: "Mot de passe",
-    unlock: "Déverrouiller les réglages",
-    save: "Enregistrer et fermer",
-    close: "Fermer les réglages",
-    incorrectPassword: "Mot de passe incorrect.",
-  },
-  it: {
-    settings: "Impostazioni video",
-    description: "Inserisci la password per accedere alle impostazioni video. Le modifiche vengono salvate alla chiusura.",
-    unlockedDescription: "Scegli se attivare o disattivare i video dei prodotti. La scelta viene salvata alla chiusura.",
-    videoLabel: "Video dei prodotti",
-    enabled: "Attivi",
-    disabled: "Disattivi",
-    passwordLabel: "Password delle impostazioni",
-    passwordPrompt: "Inserisci la password del chiosco per sbloccare il controllo video.",
-    passwordPlaceholder: "Password",
-    unlock: "Sblocca impostazioni",
-    save: "Salva e chiudi",
-    close: "Chiudi impostazioni",
-    incorrectPassword: "Password errata.",
-  },
 };
 
 const VIDEO_SETTINGS_STORAGE_KEY = "xzone.trade-fair.show-product-videos";
+const PRODUCT_GRID_COLUMNS_STORAGE_KEY = "xzone.trade-fair.product-grid-columns";
 const VIDEO_SETTINGS_PASSWORD = "kiosk";
 
 function formatCatalogPrice(productId: string, language: AcademyLanguage) {
@@ -365,6 +309,64 @@ function formatCatalogPrice(productId: string, language: AcademyLanguage) {
     minimumFractionDigits: 2,
     maximumFractionDigits: 2,
   }).format(price);
+}
+
+function TradeFairProductVideoPlayer({
+  video,
+  videoLabel,
+  playLabel,
+}: {
+  video: TradeFairProductVideo;
+  videoLabel: string;
+  playLabel: string;
+}) {
+  const videoRef = useRef<HTMLVideoElement>(null);
+  const [isPlaying, setIsPlaying] = useState(false);
+
+  function playVideo() {
+    const player = videoRef.current;
+    if (!player) return;
+
+    void player.play().catch(() => setIsPlaying(false));
+  }
+
+  return (
+    <div
+      className="relative mx-auto aspect-[9/16] w-full overflow-hidden rounded-xl border border-black bg-white"
+      style={{
+        width: "min(100%, 36.5625dvh)",
+        maxHeight: "65dvh",
+        aspectRatio: "9 / 16",
+        marginInline: "auto",
+      }}
+    >
+      <video
+        ref={videoRef}
+        controls
+        playsInline
+        preload="metadata"
+        title={videoLabel}
+        className="size-full object-contain"
+        onPlay={() => setIsPlaying(true)}
+        onPause={() => setIsPlaying(false)}
+        onEnded={() => setIsPlaying(false)}
+      >
+        <source src={video.src} type="video/mp4" />
+      </video>
+      {!isPlaying ? (
+        <Button
+          type="button"
+          variant="primary"
+          leadingIcon={RiPlayFill}
+          aria-label={playLabel}
+          onClick={playVideo}
+          className="absolute left-1/2 top-1/2 z-10 h-12 -translate-x-1/2 -translate-y-1/2 rounded-full border border-white/30 bg-black/75 px-5 text-white shadow-lg backdrop-blur-sm transition-transform hover:bg-black/85 active:scale-[0.96]"
+        >
+          {playLabel}
+        </Button>
+      ) : null}
+    </div>
+  );
 }
 
 function categoryLabel(category: CategoryId, copy: CatalogCopy) {
@@ -393,6 +395,7 @@ export function TradeFairCatalog() {
   const [activeCategory, setActiveCategory] = useState<CategoryId>("all");
   const [searchQuery, setSearchQuery] = useState("");
   const [showProductVideos, setShowProductVideos] = useState(true);
+  const [productGridColumns, setProductGridColumns] = useState<ProductGridColumns>(4);
   const [videoSettingsDialogOpen, setVideoSettingsDialogOpen] = useState(false);
   const [videoSettingsUnlocked, setVideoSettingsUnlocked] = useState(false);
   const [videoPassword, setVideoPassword] = useState("");
@@ -438,6 +441,11 @@ export function TradeFairCatalog() {
     if (savedVisibility === "true" || savedVisibility === "false") {
       setShowProductVideos(savedVisibility === "true");
     }
+
+    const savedColumns = window.localStorage.getItem(PRODUCT_GRID_COLUMNS_STORAGE_KEY);
+    if (savedColumns === "3" || savedColumns === "4" || savedColumns === "5") {
+      setProductGridColumns(Number(savedColumns) as ProductGridColumns);
+    }
   }, []);
 
   useEffect(() => {
@@ -479,6 +487,7 @@ export function TradeFairCatalog() {
 
   function persistVideoSettingsOnClose() {
     window.localStorage.setItem(VIDEO_SETTINGS_STORAGE_KEY, String(showProductVideos));
+    window.localStorage.setItem(PRODUCT_GRID_COLUMNS_STORAGE_KEY, String(productGridColumns));
     setVideoSettingsDialogOpen(false);
     setVideoSettingsUnlocked(false);
     setVideoPassword("");
@@ -548,10 +557,10 @@ export function TradeFairCatalog() {
               size="small"
               iconOnly
               leadingIcon={RiSettings3Line}
-              aria-label={VIDEO_TOGGLE_COPY[language].settings}
+              aria-label={KIOSK_SETTINGS_COPY.settings}
               aria-haspopup="dialog"
               aria-expanded={videoSettingsDialogOpen}
-              title={VIDEO_TOGGLE_COPY[language].settings}
+              title={KIOSK_SETTINGS_COPY.settings}
               onClick={openVideoSettings}
               className="size-11 rounded-full p-0"
             />
@@ -611,7 +620,7 @@ export function TradeFairCatalog() {
           </div>
 
           {filteredProducts.length > 0 ? (
-            <div className="grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-3 2xl:grid-cols-4 2xl:gap-5">
+            <div className={cx("grid grid-cols-2 gap-3 sm:gap-4 2xl:gap-5", PRODUCT_GRID_COLUMN_CLASSES[productGridColumns])}>
               {filteredProducts.map((product) => {
                 const productImages = product.galleryImages.length > 0
                   ? product.galleryImages
@@ -720,9 +729,9 @@ export function TradeFairCatalog() {
                 />
               </header>
 
-              <div className="grid gap-6 p-4 sm:p-7 lg:grid-cols-[minmax(0,0.95fr)_minmax(0,1.05fr)] lg:gap-8">
-                <section aria-label={copy.photos}>
-                  <div className="relative aspect-square overflow-hidden rounded-2xl bg-white">
+              <div className="grid gap-6 p-4 sm:px-7 sm:py-7 lg:pb-0 lg:grid-cols-[minmax(0,0.95fr)_minmax(0,1.05fr)] lg:gap-8">
+                <section aria-label={copy.photos} className="lg:sticky lg:top-28 lg:self-start">
+                  <div className="relative aspect-square w-full overflow-hidden rounded-2xl bg-white lg:mx-auto lg:w-[min(100%,calc(100dvh_-_15.5rem))]">
                     {selectedImage ? (
                       <Image
                         src={selectedImage}
@@ -811,17 +820,11 @@ export function TradeFairCatalog() {
                       <div className="mt-4 grid w-full gap-4">
                         {selectedVideos.map((video, index) => (
                           <article key={`${video.src}-${index}`} className="min-w-0">
-                            <div className="aspect-[9/16] w-full overflow-hidden rounded-xl bg-background-secondary-default">
-                              <video
-                                controls
-                                playsInline
-                                preload="metadata"
-                                title={`${copy.video}: ${video.title}`}
-                                className="size-full"
-                              >
-                                <source src={video.src} type="video/mp4" />
-                              </video>
-                            </div>
+                            <TradeFairProductVideoPlayer
+                              video={video}
+                              videoLabel={`${copy.video}: ${video.title}`}
+                              playLabel={copy.playVideo}
+                            />
                           </article>
                         ))}
                       </div>
@@ -855,12 +858,12 @@ export function TradeFairCatalog() {
             <div>
               <p className="text-caption-1-semibold uppercase tracking-[0.15em] text-accent-800">Kiosk</p>
               <h2 id="trade-fair-video-settings-title" className="mt-1 text-title-2-semibold text-text-primary">
-                {VIDEO_TOGGLE_COPY[language].settings}
+                {KIOSK_SETTINGS_COPY.settings}
               </h2>
             </div>
             <CloseButton
               type="button"
-              aria-label={VIDEO_TOGGLE_COPY[language].close}
+              aria-label={KIOSK_SETTINGS_COPY.close}
               size="sm"
               onClick={() => videoSettingsDialogRef.current?.close()}
             />
@@ -868,17 +871,17 @@ export function TradeFairCatalog() {
 
           <p id="trade-fair-video-settings-description" className="mt-3 text-body-2-regular text-text-secondary">
             {videoSettingsUnlocked
-              ? VIDEO_TOGGLE_COPY[language].unlockedDescription
-              : VIDEO_TOGGLE_COPY[language].description}
+              ? KIOSK_SETTINGS_COPY.unlockedDescription
+              : KIOSK_SETTINGS_COPY.description}
           </p>
 
           {!videoSettingsUnlocked ? (
             <div className="mt-6">
               <label htmlFor="trade-fair-video-password" className="text-body-2-medium text-text-primary">
-                {VIDEO_TOGGLE_COPY[language].passwordLabel}
+                {KIOSK_SETTINGS_COPY.passwordLabel}
               </label>
               <p className="mt-1 text-caption-1-regular text-text-secondary">
-                {VIDEO_TOGGLE_COPY[language].passwordPrompt}
+                {KIOSK_SETTINGS_COPY.passwordPrompt}
               </p>
               <InputBase
                 id="trade-fair-video-password"
@@ -887,7 +890,7 @@ export function TradeFairCatalog() {
                 autoFocus
                 aria-invalid={videoPasswordError}
                 aria-describedby={videoPasswordError ? "trade-fair-video-password-error" : undefined}
-                placeholder={VIDEO_TOGGLE_COPY[language].passwordPlaceholder}
+                placeholder={KIOSK_SETTINGS_COPY.passwordPlaceholder}
                 value={videoPassword}
                 onChange={(event) => {
                   setVideoPassword(event.target.value);
@@ -897,38 +900,71 @@ export function TradeFairCatalog() {
               />
               {videoPasswordError ? (
                 <p id="trade-fair-video-password-error" role="alert" className="mt-2 text-body-2-regular text-text-error-primary">
-                  {VIDEO_TOGGLE_COPY[language].incorrectPassword}
+                  {KIOSK_SETTINGS_COPY.incorrectPassword}
                 </p>
               ) : null}
             </div>
           ) : (
-            <div className="mt-6 flex items-center justify-between gap-4 rounded-xl border border-separator-border bg-background-secondary-default p-4">
-              <div>
-                <p className="text-body-medium text-text-primary">{VIDEO_TOGGLE_COPY[language].videoLabel}</p>
-                <p className="mt-1 text-body-2-regular text-text-secondary">
-                  {showProductVideos ? VIDEO_TOGGLE_COPY[language].enabled : VIDEO_TOGGLE_COPY[language].disabled}
-                </p>
+            <div className="mt-6 space-y-3">
+              <div className="flex items-center justify-between gap-4 rounded-xl border border-separator-border bg-background-secondary-default p-4">
+                <div>
+                  <p className="text-body-medium text-text-primary">{KIOSK_SETTINGS_COPY.videoLabel}</p>
+                  <p className="mt-1 text-body-2-regular text-text-secondary">
+                    {showProductVideos ? KIOSK_SETTINGS_COPY.enabled : KIOSK_SETTINGS_COPY.disabled}
+                  </p>
+                </div>
+                <label className="relative inline-flex shrink-0 cursor-pointer items-center">
+                  <span className="sr-only">{KIOSK_SETTINGS_COPY.videoLabel}</span>
+                  <input
+                    type="checkbox"
+                    role="switch"
+                    checked={showProductVideos}
+                    onChange={(event) => changeVideoVisibility(event.target.checked)}
+                    className="peer sr-only"
+                  />
+                  <span
+                    aria-hidden="true"
+                    className="relative h-7 w-12 rounded-full bg-background-tertiary-default transition-colors after:absolute after:start-1 after:top-1 after:size-5 after:rounded-full after:bg-background-primary-default after:shadow-sm after:transition-transform peer-checked:bg-accent-800 peer-checked:after:translate-x-5 peer-focus-visible:outline peer-focus-visible:outline-2 peer-focus-visible:outline-offset-2 peer-focus-visible:outline-accent-800"
+                  />
+                </label>
               </div>
-              <label className="relative inline-flex shrink-0 cursor-pointer items-center">
-                <span className="sr-only">{VIDEO_TOGGLE_COPY[language].videoLabel}</span>
-                <input
-                  type="checkbox"
-                  role="switch"
-                  checked={showProductVideos}
-                  onChange={(event) => changeVideoVisibility(event.target.checked)}
-                  className="peer sr-only"
-                />
-                <span
-                  aria-hidden="true"
-                  className="relative h-7 w-12 rounded-full bg-background-tertiary-default transition-colors after:absolute after:start-1 after:top-1 after:size-5 after:rounded-full after:bg-background-primary-default after:shadow-sm after:transition-transform peer-checked:bg-accent-800 peer-checked:after:translate-x-5 peer-focus-visible:outline peer-focus-visible:outline-2 peer-focus-visible:outline-offset-2 peer-focus-visible:outline-accent-800"
-                />
-              </label>
+
+              <fieldset className="rounded-xl border border-separator-border bg-background-secondary-default p-4">
+                <legend className="px-1 text-body-medium text-text-primary">
+                  {KIOSK_SETTINGS_COPY.gridColumnsLabel}
+                </legend>
+                <div className="grid grid-cols-3 gap-2">
+                  {([3, 4, 5] as const).map((columns) => (
+                    <label key={columns} className="cursor-pointer">
+                      <input
+                        type="radio"
+                        name="trade-fair-product-grid-columns"
+                        value={columns}
+                        checked={productGridColumns === columns}
+                        onChange={() => setProductGridColumns(columns)}
+                        aria-label={KIOSK_SETTINGS_COPY.gridColumnsOptions[columns]}
+                        className="peer sr-only"
+                      />
+                      <span
+                        className={cx(
+                          "flex h-11 items-center justify-center rounded-lg border text-body-medium transition-colors peer-focus-visible:outline peer-focus-visible:outline-2 peer-focus-visible:outline-offset-2 peer-focus-visible:outline-accent-800",
+                          productGridColumns === columns
+                            ? "border-accent-800 bg-accent-800 text-white"
+                            : "border-border-button-default bg-background-primary-default text-text-primary hover:bg-background-tertiary-default",
+                        )}
+                      >
+                        {KIOSK_SETTINGS_COPY.gridColumnsOptions[columns]}
+                      </span>
+                    </label>
+                  ))}
+                </div>
+              </fieldset>
             </div>
           )}
 
           <div className="mt-6 flex justify-end">
             <Button type="submit" variant="primary">
-              {videoSettingsUnlocked ? VIDEO_TOGGLE_COPY[language].save : VIDEO_TOGGLE_COPY[language].unlock}
+              {videoSettingsUnlocked ? KIOSK_SETTINGS_COPY.save : KIOSK_SETTINGS_COPY.unlock}
             </Button>
           </div>
         </form>
