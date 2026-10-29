@@ -6,7 +6,7 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { RiArrowDownSLine } from "@remixicon/react";
 import { Avatar } from "@/components/base/avatar/avatar";
-import { Button, ButtonLink } from "@/components/base/buttons/button";
+import { Button } from "@/components/base/buttons/button";
 import {
   Dropdown,
   DropdownDivider,
@@ -55,12 +55,12 @@ function AcademyHeaderFallback() {
         <span aria-hidden="true" className="size-10" />
         <Link href="/" aria-label="Xzone Academy" className="absolute left-1/2 -translate-x-1/2">
           <Image
-            src="/assets/logo-xzone-academy.png"
-            alt="Xzone Academy"
-            width={1026}
-            height={360}
+            src="/assets/xzone-strefa-pro-logo.png"
+            alt="Xzone"
+            width={845}
+            height={472}
             priority
-            className="h-auto w-32 sm:w-40"
+            className="h-10 w-[72px] object-contain dark:brightness-0 dark:invert sm:h-12 sm:w-[86px]"
           />
         </Link>
         <span aria-hidden="true" className="h-10 w-28 animate-pulse rounded-full bg-background-tertiary-default" />
@@ -177,18 +177,6 @@ function AcademyHeaderContent({
             ? "min-h-28 items-start pt-3 sm:min-h-20 sm:items-center sm:pt-0"
             : "min-h-20",
       )}>
-        {(mode === "landing" || (appMode && !isAdminShell)) ? (
-          <ButtonLink
-            href="/targi"
-            variant="secondary"
-            size="small"
-            className="min-h-10 shrink-0 rounded-full px-3"
-          >
-            <span className="hidden sm:inline">{t("productList")}</span>
-            <span className="sm:hidden">{t("productListShort")}</span>
-          </ButtonLink>
-        ) : null}
-
         {isAdminShell ? (
           <nav aria-label="Okruszki" className="flex min-w-0 items-center gap-2 text-body-2-regular">
             <Link href="/admin" className="text-text-secondary transition-colors hover:text-text-primary">Panel</Link>
@@ -207,12 +195,15 @@ function AcademyHeaderContent({
           )}
         >
           <Image
-            src="/assets/logo-xzone-academy.png"
-            alt="Xzone Academy"
-            width={1026}
-            height={360}
+            src="/assets/xzone-strefa-pro-logo.png"
+            alt="Xzone"
+            width={845}
+            height={472}
             priority
-            className={cx("h-auto w-32 sm:w-40", isAdminShell && "brightness-0 dark:invert")}
+            className={cx(
+              "h-10 w-[72px] object-contain dark:brightness-0 dark:invert sm:h-12 sm:w-[86px]",
+              isAdminShell && "brightness-0",
+            )}
           />
         </Link>
 

@@ -10,7 +10,7 @@ import {
 } from "@/app/language-actions";
 import italianAcademyCopy from "../../supabase/translations/academy-copy.it.json";
 
-export const ACADEMY_LANGUAGES = ["pl", "en", "de", "cs", "fr", "it"] as const;
+export const ACADEMY_LANGUAGES = ["en", "it", "de", "fr", "pl", "cs"] as const;
 export type AcademyLanguage = (typeof ACADEMY_LANGUAGES)[number];
 
 function isAcademyLanguage(value: unknown): value is AcademyLanguage {
