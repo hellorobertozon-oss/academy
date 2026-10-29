@@ -569,6 +569,7 @@ const PRODUCT_INFO_COPY: Record<GameLanguage, {
   close: string;
   categoryDescriptions: Record<GameProductCategory, string>;
   refresherDescription: string;
+  helmetRefresherDescription: string;
   textileWashDescription: string;
   ceramicDetailerDescription: string;
 }> = {
@@ -584,7 +585,8 @@ const PRODUCT_INFO_COPY: Record<GameLanguage, {
       care: "Produkt do mycia lub pielęgnacji motocykla. Sprawdź na etykiecie, na jakich powierzchniach można go stosować.",
       accessories: "Akcesorium wspierające czyszczenie lub pielęgnację. Dobierz je do powierzchni i używanego środka.",
     },
-    refresherDescription: "Odświeża wnętrze kasku i pomaga ograniczyć nieprzyjemne zapachy między czyszczeniami. Nie zastępuje mycia.",
+    refresherDescription: "Odświeża odzież motocyklową, rękawice i buty między praniami. Jony srebra pomagają ograniczyć nieprzyjemne zapachy.",
+    helmetRefresherDescription: "Odświeża wnętrze kasku i pomaga ograniczyć nieprzyjemne zapachy między czyszczeniami. Nie zastępuje mycia.",
     textileWashDescription: "Płyn do prania odzieży technicznej i motocyklowej. Pomaga usuwać pot i zabrudzenia, dbając o właściwości materiału. Nie używaj płynu do płukania.",
     ceramicDetailerDescription: "Szybki detailer do czystej powierzchni motocykla po myciu: dodaje połysk i efekt hydrofobowy, ułatwia późniejsze mycie. To nie jest klasyczna powłoka ceramiczna.",
   },
@@ -600,7 +602,8 @@ const PRODUCT_INFO_COPY: Record<GameLanguage, {
       care: "A motorcycle cleaning or care product. Check the label to see which surfaces it can be used on.",
       accessories: "An accessory for cleaning or care. Match it to the surface and the product you are using.",
     },
-    refresherDescription: "Refreshes the helmet interior and helps reduce unpleasant odours between cleanings. It does not replace washing.",
+    refresherDescription: "Freshens motorcycle clothing, gloves and boots between washes. Silver ions help reduce unpleasant odours.",
+    helmetRefresherDescription: "Refreshes the helmet interior and helps reduce unpleasant odours between cleanings. It does not replace washing.",
     textileWashDescription: "A detergent for technical and motorcycle clothing. Helps remove sweat and dirt while caring for fabric performance. Do not use fabric softener.",
     ceramicDetailerDescription: "A quick detailer for a clean motorcycle after washing: adds shine and water repellency, and makes future washes easier. It is not a traditional ceramic coating.",
   },
@@ -616,7 +619,8 @@ const PRODUCT_INFO_COPY: Record<GameLanguage, {
       care: "Ein Reinigungs- oder Pflegeprodukt für Motorräder. Prüfe auf dem Etikett, für welche Oberflächen es geeignet ist.",
       accessories: "Ein Zubehörteil für Reinigung oder Pflege. Stimme es auf die Oberfläche und das verwendete Mittel ab.",
     },
-    refresherDescription: "Erfrischt das Helminnere und hilft, unangenehme Gerüche zwischen den Reinigungen zu reduzieren. Es ersetzt keine Wäsche.",
+    refresherDescription: "Frischt Motorradbekleidung, Handschuhe und Stiefel zwischen den Wäschen auf. Silberionen helfen, unangenehme Gerüche zu reduzieren.",
+    helmetRefresherDescription: "Erfrischt das Helminnere und hilft, unangenehme Gerüche zwischen den Reinigungen zu reduzieren. Es ersetzt keine Wäsche.",
     textileWashDescription: "Waschmittel für technische und Motorradbekleidung. Entfernt Schweiß und Schmutz und schont die Funktion des Materials. Keinen Weichspüler verwenden.",
     ceramicDetailerDescription: "Ein Detailer für die saubere Oberfläche nach der Motorradwäsche: sorgt für Glanz und Wasserabweisung und erleichtert die nächste Wäsche. Keine klassische Keramikversiegelung.",
   },
@@ -632,7 +636,8 @@ const PRODUCT_INFO_COPY: Record<GameLanguage, {
       care: "Přípravek na čištění nebo péči o motocykl. Na etiketě ověřte, na které povrchy se smí používat.",
       accessories: "Pomůcka pro čištění nebo péči. Zvolte ji podle povrchu a používaného přípravku.",
     },
-    refresherDescription: "Osvěžuje vnitřek helmy a pomáhá omezit nepříjemné pachy mezi čištěními. Nenahrazuje mytí.",
+    refresherDescription: "Osvěžuje moto oblečení, rukavice a boty mezi praním. Stříbrné ionty pomáhají omezit nepříjemné pachy.",
+    helmetRefresherDescription: "Osvěžuje vnitřek helmy a pomáhá omezit nepříjemné pachy mezi čištěními. Nenahrazuje mytí.",
     textileWashDescription: "Prací prostředek na funkční a motocyklové oblečení. Pomáhá odstranit pot a nečistoty a zachovat vlastnosti materiálu. Nepoužívejte aviváž.",
     ceramicDetailerDescription: "Rychlý detailer na čistý povrch motocyklu po mytí: dodá lesk a hydrofobní efekt a usnadní další mytí. Nejde o klasickou keramickou ochranu.",
   },
@@ -648,7 +653,8 @@ const PRODUCT_INFO_COPY: Record<GameLanguage, {
       care: "Produit de nettoyage ou d’entretien pour moto. Vérifie sur l’étiquette les surfaces compatibles.",
       accessories: "Accessoire de nettoyage ou d’entretien. Choisis-le selon la surface et le produit utilisé.",
     },
-    refresherDescription: "Rafraîchit l’intérieur du casque et aide à réduire les mauvaises odeurs entre deux nettoyages. Ne remplace pas le lavage.",
+    refresherDescription: "Rafraîchit les vêtements de moto, les gants et les bottes entre les lavages. Les ions d’argent aident à réduire les mauvaises odeurs.",
+    helmetRefresherDescription: "Rafraîchit l’intérieur du casque et aide à réduire les mauvaises odeurs entre deux nettoyages. Ne remplace pas le lavage.",
     textileWashDescription: "Lessive pour vêtements techniques et moto. Aide à éliminer la transpiration et la saleté tout en préservant les propriétés du tissu. Ne pas utiliser d’adoucissant.",
     ceramicDetailerDescription: "Detailer rapide pour une moto propre après lavage : ajoute de la brillance et un effet déperlant, et facilite les lavages suivants. Ce n’est pas un revêtement céramique classique.",
   },
@@ -664,17 +670,18 @@ const PRODUCT_INFO_COPY: Record<GameLanguage, {
       care: "Prodotto per la pulizia o la cura della moto. Controlla sull’etichetta su quali superfici può essere utilizzato.",
       accessories: "Accessorio per la pulizia o la cura. Sceglilo in base alla superficie e al prodotto che stai usando.",
     },
-    refresherDescription: "Rinfresca l’interno del casco e aiuta a ridurre gli odori sgradevoli tra una pulizia e l’altra. Non sostituisce il lavaggio.",
+    refresherDescription: "Rinfresca l’abbigliamento da moto, i guanti e gli stivali tra un lavaggio e l’altro. Gli ioni d’argento aiutano a ridurre gli odori sgradevoli.",
+    helmetRefresherDescription: "Rinfresca l’interno del casco e aiuta a ridurre gli odori sgradevoli tra una pulizia e l’altra. Non sostituisce il lavaggio.",
     textileWashDescription: "Detergente per l’abbigliamento tecnico e da moto. Aiuta a rimuovere sudore e sporco preservando le proprietà del tessuto. Non usare l’ammorbidente.",
     ceramicDetailerDescription: "Prodotto di finitura rapido da usare su una moto pulita dopo il lavaggio: dona brillantezza e un effetto idrofobico e facilita i lavaggi successivi. Non è un rivestimento ceramico tradizionale.",
   },
 };
 
 const PRODUCT_INFO_DETAILS_PL: Record<string, string> = {
-  "interior-refresher-man": "Odświeżacz z jonami srebra do wnętrza odzieży i akcesoriów. Pomaga ograniczać nieprzyjemne zapachy między praniami.",
-  "interior-refresher-woman": "Odświeżacz z jonami srebra do wnętrza odzieży i akcesoriów. Pomaga ograniczać nieprzyjemne zapachy między praniami.",
-  "interior-refresher-neptun": "Odświeżacz z jonami srebra do wnętrza odzieży i akcesoriów. Pomaga ograniczać nieprzyjemne zapachy między praniami.",
-  "freshener-orange-spritz": "Odświeżacz z jonami srebra do wnętrza kasku i odzieży. Pomaga odświeżyć wyposażenie między czyszczeniami.",
+  "interior-refresher-man": "Odświeżacz z jonami srebra do odzieży motocyklowej, rękawic i butów. Pomaga ograniczać nieprzyjemne zapachy między praniami.",
+  "interior-refresher-woman": "Odświeżacz z jonami srebra do odzieży motocyklowej, rękawic i butów. Pomaga ograniczać nieprzyjemne zapachy między praniami.",
+  "interior-refresher-neptun": "Odświeżacz z jonami srebra do odzieży motocyklowej, rękawic i butów. Pomaga ograniczać nieprzyjemne zapachy między praniami.",
+  "freshener-orange-spritz": "Odświeżacz z jonami srebra do odzieży motocyklowej, rękawic i butów. Pomaga odświeżyć wyposażenie między praniami.",
   "helmet-freshener-mint": "Odświeżacz do wnętrza kasku. Pomaga odświeżyć wyściółkę między czyszczeniami; ma miętowy zapach.",
   "leather-care-balm": "Mleczko do konserwacji odzieży skórzanej. Pielęgnuje skórę matową i błyszczącą, bez tłustego filmu.",
   "leather-cleaner": "Środek do czyszczenia odzieży skórzanej. Użyj go przed nałożeniem produktu do konserwacji skóry.",
@@ -724,7 +731,8 @@ const PRODUCT_INFO_DETAILS_PL: Record<string, string> = {
 function getProductInfoDescription(product: ProductChoice, language: AcademyLanguage) {
   const info = getGameCopy(PRODUCT_INFO_COPY, language);
   if (language === "pl" && PRODUCT_INFO_DETAILS_PL[product.id]) return PRODUCT_INFO_DETAILS_PL[product.id];
-  if (product.id.startsWith("interior-refresher-") || product.id.startsWith("helmet-freshener-")) return info.refresherDescription;
+  if (product.id === "helmet-freshener-mint") return info.helmetRefresherDescription;
+  if (product.id.startsWith("interior-refresher-") || product.id === "freshener-orange-spritz") return info.refresherDescription;
   if (product.id === "textile-washing-liquid") return info.textileWashDescription;
   if (product.id === "motorcycle-ceramic-detailer") return info.ceramicDetailerDescription;
   return info.categoryDescriptions[product.category];

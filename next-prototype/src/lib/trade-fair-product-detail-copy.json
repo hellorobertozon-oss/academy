@@ -1,4 +1,12 @@
 {
+  "clothingRefreshers": {
+    "pl": ["Rozpyl preparat na odzieży motocyklowej, rękawicach lub butach, aby odświeżyć je między praniami. Jony srebra pomagają ograniczyć nieprzyjemne zapachy.", "To szybki krok po jeździe, który pomaga przygotować odzież i akcesoria na kolejny wyjazd."],
+    "en": ["Spray it on motorcycle clothing, gloves or boots to freshen them between washes. Silver ions help reduce unpleasant odours.", "It is a quick post-ride step to help get your clothing and gear ready for the next trip."],
+    "de": ["Sprühen Sie das Mittel auf Motorradbekleidung, Handschuhe oder Stiefel, um sie zwischen den Wäschen aufzufrischen. Silberionen helfen, unangenehme Gerüche zu reduzieren.", "Ein schneller Pflegeschritt nach der Fahrt, damit Bekleidung und Ausrüstung für die nächste Tour bereit sind."],
+    "cs": ["Nastříkejte přípravek na moto oblečení, rukavice nebo boty a osvěžte je mezi praním. Stříbrné ionty pomáhají omezit nepříjemné pachy.", "Jde o rychlý krok péče po jízdě, který připraví oblečení a výbavu na další cestu."],
+    "fr": ["Vaporisez le produit sur les vêtements de moto, les gants ou les bottes pour les rafraîchir entre deux lavages. Les ions d’argent aident à réduire les mauvaises odeurs.", "Un geste rapide après la route pour préparer les vêtements et l’équipement à la prochaine sortie."],
+    "it": ["Spruzza il prodotto su abbigliamento da moto, guanti o stivali per rinfrescarli tra un lavaggio e l'altro. Gli ioni d'argento aiutano a ridurre gli odori sgradevoli.", "Un rapido passaggio dopo il viaggio per preparare abbigliamento e attrezzatura alla prossima uscita."]
+  },
   "helmetFresheners": {
     "pl": ["Spryskaj wyściółkę, aby odświeżyć kask między praniami. Preparat sprawdzi się też na rękawicach, butach i kurtce.", "To szybki krok pielęgnacji po jeździe, gdy chcesz przygotować wyposażenie do kolejnego użycia."],
     "en": ["Spray the lining to freshen a helmet between washes. The formula can also be used on gloves, boots and jackets.", "It is a quick post-ride care step that helps keep your riding gear ready for its next use."],
@@ -130,7 +138,7 @@
   "offroad": {
     "pl": ["Pre-wash rozluźnia błoto i piasek przed spłukaniem, a preparat wykańczający pomaga ograniczyć ponowne osadzanie brudu.", "Stosuj je w tej kolejności po jeździe terenowej: najpierw mycie wstępne, potem szybkie wykończenie powierzchni."],
     "en": ["The pre-wash loosens mud and sand before rinsing; the finishing product helps reduce fresh dirt build-up.", "Use them in sequence after off-road riding: start with the pre-wash, then finish the surface."],
-    "de": ["Der Vorreiniger löst Schlamm und Sand vor dem Abspülen; das Finish hilft, neue Schmutzanhaftung zu verringern.", "Verwenden Sie die Produkte nach der Offroad-Fahrt nacheinander: zuerst die Vorwäsche, dann das Finish."],
+    "de": ["Der Vorreiniger löst Schlamm und Sand vor dem Abspülen; das Finish hilft, neue Schmutzanhaftung zu verringern.", "Verwenden Sie die Produkte nach der Off-road-Fahrt nacheinander: zuerst die Vorwäsche, dann das Finish."],
     "cs": ["Předmytí uvolní bláto a písek před opláchnutím; závěrečný přípravek pomáhá omezit nové ulpívání nečistot.", "Po jízdě v terénu je použijte postupně: nejprve předmytí a poté závěrečné ošetření povrchu."],
     "fr": ["Le prélavage décolle boue et sable avant le rinçage ; le produit de finition aide à limiter les nouveaux dépôts.", "Après une sortie tout-terrain, utilisez-les dans cet ordre : prélavage, puis finition de la surface."],
     "it": ["Il prelavaggio scioglie fango e sabbia prima del risciacquo; il prodotto finale aiuta a limitare nuovi depositi di sporco.", "Dopo l'off-road usali in sequenza: prima il prelavaggio, poi la finitura della superficie."]

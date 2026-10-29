@@ -141,7 +141,7 @@ export const TRADE_FAIR_PRODUCT_VIDEOS: Record<string, TradeFairProductVideo[]> 
     csCartVideo('IONS_SPRITZ.mp4', 'Interior Refresher with Silver Ions - Orange Spritz'),
   ],
   'helmet-freshener-mint': [
-    csCartVideo('HELMET_FRESHENER.mp4', 'Helmet Freshener with Silver Ions'),
+    csCartVideo('HELMET_FRESHENER.mp4', 'Helmet Refresher with Silver Ions'),
   ],
   'helmet-interior-care': [
     csCartVideo('HELMETINTERIOR_ANG.mp4', 'Helmet Interior Care - English version'),
@@ -240,6 +240,6 @@ export const TRADE_FAIR_PRODUCT_VIDEOS: Record<string, TradeFairProductVideo[]> 
     csCartVideo('MUD_BREAKER.mp4', 'Mud Breaker'),
   ],
   'offroad-set': [
-    csCartVideo('OFFROAD%20SET.mp4', 'Offroad Set'),
+    csCartVideo('OFFROAD%20SET.mp4', 'Off-road Set'),
   ],
 };

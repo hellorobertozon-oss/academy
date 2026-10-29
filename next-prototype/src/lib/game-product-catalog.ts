@@ -47,7 +47,7 @@ export const GAME_PRODUCT_CATALOG: GameProduct[] = [
   },
   {
     id: "helmet-freshener-mint",
-    name: "Xzone® Helmet Freshener with Silver Ions Mint 50ml",
+    name: "Xzone® Helmet Refresher with Silver Ions Mint 50ml",
     category: "helmets",
     image: "/assets/xzone-products/Refresher_Mint_01.webp",
   },
@@ -227,7 +227,7 @@ export const GAME_PRODUCT_CATALOG: GameProduct[] = [
   },
   {
     id: "freshener-orange-spritz",
-    name: "Xzone® Freshener with Silver Ions – Orange Spritz",
+    name: "Xzone® Refresher with Silver Ions – Orange Spritz",
     category: "helmets",
     image: "/assets/xzone-products/Refresher_Orange_01.webp",
   },
