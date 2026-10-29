@@ -2,7 +2,7 @@ import { Suspense } from "react";
 import { notFound, redirect } from "next/navigation";
 import { RiArrowLeftLine, RiArrowRightLine, RiLockLine } from "@remixicon/react";
 import { AcademyHeader } from "@/components/academy-header";
-import { AcademyContentImage } from "@/components/academy-content-image";
+import { LessonMedia } from "@/components/pages/lesson-media";
 import { Button, ButtonLink } from "@/components/base/buttons/button";
 import { LinkButton } from "@/components/base/buttons/link-button";
 import { LessonCompletion } from "@/components/pages/lesson-completion";
@@ -42,10 +42,6 @@ async function LessonContent({
   }
 
   const { course, module: courseModule, lesson } = result.data;
-  const videoIds = Array.from(new Set(
-    (lesson.youtube_video_ids?.length ? lesson.youtube_video_ids : [lesson.youtube_video_id])
-      .filter((id): id is string => typeof id === "string" && /^[A-Za-z0-9_-]{11}$/.test(id)),
-  ));
   const position = copy.lessonPosition
     .replace("{current}", String(result.data.lessonNumber))
     .replace("{total}", String(result.data.lessonCount));
@@ -67,22 +63,15 @@ async function LessonContent({
           {lesson.summary ? <p className="max-w-4xl text-headline-regular text-text-secondary">{lesson.summary}</p> : null}
         </header>
 
-        {videoIds.length === 0 && lesson.imageUrl ? (
-          <AcademyContentImage imageUrl={lesson.imageUrl} alt={lesson.title} placeholder="Grafika lekcji" className="aspect-[16/7] w-full rounded-3xl" />
-        ) : null}
-
-        {videoIds.map((videoId, index) => (
-          <div key={videoId} className="relative aspect-video overflow-hidden rounded-3xl border border-border-button-default bg-background-secondary-default">
-            <iframe
-              className="absolute inset-0 size-full"
-              src={"https://www.youtube-nocookie.com/embed/" + videoId}
-              title={lesson.title + " — " + (index + 1)}
-              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-              referrerPolicy="strict-origin-when-cross-origin"
-              allowFullScreen
-            />
-          </div>
-        ))}
+        <LessonMedia
+          courseSlug={course.slug}
+          languageCode={result.languageCode}
+          lessonNumber={result.data.lessonNumber}
+          lessonTitle={lesson.title}
+          imageUrl={lesson.imageUrl}
+          youtubeVideoId={lesson.youtube_video_id}
+          youtubeVideoIds={lesson.youtube_video_ids}
+        />
 
         <LessonContentSections
           content={lesson.content}

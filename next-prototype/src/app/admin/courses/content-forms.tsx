@@ -19,6 +19,7 @@ import {
   type LessonConversationMessage,
   type TiptapDocument,
 } from "@/lib/admin/content-validation";
+import { LEGACY_YOUTUBE_LESSON_VIDEOS_VISIBLE } from "@/lib/academy/lesson-video-config";
 import type { LanguageOption } from "@/app/admin/courses/course-forms";
 import { getNativeLanguageName } from "@/lib/admin/language-label";
 import { TrainingImageUpload } from "@/app/admin/courses/training-image-upload";
@@ -649,7 +650,7 @@ export function LessonTranslationEditor({
             }}
             isDisabled={disabled}
           />
-          {youtubeIds.ok && youtubeIds.value.length ? (
+          {LEGACY_YOUTUBE_LESSON_VIDEOS_VISIBLE && youtubeIds.ok && youtubeIds.value.length ? (
             <div className="flex flex-col gap-3">
               {youtubeIds.value.map((videoId, index) => (
                 <div key={videoId} className="aspect-video overflow-hidden rounded-2xl border border-separator-border bg-background-secondary-default">
