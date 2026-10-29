@@ -42,6 +42,7 @@ export async function proxy(request: NextRequest) {
     cookieOptions: {
       sameSite: "none",
       secure: true,
+      partitioned: true,
     },
     cookies: {
       getAll() {

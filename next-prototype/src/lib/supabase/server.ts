@@ -16,6 +16,7 @@ export async function createAcademyServerClient() {
     cookieOptions: {
       sameSite: "none",
       secure: true,
+      partitioned: true,
     },
     cookies: {
       getAll() {

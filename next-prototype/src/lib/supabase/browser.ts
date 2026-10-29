@@ -13,6 +13,7 @@ export function createAcademyBrowserClient() {
     cookieOptions: {
       sameSite: "none",
       secure: true,
+      partitioned: true,
     },
   });
 }
