@@ -40,7 +40,7 @@
     {
       "module_id": 66,
       "module_sort_order": 5,
-      "title": "Pflege von Offroad-Motorrädern",
+      "title": "Pflege von Off-road-Motorrädern",
       "summary": ""
     },
     {
@@ -4615,8 +4615,8 @@
       "module_id": 66,
       "module_sort_order": 5,
       "sort_order": 0,
-      "title": "Welche Verschmutzungen entstehen beim Offroad-Fahren?",
-      "summary": "Erkennen Sie Offroad-Verschmutzungen und wählen Sie je nach Stärke Mud Breaker oder Dirt Finisher.",
+      "title": "Welche Verschmutzungen entstehen beim Off-road-Fahren?",
+      "summary": "Erkennen Sie Off-road-Verschmutzungen und wählen Sie je nach Stärke Mud Breaker oder Dirt Finisher.",
       "content": {
         "type": "doc",
         "content": [
@@ -4627,7 +4627,7 @@
             },
             "content": [
               {
-                "text": "Warum Offroad-Pflege anders ist",
+                "text": "Warum Off-road-Pflege anders ist",
                 "type": "text"
               }
             ]
@@ -4636,7 +4636,7 @@
             "type": "paragraph",
             "content": [
               {
-                "text": "Nach einer Offroad-Fahrt können Schlamm, Sand, Staub und Pfützenrückstände am Motorrad haften bleiben. Trockene Partikel wirken abrasiv. Wischen Sie deshalb nicht gleich das gesamte Fahrzeug mit einem Mikrofasertuch ab. Beurteilen Sie zuerst die Schmutzschicht und schaffen Sie geeignete Bedingungen für eine sichere Reinigung.",
+                "text": "Nach einer Off-road-Fahrt können Schlamm, Sand, Staub und Pfützenrückstände am Motorrad haften bleiben. Trockene Partikel wirken abrasiv. Wischen Sie deshalb nicht gleich das gesamte Fahrzeug mit einem Mikrofasertuch ab. Beurteilen Sie zuerst die Schmutzschicht und schaffen Sie geeignete Bedingungen für eine sichere Reinigung.",
                 "type": "text"
               }
             ]
@@ -4785,7 +4785,7 @@
             "type": "paragraph",
             "content": [
               {
-                "text": "Mud Breaker weicht Schlamm, Sand und mineralischen Schmutz nach einer Offroad-Fahrt auf. Erklären Sie dem Kunden, dass das Produkt auf das Abspülen vorbereitet und keine fertige Reinigung ohne Wasser ermöglicht.",
+                "text": "Mud Breaker weicht Schlamm, Sand und mineralischen Schmutz nach einer Off-road-Fahrt auf. Erklären Sie dem Kunden, dass das Produkt auf das Abspülen vorbereitet und keine fertige Reinigung ohne Wasser ermöglicht.",
                 "type": "text"
               }
             ]
@@ -4953,7 +4953,7 @@
             },
             "content": [
               {
-                "text": "Leichtere Pflege für Offroad-Motorräder",
+                "text": "Leichtere Pflege für Off-road-Motorräder",
                 "type": "text"
               }
             ]
@@ -5119,7 +5119,7 @@
       "module_sort_order": 5,
       "sort_order": 3,
       "title": "Wie wählt man das Off-Road Kit aus?",
-      "summary": "Wählen Sie die empfohlene Offroad-Pflege passend zum Fahrstil, Verschmutzungsgrad und Wasserzugang aus.",
+      "summary": "Wählen Sie die empfohlene Off-road-Pflege passend zum Fahrstil, Verschmutzungsgrad und Wasserzugang aus.",
       "content": {
         "type": "doc",
         "content": [
@@ -6045,7 +6045,7 @@
             "type": "paragraph",
             "content": [
               {
-                "text": "Der Kunde kommt von einer anspruchsvollen Offroad-Tour zurück und hat Zugang zu Wasser. Empfehlen Sie Mud Breaker und gründliches Abspülen; stellen Sie Dirt Finisher als optionale Nachbehandlung vor. Empfehlen Sie weder, Sand trocken abzuwischen, noch das Produkt auf heiße Teile aufzutragen.",
+                "text": "Der Kunde kommt von einer anspruchsvollen Off-road-Tour zurück und hat Zugang zu Wasser. Empfehlen Sie Mud Breaker und gründliches Abspülen; stellen Sie Dirt Finisher als optionale Nachbehandlung vor. Empfehlen Sie weder, Sand trocken abzuwischen, noch das Produkt auf heiße Teile aufzutragen.",
                 "type": "text"
               }
             ]

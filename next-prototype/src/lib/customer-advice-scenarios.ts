@@ -1094,7 +1094,7 @@ const CUSTOMER_ADVICE_SCENARIO_BASE: CustomerAdviceScenario[] = [
         prompt: text(
           "Motocykl wrócił z off-roadu z grubym błotem. Klient chce środek do jego usunięcia i produkt do wykończenia oraz ochrony powierzchni. Zaznacz oba.",
           "The motorcycle came back from off-road riding covered in thick mud. The customer wants one product to remove it and another to finish and protect the surface. Select both.",
-          "Das Motorrad ist nach einer Offroad-Fahrt stark verschlammt. Der Kunde möchte ein Mittel zum Entfernen des Schlamms und ein Produkt zur Nachpflege und zum Schutz. Wählen Sie beide aus.",
+          "Das Motorrad ist nach einer Off-road-Fahrt stark verschlammt. Der Kunde möchte ein Mittel zum Entfernen des Schlamms und ein Produkt zur Nachpflege und zum Schutz. Wählen Sie beide aus.",
           "Motorka se vrátila z off-roadu pokrytá silnou vrstvou bláta. Zákazník chce přípravek na jeho odstranění a produkt na závěrečnou péči a ochranu povrchu. Vyberte oba.",
           "La moto revient d’une sortie tout-terrain couverte de boue. Le client veut un produit pour l’enlever et un autre pour la finition et la protection. Sélectionnez les deux.",
         ),
