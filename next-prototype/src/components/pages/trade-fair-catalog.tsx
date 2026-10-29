@@ -4,6 +4,7 @@ import Image from "next/image";
 import { useEffect, useMemo, useRef, useState } from "react";
 import type { FormEvent } from "react";
 import {
+  RiArrowLeftLine,
   RiArrowRightLine,
   RiSearchLine,
   RiSettings3Line,
@@ -49,6 +50,8 @@ type CatalogCopy = {
   close: string;
   noResultsTitle: string;
   noResultsDescription: string;
+  previousPhoto: string;
+  nextPhoto: string;
   photo: (current: number, total: number) => string;
 };
 
@@ -77,6 +80,8 @@ const CATALOG_COPY: Record<AcademyLanguage, CatalogCopy> = {
     close: "Zamknij szczegóły produktu",
     noResultsTitle: "Nie znaleźliśmy produktów",
     noResultsDescription: "Zmień kategorię lub wpisz inne hasło.",
+    previousPhoto: "Poprzednie zdjęcie",
+    nextPhoto: "Następne zdjęcie",
     photo: (current, total) => `Zdjęcie ${current} z ${total}`,
   },
   en: {
@@ -103,6 +108,8 @@ const CATALOG_COPY: Record<AcademyLanguage, CatalogCopy> = {
     close: "Close product details",
     noResultsTitle: "No products found",
     noResultsDescription: "Choose another category or try a different search.",
+    previousPhoto: "Previous photo",
+    nextPhoto: "Next photo",
     photo: (current, total) => `Photo ${current} of ${total}`,
   },
   de: {
@@ -129,6 +136,8 @@ const CATALOG_COPY: Record<AcademyLanguage, CatalogCopy> = {
     close: "Produktdetails schließen",
     noResultsTitle: "Keine Produkte gefunden",
     noResultsDescription: "Wähle eine andere Kategorie oder ändere den Suchbegriff.",
+    previousPhoto: "Vorheriges Foto",
+    nextPhoto: "Nächstes Foto",
     photo: (current, total) => `Foto ${current} von ${total}`,
   },
   cs: {
@@ -155,6 +164,8 @@ const CATALOG_COPY: Record<AcademyLanguage, CatalogCopy> = {
     close: "Zavřít podrobnosti o produktu",
     noResultsTitle: "Nenašli jsme žádné produkty",
     noResultsDescription: "Vyberte jinou kategorii nebo zkuste jiné hledání.",
+    previousPhoto: "Předchozí fotografie",
+    nextPhoto: "Další fotografie",
     photo: (current, total) => `Fotografie ${current} z ${total}`,
   },
   fr: {
@@ -181,6 +192,8 @@ const CATALOG_COPY: Record<AcademyLanguage, CatalogCopy> = {
     close: "Fermer les détails du produit",
     noResultsTitle: "Aucun produit trouvé",
     noResultsDescription: "Choisissez une autre catégorie ou modifiez votre recherche.",
+    previousPhoto: "Photo précédente",
+    nextPhoto: "Photo suivante",
     photo: (current, total) => `Photo ${current} sur ${total}`,
   },
   it: {
@@ -207,6 +220,8 @@ const CATALOG_COPY: Record<AcademyLanguage, CatalogCopy> = {
     close: "Chiudi i dettagli del prodotto",
     noResultsTitle: "Nessun prodotto trovato",
     noResultsDescription: "Scegli un’altra categoria o prova una ricerca diversa.",
+    previousPhoto: "Foto precedente",
+    nextPhoto: "Foto successiva",
     photo: (current, total) => `Foto ${current} di ${total}`,
   },
 };
@@ -717,6 +732,30 @@ export function TradeFairCatalog() {
                         sizes="(max-width: 1024px) 90vw, 42vw"
                         className="object-contain"
                       />
+                    ) : null}
+                    {selectedImages.length > 1 ? (
+                      <>
+                        <Button
+                          type="button"
+                          variant="secondary"
+                          iconOnly
+                          leadingIcon={RiArrowLeftLine}
+                          aria-label={copy.previousPhoto}
+                          disabled={selectedImageIndex === 0}
+                          onClick={() => setSelectedImageIndex((index) => Math.max(0, index - 1))}
+                          className="absolute left-3 top-1/2 z-10 size-11 -translate-y-1/2 rounded-full bg-white shadow-md transition-transform active:scale-[0.96]"
+                        />
+                        <Button
+                          type="button"
+                          variant="secondary"
+                          iconOnly
+                          leadingIcon={RiArrowRightLine}
+                          aria-label={copy.nextPhoto}
+                          disabled={selectedImageIndex === selectedImages.length - 1}
+                          onClick={() => setSelectedImageIndex((index) => Math.min(selectedImages.length - 1, index + 1))}
+                          className="absolute right-3 top-1/2 z-10 size-11 -translate-y-1/2 rounded-full bg-white shadow-md transition-transform active:scale-[0.96]"
+                        />
+                      </>
                     ) : null}
                   </div>
                   {selectedImages.length > 1 ? (
